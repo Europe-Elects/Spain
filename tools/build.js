@@ -1,11 +1,13 @@
-// Constituency shapes for the Spain seat maps, from es-atlas (IGN data):
+// Map shapes for the Spain maps, from es-atlas (IGN data):
 // congress.geojson: the 52 provinces; senate.geojson: 49 provinces + 10 island constituencies
-// (merged from their municipalities). The Canaries are moved into an inset south-west of
+// (merged from their municipalities); regions.geojson: the 19 regions, merged from their
+// provinces and keyed by the ministry's region codes (tools/regions.json); municipalities.geojson. The Canaries are moved into an inset south-west of
 // the peninsula (dx/dy below), as Spanish maps usually show them.
 const fs = require('fs'), topo = require('topojson-client');
 const prov = require('./node_modules/es-atlas/es/provinces.json');
 const muni = require('./node_modules/es-atlas/es/municipalities.json');
 const islands = require('./islands.json');
+const regions = require('./regions.json');
 const OUT = process.argv[2];
 const CANARY = new Set(['35', '38']), DX = 6.5, DY = 6.6;
 
@@ -36,6 +38,25 @@ const split = new Set(['07', '35', '38']);
 const senate = { type: 'FeatureCollection',
   features: JSON.parse(JSON.stringify(provinces)).filter(f => !split.has(f.properties.id)).concat(islandFeatures) };
 
+const byProv = new Map(prov.objects.provinces.geometries.map(g => [g.id, g]));
+const regionGroups = {};
+for (const [p, r] of Object.entries(regions.region_of_province)) (regionGroups[r] = regionGroups[r] || []).push(p);
+const regionFeatures = { type: 'FeatureCollection', features: Object.entries(regionGroups).map(([r, ps]) =>
+  feature(r, regions.names[r], 'region', topo.merge(prov, ps.map(p => byProv.get(p))), ps.some(p => CANARY.has(p)))) };
+
+// Municipalities: 3 decimals (~100 m) is plenty at this scale and keeps the file small.
+const round3 = n => Math.round(n * 1e3) / 1e3;
+const munis = { type: 'FeatureCollection', features: topo.feature(muni, muni.objects.municipalities).features
+  .filter(f => f.geometry && f.id.slice(0, 2) !== '54')
+  .map(f => {
+    const canary = CANARY.has(f.id.slice(0, 2));
+    mapCoords(f.geometry, (x, y) => canary ? [round3(x + DX), round3(y + DY)] : [round3(x), round3(y)]);
+    return { type: 'Feature', properties: { id: f.id, name: f.properties.name, canary }, geometry: f.geometry };
+  }) };
+
 fs.writeFileSync(OUT + '/congress.geojson', JSON.stringify(congress));
+fs.writeFileSync(OUT + '/regions.geojson', JSON.stringify(regionFeatures));
+fs.writeFileSync(OUT + '/municipalities.geojson', JSON.stringify(munis));
 fs.writeFileSync(OUT + '/senate.geojson', JSON.stringify(senate));
-console.log('congress', congress.features.length, 'senate', senate.features.length);
+console.log('congress', congress.features.length, 'senate', senate.features.length,
+  'regions', regionFeatures.features.length, 'municipalities', munis.features.length);

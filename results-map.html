@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spain – Congress Vote by Area</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .level-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #F1F5F9; border-radius: 8px; margin: 2px 0 10px; }
+  .level-tab { border: 0; background: transparent; font-family: inherit; font-size: 13px; font-weight: 500;
+               color: #475569; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
+  .level-tab:hover { color: #0F172A; }
+  .level-tab.active { background: #fff; color: #0F172A; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .level-tab:focus-visible { outline: 2px solid #2563EB; outline-offset: 1px; }
+  .demo-pill { font-size: 11px; padding: 3px 8px; background: #E0E7FF; color: #3730A3; border-radius: 4px; font-weight: 600; }
+  .county.muni { stroke: rgba(255,255,255,.55); stroke-width: .15; }
+  .county.muni:hover { stroke: #0F172A; stroke-width: .6; opacity: .85; }
+  .inset-frame { fill: none; stroke: #94A3B8; stroke-width: 1; stroke-dasharray: 4 3; pointer-events: none; }
+  .inset-label { font-size: 10px; fill: #64748B; font-family: 'Inter', sans-serif; pointer-events: none; }
+  .legend-group { font-size: 10px; color: #94A3B8; font-weight: 500; margin-left: 2px; }
+  .legend-pct { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 2px; }
+  .tt-meta { font-size: 11px; color: #64748B; margin: -4px 0 8px; }
+  #tooltip { min-width: 300px; }
+  #tooltip .bar-label { width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 520px) { .level-tab { font-size: 12px; padding: 5px 10px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="title">Spain · Congress vote</h1>
+    <div class="subtitle" id="subtitle">&nbsp;</div>
+    <div class="status-row">
+      <span class="last-updated" id="lastUpdated">Last updated: –</span>
+      <span class="demo-pill" id="demoPill" hidden>Demo · 2023 result</span>
+    </div>
+  </div>
+  <div class="level-tabs" role="tablist" aria-label="Level">
+    <button class="level-tab" role="tab" data-level="regions">Regions</button>
+    <button class="level-tab" role="tab" data-level="provinces">Provinces</button>
+    <button class="level-tab" role="tab" data-level="municipalities">Municipalities</button>
+  </div>
+  <div id="map-container" style="overflow:hidden">
+    <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
+    <svg id="map" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet"></svg>
+    <div id="tooltip"></div>
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoomIn" title="Zoom in">+</button>
+      <div class="zoom-level" id="zoomLevel">1.0x</div>
+      <button class="zoom-btn" id="zoomOut" title="Zoom out">−</button>
+      <button class="zoom-btn reset" id="zoomReset" title="Reset view">↺</button>
+    </div>
+  </div>
+  <div class="cta" role="note">
+    <span class="cta-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    <span>Tap a party below to shade the map by its vote share</span>
+  </div>
+  <div class="legend" id="legend"></div>
+  <div class="legend-hint" id="legendHint">Colour = party with the most votes · Europe Elects colours by European Parliament group</div>
+  <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
+</div>
+<script src="assets/map-utils.js"></script>
+<script src="assets/es-parties.js"></script>
+<script>
+(function () {
+  const { NO_DATA_COLOR, isLightFill, partyShade, cssId, bbox, makeProjection, featurePath,
+          featureCentroid, buildSplitPatterns, loadResults, autoRefresh } = window.EE;
+  const { info } = window.ES_PARTIES;
+
+  // Election night: point this at the live file in the same format.
+  const DATA_URL = 'spain_2023_results_demo.json';
+  const GEO = { regions: 'geo/regions.geojson', provinces: 'geo/congress.geojson',
+                municipalities: 'geo/municipalities.geojson' };
+  const SVG_W = 1000, SVG_H = 640;
+  const LEVEL_NAMES = { regions: '19 regions', provinces: '52 provinces', municipalities: '8,131 municipalities' };
+
+  const params = new URLSearchParams(location.search);
+  let level = GEO[params.get('level')] ? params.get('level') : 'provinces';
+  let data = null, focus = null;
+  const shapes = {};
+  const PARTIES = {};
+
+  async function loadShapes(lv) {
+    if (shapes[lv]) return shapes[lv];
+    const geo = await fetch(GEO[lv]).then(r => r.json());
+    // Same frame for every level, so switching level doesn't move the map.
+    const frame = shapes.__frame || (shapes.__frame = await fetch(GEO.provinces).then(r => r.json()));
+    const proj = makeProjection(bbox(frame.features), SVG_W, SVG_H);
+    const out = { list: [] };
+    geo.features.forEach(f => {
+      const p = f.properties;
+      out.list.push({ id: p.id, name: p.name, d: featurePath(f, proj),
+                      ...(lv === 'municipalities' ? {} : featureCentroid(f, proj)) });
+    });
+    const canary = frame.features.filter(f => f.properties.canary);
+    const [x0, y1] = proj(...bbox(canary).slice(0, 2)), [x1, y0] = proj(...bbox(canary).slice(2));
+    out.inset = { x: x0 - 12, y: y0 - 12, w: x1 - x0 + 24, h: y1 - y0 + 24 };
+    shapes[lv] = out;
+    return out;
+  }
+
+  // The party with the most votes, leaving out "Others".
+  function winner(row) {
+    if (!row) return null;
+    let best = null;
+    data.parties.forEach(k => {
+      if (k !== 'OTHERS' && typeof row[k] === 'number' && (!best || row[k] > best.pct)) best = { party: k, pct: row[k] };
+    });
+    return best && best.pct > 0 ? best : null;
+  }
+  const fillOf = k => PARTIES[k].color2 ? `url(#split-${cssId(k)})` : PARTIES[k].color;
+
+  async function init() {
+    document.querySelectorAll('.level-tab').forEach(b => b.onclick = () => {
+      if (b.dataset.level === level) return;
+      level = b.dataset.level;
+      const u = new URL(location.href); u.searchParams.set('level', level); history.replaceState(null, '', u);
+      render();
+    });
+    await refresh();
+    autoRefresh(refresh, 60000);
+  }
+
+  async function refresh() {
+    data = await loadResults(DATA_URL);
+    data.parties.forEach(k => { const i = info(k); PARTIES[k] = { color: i.color, color2: i.color2, name: i.label, groupLabel: i.groupLabel }; });
+    await render();
+  }
+
+  async function render() {
+    document.querySelectorAll('.level-tab').forEach(b => {
+      const a = b.dataset.level === level; b.classList.toggle('active', a); b.setAttribute('aria-selected', a);
+    });
+    const demo = /^DEMO/.test(data.election || '');
+    document.getElementById('title').textContent = `Spain ${demo ? '2023' : '2026'} · Congress vote by ${level === 'regions' ? 'region' : level === 'provinces' ? 'province' : 'municipality'}`;
+    document.getElementById('subtitle').textContent = `Vote share across ${LEVEL_NAMES[level]} · turnout ${data.national.turnout.toFixed(1)}%`;
+    document.getElementById('demoPill').hidden = !demo;
+    document.getElementById('lastUpdated').textContent = demo ? 'Official final result, 23 July 2023' : 'Last updated: ' + data.fetched_at;
+    document.getElementById('footer').textContent = '· Chart made by Andrei Miclea · Source: Ministerio del Interior'
+      + (demo ? ' (infoelectoral, official final result 2023)' : ' (provisional count)');
+    const sh = await loadShapes(level);
+    build(sh, data[level] || {});
+    buildLegend();
+  }
+
+  function build(sh, rows) {
+    const svg = document.getElementById('map');
+    const ns = 'http://www.w3.org/2000/svg';
+    svg.innerHTML = '';
+    buildSplitPatterns(svg, PARTIES);
+    const muni = level === 'municipalities';
+    let max = 0;
+    if (focus) Object.values(rows).forEach(r => { if (typeof r[focus] === 'number' && r[focus] > max) max = r[focus]; });
+    max = Math.max(10, max * 1.05);
+
+    sh.list.forEach(s => {
+      const row = rows[s.id];
+      let fill = NO_DATA_COLOR, op = null;
+      if (focus) {
+        const pct = row ? row[focus] : null;
+        if (PARTIES[focus].color2) { fill = fillOf(focus); op = pct > 0 ? Math.max(.12, Math.min(1, pct / max)) : .04; }
+        else fill = partyShade(pct, max, PARTIES[focus].color);
+      } else {
+        const w = winner(row);
+        if (w) fill = fillOf(w.party);
+      }
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', s.d); p.setAttribute('class', 'county' + (muni ? ' muni' : '')); p.setAttribute('fill', fill);
+      if (op !== null) p.setAttribute('fill-opacity', op);
+      p.addEventListener('mouseenter', e => showTooltip(e, s, row));
+      p.addEventListener('mousemove', moveTooltip);
+      p.addEventListener('mouseleave', () => document.getElementById('tooltip').style.display = 'none');
+      svg.appendChild(p);
+    });
+
+    const f = sh.inset;
+    const frame = document.createElementNS(ns, 'rect');
+    Object.entries({ x: f.x, y: f.y, width: f.w, height: f.h, rx: 6, class: 'inset-frame' }).forEach(([k, v]) => frame.setAttribute(k, v));
+    svg.appendChild(frame);
+    const il = document.createElementNS(ns, 'text');
+    il.setAttribute('x', f.x + 6); il.setAttribute('y', f.y + 13); il.setAttribute('class', 'inset-label');
+    il.textContent = 'Canary Islands'; svg.appendChild(il);
+
+    // Labels: names and the leading share for regions; the leading share for provinces.
+    if (!muni) sh.list.forEach(s => {
+      const row = rows[s.id];
+      const pct = focus ? (row ? row[focus] : null) : (winner(row) || {}).pct;
+      if (pct == null || s.cx == null) return;
+      const fillForText = focus ? partyShade(pct, max, PARTIES[focus].color) : PARTIES[winner(row).party].color;
+      const light = isLightFill(fillForText);
+      if (level === 'regions') {
+        const t = document.createElementNS(ns, 'text');
+        t.setAttribute('x', s.cx); t.setAttribute('y', s.cy - 3);
+        t.setAttribute('class', 'county-label' + (light ? '' : ' light'));
+        t.textContent = s.name.replace(/^(Ciudad Autónoma de|Comunidad Foral de|Comunidad de|Principado de|Región de) /, '');
+        svg.appendChild(t);
+      }
+      const pc = document.createElementNS(ns, 'text');
+      pc.setAttribute('x', s.cx); pc.setAttribute('y', s.cy + (level === 'regions' ? 8 : 3));
+      pc.setAttribute('class', 'county-pct' + (light ? '' : ' light')); pc.textContent = pct.toFixed(1) + '%';
+      svg.appendChild(pc);
+    });
+
+    window.EE.enableZoomPan(svg, { controls: { zoomIn: 'zoomIn', zoomOut: 'zoomOut', zoomReset: 'zoomReset', zoomLevel: 'zoomLevel' }, maxK: muni ? 40 : 12 });
+  }
+
+  function showTooltip(e, s, row) {
+    const tt = document.getElementById('tooltip');
+    let html = `<h3>${row ? row.name : s.name}</h3>`;
+    if (row) {
+      if (typeof row.turnout === 'number') html += `<div class="tt-meta">Turnout ${row.turnout.toFixed(1)}%</div>`;
+      data.parties.filter(k => typeof row[k] === 'number' && row[k] > 0)
+        .sort((a, b) => (a === 'OTHERS') - (b === 'OTHERS') || row[b] - row[a]).forEach(k => {
+          const P = PARTIES[k], active = focus === k;
+          html += `<div class="bar-row"${active ? ' style="font-weight:700"' : ''}>
+            <div class="bar-label" style="color:${P.color === '#CBD5E1' ? '#64748B' : P.color}">${P.name}${P.groupLabel ? ` <span style="color:#94A3B8;font-weight:400">${P.groupLabel}</span>` : ''}</div>
+            <div class="bar-container"><div class="bar-fill" style="width:${row[k]}%;background:${P.color}"></div></div>
+            <div class="bar-pct">${row[k].toFixed(1)}%</div></div>`;
+        });
+    } else html += '<div class="no-data">No data</div>';
+    tt.innerHTML = html; tt.style.display = 'block'; moveTooltip(e);
+  }
+  function moveTooltip(e) {
+    const tt = document.getElementById('tooltip');
+    const rect = document.getElementById('map-container').getBoundingClientRect();
+    let left = e.clientX - rect.left + 15;
+    if (left + 270 > rect.width) left = e.clientX - rect.left - 270;
+    tt.style.left = Math.max(4, left) + 'px'; tt.style.top = (e.clientY - rect.top - 10) + 'px';
+  }
+
+  function buildLegend() {
+    const lg = document.getElementById('legend');
+    lg.innerHTML = '';
+    data.parties.filter(k => k !== 'OTHERS').forEach(k => {
+      const P = PARTIES[k];
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'legend-item clickable' + (focus === k ? ' active' : '');
+      btn.setAttribute('aria-pressed', focus === k ? 'true' : 'false');
+      const sw = P.color2 ? `linear-gradient(135deg, ${P.color} 0 50%, ${P.color2} 50% 100%)` : P.color;
+      btn.innerHTML = `<div class="legend-swatch" style="background:${sw}"></div>${P.name}`
+        + (P.groupLabel ? `<span class="legend-group">${P.groupLabel}</span>` : '')
+        + `<span class="legend-pct">${data.national[k].toFixed(1)}%</span>`;
+      btn.onclick = () => {
+        focus = focus === k ? null : k;
+        document.getElementById('legendHint').textContent = focus
+          ? `Showing ${P.name} — tap again to return to the winner view`
+          : 'Colour = party with the most votes · Europe Elects colours by European Parliament group';
+        render();
+      };
+      lg.appendChild(btn);
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

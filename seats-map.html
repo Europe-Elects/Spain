@@ -40,6 +40,7 @@
   #tooltip .bar-label { width: 130px; overflow: hidden; text-overflow: ellipsis; }
   .small-label { font-size: 10px; fill: #475569; font-family: 'Inter', sans-serif; font-weight: 600; pointer-events: none; }
   .tt-meta { font-size: 11px; color: #64748B; margin: -4px 0 8px; }
+  .legend-group { font-size: 10px; color: #94A3B8; font-weight: 500; margin-left: 2px; }
   .legend-seats { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 2px; }
 
   @media (max-width: 520px) {
@@ -85,10 +86,11 @@
     <span>Each dot is a seat · tap a party to show where it won seats</span>
   </div>
   <div class="legend" id="legend"></div>
-  <div class="legend-hint" id="legendHint">Colour = party with the most seats in the constituency</div>
+  <div class="legend-hint" id="legendHint">Colour = party with the most seats in the constituency · Europe Elects colours by European Parliament group</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
 <script src="assets/map-utils.js"></script>
+<script src="assets/es-parties.js"></script>
 <script>
 (function () {
   const { NO_DATA_COLOR, isLightFill, partyShade, cssId, bbox, makeProjection, featurePath,
@@ -98,16 +100,10 @@
   const DATA_URL = 'spain_2023_seats_demo.json';
   const GEO = { congress: 'geo/congress.geojson', senate: 'geo/senate.geojson' };
   const SVG_W = 1000, SVG_H = 640;
-  // Readable names for the ministry's abbreviations; anything else is shown as given.
-  const LABELS = {
-    'VOX': 'Vox', 'SUMAR': 'Sumar', 'JxCAT - JUNTS': 'Junts', 'EH Bildu': 'EH Bildu', 'EAJ-PNV': 'PNV',
-    'B.N.G.': 'BNG', 'U.P.N.': 'UPN', 'CCa': 'CC', 'A.H.I.': 'AHI',
-    'IZQUIERDAS POR LA INDEPENDENCIA': 'ERC–EH Bildu', 'PSOE-SUMAR-EUIB-ARA EIVISSA': 'PSOE–Sumar (Eivissa)',
-    'SUMAR - ECP': 'Sumar–ECP',
-  };
-  // Lists the ministry gives no colour (tiny island lists): neutral, clearly distinct shades.
-  const FALLBACK = ['#7C3AED', '#D97706', '#0D9488', '#DB2777', '#65A30D', '#4F46E5'];
-  const label = a => LABELS[a] || a;
+  // Europe Elects names and EP-group colours (assets/es-parties.js), keyed by the
+  // national party the seats file gives for every list.
+  const { info } = window.ES_PARTIES;
+  const label = a => info(a).label;
 
   const params = new URLSearchParams(location.search);
   let house = params.get('house') === 'senate' ? 'senate' : 'congress';
@@ -132,11 +128,15 @@
   }
 
   function colours(ch) {
-    const map = {}; let i = 0;
-    const add = (key, c) => { if (!map[key]) map[key] = c || FALLBACK[i++ % FALLBACK.length]; };
-    ch.seats.forEach(p => add(p.party, p.colour));
-    ch.constituencies.forEach(c => c.seats.forEach(s => add(s.national_party, s.colour)));
+    const map = {};
+    ch.seats.forEach(p => { map[p.party] = info(p.party).color; });
+    ch.constituencies.forEach(c => c.seats.forEach(s => { map[s.national_party] = info(s.national_party).color; }));
     return map;
+  }
+  // Swatch / bar background: two EP groups are shown as two colours.
+  function swatch(k) {
+    const i = info(k);
+    return i.color2 ? `linear-gradient(135deg, ${i.color} 0 50%, ${i.color2} 50% 100%)` : i.color;
   }
 
   async function init() {
@@ -198,7 +198,7 @@
       const seg = document.createElement('div');
       const w = p.seats / total * 100;
       seg.className = 'seg' + (isLightFill(col[p.party]) ? ' dark-text' : '') + (focus && focus !== p.party ? ' dim' : '');
-      seg.style.width = w + '%'; seg.style.background = col[p.party];
+      seg.style.width = w + '%'; seg.style.background = swatch(p.party);
       seg.title = `${label(p.party)}: ${p.seats}`;
       if (w > 3.2) seg.textContent = p.seats;
       seg.onclick = () => setFocus(p.party);
@@ -323,7 +323,9 @@
         + (c.counted_pct < 100 ? ` · ${c.counted_pct.toFixed(1)}% counted` : '') + '</div>';
       if (c.seats.length) {
         c.seats.slice().sort((a, b) => b.seats - a.seats || rank(a.national_party) - rank(b.national_party)).forEach(s => {
-          const name = label(s.party) + (s.national_party !== s.party ? ` <span style="color:#94A3B8;font-weight:400">(${label(s.national_party)})</span>` : '');
+          const g = info(s.national_party).groupLabel;
+          const name = label(s.party) + (s.national_party !== s.party ? ` <span style="color:#94A3B8;font-weight:400">(${label(s.national_party)})</span>` : '')
+            + (g ? ` <span style="color:#94A3B8;font-weight:400">${g}</span>` : '');
           html += `<div class="bar-row"${focus === s.national_party ? ' style="font-weight:700"' : ''}>
             <div class="bar-label" style="color:${col[s.national_party]}">${name}</div>
             <div class="bar-container"><div class="bar-fill" style="width:${s.seats / c.seats_total * 100}%;background:${col[s.national_party]}"></div></div>
@@ -347,7 +349,7 @@
     const hint = document.getElementById('legendHint');
     hint.textContent = focus
       ? `Showing ${label(focus)}: shade = its share of each constituency's seats · tap again to go back`
-      : 'Colour = party with the most seats in the constituency';
+      : 'Colour = party with the most seats in the constituency · Europe Elects colours by European Parliament group';
     render();
   }
 
@@ -360,7 +362,9 @@
       btn.className = 'legend-item clickable' + (focus === p.party ? ' active' : '');
       btn.setAttribute('aria-pressed', focus === p.party ? 'true' : 'false');
       btn.title = p.name;
-      btn.innerHTML = `<div class="legend-swatch" style="background:${col[p.party]}"></div>${label(p.party)}<span class="legend-seats">${p.seats}</span>`;
+      const g = info(p.party).groupLabel;
+      btn.innerHTML = `<div class="legend-swatch" style="background:${swatch(p.party)}"></div>${label(p.party)}`
+        + (g ? `<span class="legend-group">${g}</span>` : '') + `<span class="legend-seats">${p.seats}</span>`;
       btn.onclick = () => setFocus(p.party);
       lg.appendChild(btn);
     });
