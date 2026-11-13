@@ -1,0 +1,2920 @@
+{
+  "election": "DEMO: Spain general election, 23 July 2023 (official final result)",
+  "congress": {
+    "status": "complete",
+    "counted_pct": 100.0,
+    "seats_total": 350,
+    "majority": 176,
+    "seats": [
+      {
+        "party": "PP",
+        "name": "PARTIT POPULAR / PARTIDO POPULAR",
+        "seats": 137,
+        "prev_seats": 89,
+        "seat_change": 48,
+        "colour": "#0556A1"
+      },
+      {
+        "party": "PSOE",
+        "name": "PARTIDO SOCIALISTA OBRERO ESPAÑOL",
+        "seats": 121,
+        "prev_seats": 120,
+        "seat_change": 1,
+        "colour": "#E11318"
+      },
+      {
+        "party": "VOX",
+        "name": "VOX",
+        "seats": 33,
+        "prev_seats": 52,
+        "seat_change": -19,
+        "colour": "#1EC118"
+      },
+      {
+        "party": "SUMAR",
+        "name": "SUMAR GALICIA",
+        "seats": 31,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": "#FF0B57"
+      },
+      {
+        "party": "ERC",
+        "name": "ESQUERRA REPUBLICANA DE CATALUNYA",
+        "seats": 7,
+        "prev_seats": 13,
+        "seat_change": -6,
+        "colour": "#FF4D5A"
+      },
+      {
+        "party": "JxCAT - JUNTS",
+        "name": "JUNTS PER CATALUNYA - JUNTS",
+        "seats": 7,
+        "prev_seats": 8,
+        "seat_change": -1,
+        "colour": "#00C5B3"
+      },
+      {
+        "party": "EH Bildu",
+        "name": "EUSKAL HERRIA BILDU",
+        "seats": 6,
+        "prev_seats": 5,
+        "seat_change": 1,
+        "colour": "#B1C30E"
+      },
+      {
+        "party": "EAJ-PNV",
+        "name": "EUZKO ALDERDI JELTZALEA-PARTIDO NACIONALISTA VASCO",
+        "seats": 5,
+        "prev_seats": 6,
+        "seat_change": -1,
+        "colour": "#288A59"
+      },
+      {
+        "party": "CCa",
+        "name": "COALICIÓN CANARIA",
+        "seats": 1,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": "#FEEC75"
+      },
+      {
+        "party": "B.N.G.",
+        "name": "BLOQUE NACIONALISTA GALEGO",
+        "seats": 1,
+        "prev_seats": 1,
+        "seat_change": 0,
+        "colour": "#76B2E1"
+      },
+      {
+        "party": "U.P.N.",
+        "name": "UNION DEL PUEBLO NAVARRO",
+        "seats": 1,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": "#0C007C"
+      }
+    ],
+    "constituencies_total": 52,
+    "constituencies_reporting": 52,
+    "constituencies": [
+      {
+        "code": "01",
+        "name": "Araba/Álava",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "EH Bildu",
+            "national_party": "EH Bildu",
+            "seats": 1,
+            "colour": "#B1C30E"
+          },
+          {
+            "party": "EAJ-PNV",
+            "national_party": "EAJ-PNV",
+            "seats": 1,
+            "colour": "#288A59"
+          },
+          {
+            "party": "PSE-EE (PSOE)",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "02",
+        "name": "Albacete",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "03",
+        "name": "Alacant/Alicante",
+        "type": "province",
+        "seats_total": 12,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 5,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 4,
+            "colour": "#E11318"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 2,
+            "colour": "#1EC118"
+          },
+          {
+            "party": "SUMAR - COMPROMÍS",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "04",
+        "name": "Almería",
+        "type": "province",
+        "seats_total": 6,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "05",
+        "name": "Ávila",
+        "type": "province",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "06",
+        "name": "Badajoz",
+        "type": "province",
+        "seats_total": 5,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "07",
+        "name": "Illes Balears",
+        "type": "province",
+        "seats_total": 8,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSIB-PSOE",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          },
+          {
+            "party": "MÉS PER MALLORCA-MÉS PER MENORCA-SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "08",
+        "name": "Barcelona",
+        "type": "province",
+        "seats_total": 32,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSC",
+            "national_party": "PSOE",
+            "seats": 13,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 5,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "SUMAR - ECP",
+            "national_party": "SUMAR",
+            "seats": 5,
+            "colour": "#FF0B57"
+          },
+          {
+            "party": "ERC",
+            "national_party": "ERC",
+            "seats": 4,
+            "colour": "#FF4D5A"
+          },
+          {
+            "party": "JxCAT - JUNTS",
+            "national_party": "JxCAT - JUNTS",
+            "seats": 3,
+            "colour": "#00C5B3"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 2,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "09",
+        "name": "Burgos",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "10",
+        "name": "Cáceres",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "11",
+        "name": "Cádiz",
+        "type": "province",
+        "seats_total": 9,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 4,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "12",
+        "name": "Castelló/Castellón",
+        "type": "province",
+        "seats_total": 5,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "13",
+        "name": "Ciudad Real",
+        "type": "province",
+        "seats_total": 5,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "14",
+        "name": "Córdoba",
+        "type": "province",
+        "seats_total": 6,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "15",
+        "name": "A Coruña",
+        "type": "province",
+        "seats_total": 8,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 4,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSdeG-PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "B.N.G.",
+            "national_party": "B.N.G.",
+            "seats": 1,
+            "colour": "#76B2E1"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "16",
+        "name": "Cuenca",
+        "type": "province",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "17",
+        "name": "Girona",
+        "type": "province",
+        "seats_total": 6,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSC",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "JxCAT - JUNTS",
+            "national_party": "JxCAT - JUNTS",
+            "seats": 2,
+            "colour": "#00C5B3"
+          },
+          {
+            "party": "ERC",
+            "national_party": "ERC",
+            "seats": 1,
+            "colour": "#FF4D5A"
+          },
+          {
+            "party": "SUMAR - ECP",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "18",
+        "name": "Granada",
+        "type": "province",
+        "seats_total": 7,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "19",
+        "name": "Guadalajara",
+        "type": "province",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "20",
+        "name": "Gipuzkoa",
+        "type": "province",
+        "seats_total": 6,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "EH Bildu",
+            "national_party": "EH Bildu",
+            "seats": 2,
+            "colour": "#B1C30E"
+          },
+          {
+            "party": "EAJ-PNV",
+            "national_party": "EAJ-PNV",
+            "seats": 2,
+            "colour": "#288A59"
+          },
+          {
+            "party": "PSE-EE (PSOE)",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "21",
+        "name": "Huelva",
+        "type": "province",
+        "seats_total": 5,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "22",
+        "name": "Huesca",
+        "type": "province",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "23",
+        "name": "Jaén",
+        "type": "province",
+        "seats_total": 5,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "24",
+        "name": "León",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "25",
+        "name": "Lleida",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSC",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "ERC",
+            "national_party": "ERC",
+            "seats": 1,
+            "colour": "#FF4D5A"
+          },
+          {
+            "party": "JxCAT - JUNTS",
+            "national_party": "JxCAT - JUNTS",
+            "seats": 1,
+            "colour": "#00C5B3"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "26",
+        "name": "La Rioja",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "27",
+        "name": "Lugo",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSdeG-PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "28",
+        "name": "Madrid",
+        "type": "province",
+        "seats_total": 37,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 16,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 10,
+            "colour": "#E11318"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 6,
+            "colour": "#FF0B57"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 5,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "29",
+        "name": "Málaga",
+        "type": "province",
+        "seats_total": 11,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 5,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 2,
+            "colour": "#1EC118"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "30",
+        "name": "Murcia",
+        "type": "province",
+        "seats_total": 10,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 4,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 2,
+            "colour": "#1EC118"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "31",
+        "name": "Navarra",
+        "type": "province",
+        "seats_total": 5,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSN-PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "EH Bildu",
+            "national_party": "EH Bildu",
+            "seats": 1,
+            "colour": "#B1C30E"
+          },
+          {
+            "party": "U.P.N.",
+            "national_party": "U.P.N.",
+            "seats": 1,
+            "colour": "#0C007C"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "32",
+        "name": "Ourense",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSdeG-PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "33",
+        "name": "Asturias",
+        "type": "province",
+        "seats_total": 7,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "34",
+        "name": "Palencia",
+        "type": "province",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "35",
+        "name": "Las Palmas",
+        "type": "province",
+        "seats_total": 8,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "36",
+        "name": "Pontevedra",
+        "type": "province",
+        "seats_total": 7,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSdeG-PSOE",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "37",
+        "name": "Salamanca",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "38",
+        "name": "Santa Cruz de Tenerife",
+        "type": "province",
+        "seats_total": 7,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "CCa",
+            "national_party": "CCa",
+            "seats": 1,
+            "colour": "#FEEC75"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "39",
+        "name": "Cantabria",
+        "type": "province",
+        "seats_total": 5,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "40",
+        "name": "Segovia",
+        "type": "province",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "41",
+        "name": "Sevilla",
+        "type": "province",
+        "seats_total": 12,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 5,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 4,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 2,
+            "colour": "#FF0B57"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "42",
+        "name": "Soria",
+        "type": "province",
+        "seats_total": 2,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "43",
+        "name": "Tarragona",
+        "type": "province",
+        "seats_total": 6,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSC",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "ERC",
+            "national_party": "ERC",
+            "seats": 1,
+            "colour": "#FF4D5A"
+          },
+          {
+            "party": "SUMAR - ECP",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "JxCAT - JUNTS",
+            "national_party": "JxCAT - JUNTS",
+            "seats": 1,
+            "colour": "#00C5B3"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "44",
+        "name": "Teruel",
+        "type": "province",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "45",
+        "name": "Toledo",
+        "type": "province",
+        "seats_total": 6,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "46",
+        "name": "València/Valencia",
+        "type": "province",
+        "seats_total": 16,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 6,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 5,
+            "colour": "#E11318"
+          },
+          {
+            "party": "SUMAR - COMPROMÍS",
+            "national_party": "SUMAR",
+            "seats": 3,
+            "colour": "#FF0B57"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 2,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "47",
+        "name": "Valladolid",
+        "type": "province",
+        "seats_total": 5,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "48",
+        "name": "Bizkaia",
+        "type": "province",
+        "seats_total": 8,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "EH Bildu",
+            "national_party": "EH Bildu",
+            "seats": 2,
+            "colour": "#B1C30E"
+          },
+          {
+            "party": "EAJ-PNV",
+            "national_party": "EAJ-PNV",
+            "seats": 2,
+            "colour": "#288A59"
+          },
+          {
+            "party": "PSE-EE (PSOE)",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "SUMAR",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "49",
+        "name": "Zamora",
+        "type": "province",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "50",
+        "name": "Zaragoza",
+        "type": "province",
+        "seats_total": 7,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "VOX",
+            "national_party": "VOX",
+            "seats": 1,
+            "colour": "#1EC118"
+          },
+          {
+            "party": "SUMAR ARAGÓN",
+            "national_party": "SUMAR",
+            "seats": 1,
+            "colour": "#FF0B57"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "51",
+        "name": "Ceuta",
+        "type": "province",
+        "seats_total": 1,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "52",
+        "name": "Melilla",
+        "type": "province",
+        "seats_total": 1,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      }
+    ],
+    "source_updated_at": "official final result"
+  },
+  "senate": {
+    "status": "complete",
+    "counted_pct": 100.0,
+    "seats_total": 208,
+    "majority": null,
+    "seats": [
+      {
+        "party": "PP",
+        "name": "PARTIT POPULAR / PARTIDO POPULAR",
+        "seats": 120,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": "#0556A1"
+      },
+      {
+        "party": "PSOE",
+        "name": "PARTIDO SOCIALISTA OBRERO ESPAÑOL",
+        "seats": 72,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": "#E11318"
+      },
+      {
+        "party": "IZQUIERDAS POR LA INDEPENDENCIA",
+        "name": "IZQUIERDAS POR LA INDEPENDENCIA",
+        "seats": 7,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": "#FF3300"
+      },
+      {
+        "party": "EAJ-PNV",
+        "name": "EUZKO ALDERDI JELTZALEA-PARTIDO NACIONALISTA VASCO",
+        "seats": 4,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": "#288A59"
+      },
+      {
+        "party": "PSOE-SUMAR-EUIB-ARA EIVISSA",
+        "name": "EIVISSA I FORMENTERA AL SENAT",
+        "seats": 1,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": "#DE0E1D"
+      },
+      {
+        "party": "ASG",
+        "name": "AGRUPACION SOCIALISTA GOMERA",
+        "seats": 1,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": null
+      },
+      {
+        "party": "A.H.I.",
+        "name": "AGRUPACION HERREÑA INDEPENDIENTE",
+        "seats": 1,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": null
+      },
+      {
+        "party": "JxCAT - JUNTS",
+        "name": "JUNTS PER CATALUNYA - JUNTS",
+        "seats": 1,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": "#00C5B3"
+      },
+      {
+        "party": "U.P.N.",
+        "name": "UNION DEL PUEBLO NAVARRO",
+        "seats": 1,
+        "prev_seats": null,
+        "seat_change": null,
+        "colour": "#0C007C"
+      }
+    ],
+    "constituencies_total": 59,
+    "constituencies_reporting": 59,
+    "constituencies": [
+      {
+        "code": "01",
+        "name": "Araba/Álava",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSE-EE (PSOE)",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "EH BILDU-INDEPENDENTZIA EZKERRETIK",
+            "national_party": "IZQUIERDAS POR LA INDEPENDENCIA",
+            "seats": 1,
+            "colour": "#FF3300"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "02",
+        "name": "Albacete",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "03",
+        "name": "Alacant/Alicante",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "04",
+        "name": "Almería",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "05",
+        "name": "Ávila",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "06",
+        "name": "Badajoz",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "071",
+        "name": "Mallorca",
+        "type": "island",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSIB-PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "072",
+        "name": "Menorca",
+        "type": "island",
+        "seats_total": 1,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "075",
+        "name": "Eivissa-Formentera",
+        "type": "island",
+        "seats_total": 1,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE-SUMAR-EUIB-ARA EIVISSA",
+            "national_party": "PSOE-SUMAR-EUIB-ARA EIVISSA",
+            "seats": 1,
+            "colour": "#DE0E1D"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "08",
+        "name": "Barcelona",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSC",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "ERC",
+            "national_party": "IZQUIERDAS POR LA INDEPENDENCIA",
+            "seats": 1,
+            "colour": "#FF4D5A"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "09",
+        "name": "Burgos",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "10",
+        "name": "Cáceres",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "11",
+        "name": "Cádiz",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "12",
+        "name": "Castelló/Castellón",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "13",
+        "name": "Ciudad Real",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "14",
+        "name": "Córdoba",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "15",
+        "name": "A Coruña",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSdeG-PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "16",
+        "name": "Cuenca",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "17",
+        "name": "Girona",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSC",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "JxCAT - JUNTS",
+            "national_party": "JxCAT - JUNTS",
+            "seats": 1,
+            "colour": "#00C5B3"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "18",
+        "name": "Granada",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "19",
+        "name": "Guadalajara",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "20",
+        "name": "Gipuzkoa",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "EH BILDU-INDEPENDENTZIA EZKERRETIK",
+            "national_party": "IZQUIERDAS POR LA INDEPENDENCIA",
+            "seats": 3,
+            "colour": "#FF3300"
+          },
+          {
+            "party": "EAJ-PNV",
+            "national_party": "EAJ-PNV",
+            "seats": 1,
+            "colour": "#288A59"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "21",
+        "name": "Huelva",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "22",
+        "name": "Huesca",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "23",
+        "name": "Jaén",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "24",
+        "name": "León",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "25",
+        "name": "Lleida",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSC",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "ERC-ESQUERRES PER LA INDEPENDÈNCIA",
+            "national_party": "IZQUIERDAS POR LA INDEPENDENCIA",
+            "seats": 1,
+            "colour": "#FF3300"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "26",
+        "name": "La Rioja",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "27",
+        "name": "Lugo",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSdeG-PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "28",
+        "name": "Madrid",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "29",
+        "name": "Málaga",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "30",
+        "name": "Murcia",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "31",
+        "name": "Navarra",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSN-PSOE",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "U.P.N.",
+            "national_party": "U.P.N.",
+            "seats": 1,
+            "colour": "#0C007C"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "32",
+        "name": "Ourense",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSdeG-PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "33",
+        "name": "Asturias",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "34",
+        "name": "Palencia",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "351",
+        "name": "Gran Canaria",
+        "type": "island",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "352",
+        "name": "Lanzarote",
+        "type": "island",
+        "seats_total": 1,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "353",
+        "name": "Fuerteventura",
+        "type": "island",
+        "seats_total": 1,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "36",
+        "name": "Pontevedra",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSdeG-PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "37",
+        "name": "Salamanca",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "384",
+        "name": "Tenerife",
+        "type": "island",
+        "seats_total": 3,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "385",
+        "name": "La Palma",
+        "type": "island",
+        "seats_total": 1,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "386",
+        "name": "La Gomera",
+        "type": "island",
+        "seats_total": 1,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "ASG",
+            "national_party": "ASG",
+            "seats": 1,
+            "colour": null
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "387",
+        "name": "El Hierro",
+        "type": "island",
+        "seats_total": 1,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "A.H.I.",
+            "national_party": "A.H.I.",
+            "seats": 1,
+            "colour": null
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "39",
+        "name": "Cantabria",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "40",
+        "name": "Segovia",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "41",
+        "name": "Sevilla",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 1,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "42",
+        "name": "Soria",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "43",
+        "name": "Tarragona",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PSC",
+            "national_party": "PSOE",
+            "seats": 3,
+            "colour": "#E11318"
+          },
+          {
+            "party": "ERC-ESQUERRES PER LA INDEPENDÈNCIA",
+            "national_party": "IZQUIERDAS POR LA INDEPENDENCIA",
+            "seats": 1,
+            "colour": "#FF3300"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "44",
+        "name": "Teruel",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "45",
+        "name": "Toledo",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "46",
+        "name": "València/Valencia",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 2,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "47",
+        "name": "Valladolid",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "48",
+        "name": "Bizkaia",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "EAJ-PNV",
+            "national_party": "EAJ-PNV",
+            "seats": 3,
+            "colour": "#288A59"
+          },
+          {
+            "party": "PSE-EE (PSOE)",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "49",
+        "name": "Zamora",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "50",
+        "name": "Zaragoza",
+        "type": "province",
+        "seats_total": 4,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 3,
+            "colour": "#0556A1"
+          },
+          {
+            "party": "PSOE",
+            "national_party": "PSOE",
+            "seats": 1,
+            "colour": "#E11318"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "51",
+        "name": "Ceuta",
+        "type": "province",
+        "seats_total": 2,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      },
+      {
+        "code": "52",
+        "name": "Melilla",
+        "type": "province",
+        "seats_total": 2,
+        "counted_pct": 100.0,
+        "seats": [
+          {
+            "party": "PP",
+            "national_party": "PP",
+            "seats": 2,
+            "colour": "#0556A1"
+          }
+        ],
+        "source_updated_at": "official final result"
+      }
+    ],
+    "source_updated_at": "official final result"
+  },
+  "note": "DEMO built from the official final 2023 result, in the format of the live file. On election night the figures are the provisional count. Provisional count. Senate seats are the candidates leading at the time and can change considerably during the count. Votes from abroad are counted days later.",
+  "source": "Ministerio del Interior, infoelectoral (official final result, July 2023)",
+  "source_sequence": {
+    "congress": null,
+    "senate": null
+  },
+  "fetched_at": "2026-11-13T15:52:42+00:00"
+}

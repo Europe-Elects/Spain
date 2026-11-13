@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spain – Seats by Constituency</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .house-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #F1F5F9; border-radius: 8px; margin: 2px 0 10px; }
+  .house-tab {
+    border: 0; background: transparent; font-family: inherit; font-size: 13px; font-weight: 500;
+    color: #475569; padding: 6px 14px; border-radius: 6px; cursor: pointer;
+  }
+  .house-tab:hover { color: #0F172A; }
+  .house-tab.active { background: #fff; color: #0F172A; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .house-tab:focus-visible { outline: 2px solid #2563EB; outline-offset: 1px; }
+
+  .demo-pill { font-size: 11px; padding: 3px 8px; background: #E0E7FF; color: #3730A3; border-radius: 4px; font-weight: 600; }
+
+  .seatbar-wrap { margin-bottom: 10px; }
+  .seatbar-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: #475569; margin-bottom: 4px; }
+  .seatbar-top strong { color: #0F172A; font-size: 13px; }
+  .seatbar { position: relative; display: flex; height: 26px; border-radius: 6px; overflow: hidden; background: #E2E8F0; }
+  .seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff;
+         font-variant-numeric: tabular-nums; border-right: 1px solid rgba(255,255,255,.6); cursor: pointer; transition: opacity .15s; }
+  .seg:last-child { border-right: 0; }
+  .seg.dark-text { color: #0F172A; }
+  .seg.dim { opacity: .3; }
+  .majority { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed #0F172A; pointer-events: none; }
+  .seatbar-note { font-size: 11px; color: #64748B; margin-top: 4px; }
+
+  .county { stroke-width: .7; }
+  .seat-dot { stroke: #fff; stroke-width: .6; pointer-events: none; transition: opacity .2s; }
+  .inset-frame { fill: none; stroke: #94A3B8; stroke-width: 1; stroke-dasharray: 4 3; pointer-events: none; }
+  .inset-label { font-size: 10px; fill: #64748B; font-family: 'Inter', sans-serif; pointer-events: none; }
+  .bar-seats { font-size: 11px; color: #0F172A; width: 44px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  #tooltip { min-width: 290px; }
+  #tooltip .bar-label { width: 130px; overflow: hidden; text-overflow: ellipsis; }
+  .small-label { font-size: 10px; fill: #475569; font-family: 'Inter', sans-serif; font-weight: 600; pointer-events: none; }
+  .tt-meta { font-size: 11px; color: #64748B; margin: -4px 0 8px; }
+  .legend-seats { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 2px; }
+
+  @media (max-width: 520px) {
+    .house-tab { font-size: 12px; padding: 5px 10px; }
+    .seatbar { height: 22px; }
+    .seg { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="title">Spain · Seats by constituency</h1>
+    <div class="subtitle" id="subtitle">&nbsp;</div>
+    <div class="status-row">
+      <span class="last-updated" id="lastUpdated">Last updated: –</span>
+      <span class="counted-pill" id="countedPill"></span>
+      <span class="demo-pill" id="demoPill" hidden>Demo · 2023 result</span>
+    </div>
+  </div>
+  <div class="house-tabs" role="tablist" aria-label="House">
+    <button class="house-tab" role="tab" data-house="congress">Congress</button>
+    <button class="house-tab" role="tab" data-house="senate">Senate</button>
+  </div>
+  <div class="seatbar-wrap">
+    <div class="seatbar-top"><strong id="seatbarTitle">&nbsp;</strong><span id="seatbarInfo"></span></div>
+    <div class="seatbar" id="seatbar"></div>
+    <div class="seatbar-note" id="seatbarNote"></div>
+  </div>
+  <div id="map-container" style="overflow:hidden">
+    <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
+    <svg id="map" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet"></svg>
+    <div id="tooltip"></div>
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoomIn" title="Zoom in">+</button>
+      <div class="zoom-level" id="zoomLevel">1.0x</div>
+      <button class="zoom-btn" id="zoomOut" title="Zoom out">−</button>
+      <button class="zoom-btn reset" id="zoomReset" title="Reset view">↺</button>
+    </div>
+  </div>
+  <div class="cta" role="note">
+    <span class="cta-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    <span>Each dot is a seat · tap a party to show where it won seats</span>
+  </div>
+  <div class="legend" id="legend"></div>
+  <div class="legend-hint" id="legendHint">Colour = party with the most seats in the constituency</div>
+  <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
+</div>
+<script src="assets/map-utils.js"></script>
+<script>
+(function () {
+  const { NO_DATA_COLOR, isLightFill, partyShade, cssId, bbox, makeProjection, featurePath,
+          featureCentroid, loadResults, autoRefresh, formatTs, setCountedPill, setLiveDot } = window.EE;
+
+  // The seats file the client gets. Election night: point this at the live file.
+  const DATA_URL = 'spain_2023_seats_demo.json';
+  const GEO = { congress: 'geo/congress.geojson', senate: 'geo/senate.geojson' };
+  const SVG_W = 1000, SVG_H = 640;
+  // Readable names for the ministry's abbreviations; anything else is shown as given.
+  const LABELS = {
+    'VOX': 'Vox', 'SUMAR': 'Sumar', 'JxCAT - JUNTS': 'Junts', 'EH Bildu': 'EH Bildu', 'EAJ-PNV': 'PNV',
+    'B.N.G.': 'BNG', 'U.P.N.': 'UPN', 'CCa': 'CC', 'A.H.I.': 'AHI',
+    'IZQUIERDAS POR LA INDEPENDENCIA': 'ERC–EH Bildu', 'PSOE-SUMAR-EUIB-ARA EIVISSA': 'PSOE–Sumar (Eivissa)',
+    'SUMAR - ECP': 'Sumar–ECP',
+  };
+  // Lists the ministry gives no colour (tiny island lists): neutral, clearly distinct shades.
+  const FALLBACK = ['#7C3AED', '#D97706', '#0D9488', '#DB2777', '#65A30D', '#4F46E5'];
+  const label = a => LABELS[a] || a;
+
+  const params = new URLSearchParams(location.search);
+  let house = params.get('house') === 'senate' ? 'senate' : 'congress';
+  let feed = null, focus = null;
+  const shapes = {}; // house -> { id: {name, type, canary, d, cx, cy} }
+
+  async function loadShapes(h) {
+    if (shapes[h]) return shapes[h];
+    const geo = await fetch(GEO[h]).then(r => r.json());
+    const proj = makeProjection(bbox(geo.features), SVG_W, SVG_H);
+    const out = {};
+    geo.features.forEach(f => {
+      const p = f.properties;
+      out[p.id] = { name: p.name, type: p.type, canary: p.canary, d: featurePath(f, proj), ...featureCentroid(f, proj) };
+    });
+    // The inset frame round the Canaries, from their projected outlines.
+    const canary = geo.features.filter(f => f.properties.canary);
+    const [x0, y1] = proj(...bbox(canary).slice(0, 2)), [x1, y0] = proj(...bbox(canary).slice(2));
+    out.__inset = { x: x0 - 12, y: y0 - 12, w: x1 - x0 + 24, h: y1 - y0 + 24 };
+    shapes[h] = out;
+    return out;
+  }
+
+  function colours(ch) {
+    const map = {}; let i = 0;
+    const add = (key, c) => { if (!map[key]) map[key] = c || FALLBACK[i++ % FALLBACK.length]; };
+    ch.seats.forEach(p => add(p.party, p.colour));
+    ch.constituencies.forEach(c => c.seats.forEach(s => add(s.national_party, s.colour)));
+    return map;
+  }
+
+  async function init() {
+    document.querySelectorAll('.house-tab').forEach(b => b.onclick = () => {
+      if (b.dataset.house === house) return;
+      house = b.dataset.house; focus = null;
+      const u = new URL(location.href); u.searchParams.set('house', house); history.replaceState(null, '', u);
+      render();
+    });
+    await refresh();
+    autoRefresh(refresh, 60000);
+  }
+
+  async function refresh() {
+    feed = await loadResults(DATA_URL);
+    await render();
+  }
+
+  async function render() {
+    const ch = feed[house];
+    const sh = await loadShapes(house);
+    const col = colours(ch);
+    const order = ch.seats.map(p => p.party);
+    const rank = k => { const i = order.indexOf(k); return i < 0 ? 999 : i; };
+
+    document.querySelectorAll('.house-tab').forEach(b => {
+      const a = b.dataset.house === house;
+      b.classList.toggle('active', a); b.setAttribute('aria-selected', a);
+    });
+    const demo = /^DEMO/.test(feed.election || '');
+    const year = demo ? '2023' : '2026';
+    document.getElementById('title').textContent =
+      `Spain ${year} · ${house === 'congress' ? 'Congress' : 'Senate'} seats by constituency`;
+    document.getElementById('subtitle').textContent = house === 'congress'
+      ? `${ch.constituencies_total} constituencies (50 provinces, Ceuta, Melilla) · ${ch.seats_total} seats`
+      : `${ch.constituencies_total} constituencies (provinces, with the Balearic and Canary Islands by island) · ${ch.seats_total} directly elected seats`;
+    document.getElementById('demoPill').hidden = !demo;
+    const lu = document.getElementById('lastUpdated');
+    lu.textContent = demo ? 'Official final result, 23 July 2023' : 'Last updated: ' + formatTs(feed.fetched_at);
+    setLiveDot(lu, !demo && ch.counted_pct < 100);
+    setCountedPill(document.getElementById('countedPill'), ch.counted_pct);
+    document.getElementById('footer').textContent = '· Chart made by Andrei Miclea · Source: Ministerio del Interior'
+      + (demo ? ' (infoelectoral, official final result 2023)' : ' (provisional count)');
+
+    buildSeatbar(ch, col);
+    buildMap(ch, sh, col, rank);
+    buildLegend(ch, col);
+  }
+
+  function buildSeatbar(ch, col) {
+    const total = ch.seats_total;
+    const allocated = ch.seats.reduce((a, p) => a + p.seats, 0);
+    document.getElementById('seatbarTitle').textContent = house === 'congress' ? 'Congress of Deputies' : 'Senate';
+    document.getElementById('seatbarInfo').textContent = allocated < total
+      ? `${allocated} of ${total} seats allocated` : `${total} seats`;
+    const bar = document.getElementById('seatbar');
+    bar.innerHTML = '';
+    ch.seats.forEach(p => {
+      const seg = document.createElement('div');
+      const w = p.seats / total * 100;
+      seg.className = 'seg' + (isLightFill(col[p.party]) ? ' dark-text' : '') + (focus && focus !== p.party ? ' dim' : '');
+      seg.style.width = w + '%'; seg.style.background = col[p.party];
+      seg.title = `${label(p.party)}: ${p.seats}`;
+      if (w > 3.2) seg.textContent = p.seats;
+      seg.onclick = () => setFocus(p.party);
+      bar.appendChild(seg);
+    });
+    if (ch.majority) {
+      const m = document.createElement('div');
+      m.className = 'majority'; m.style.left = (ch.majority / total * 100) + '%';
+      bar.appendChild(m);
+    }
+    document.getElementById('seatbarNote').textContent = house === 'congress'
+      ? `Dashed line: ${ch.majority} seats for a majority`
+      : 'Senators appointed later by the regional parliaments are not included';
+  }
+
+  function tiePattern(defs, a, b, col) {
+    const id = 'tie-' + cssId(a) + '-' + cssId(b);
+    if (defs.querySelector('#' + id)) return id;
+    const ns = 'http://www.w3.org/2000/svg';
+    const p = document.createElementNS(ns, 'pattern');
+    p.setAttribute('id', id); p.setAttribute('patternUnits', 'userSpaceOnUse');
+    p.setAttribute('width', 8); p.setAttribute('height', 8); p.setAttribute('patternTransform', 'rotate(45)');
+    [[0, a], [4, b]].forEach(([x, k]) => {
+      const r = document.createElementNS(ns, 'rect');
+      r.setAttribute('x', x); r.setAttribute('width', 4); r.setAttribute('height', 8);
+      r.setAttribute('fill', partyShade(45, 100, col[k])); p.appendChild(r);
+    });
+    defs.appendChild(p);
+    return id;
+  }
+
+  function buildMap(ch, sh, col, rank) {
+    const svg = document.getElementById('map');
+    const ns = 'http://www.w3.org/2000/svg';
+    svg.innerHTML = '';
+    const defs = document.createElementNS(ns, 'defs'); svg.appendChild(defs);
+    const byCode = Object.fromEntries(ch.constituencies.map(c => [c.code, c]));
+    const ids = Object.keys(sh).filter(k => k !== '__inset');
+
+    // Seat share of the focused party per constituency, for the shading scale.
+    const share = c => c ? c.seats.filter(s => s.national_party === focus).reduce((a, s) => a + s.seats, 0) / c.seats_total : 0;
+    const maxShare = focus ? Math.max(...ch.constituencies.map(share), 0.01) : 0;
+
+    ids.forEach(id => {
+      const c = byCode[id];
+      let fill = NO_DATA_COLOR;
+      if (c && c.seats.length) {
+        if (focus) {
+          const s = share(c);
+          fill = s > 0 ? partyShade(s, maxShare, col[focus]) : '#F8FAFC';
+        } else {
+          const top = groupByParty(c, rank);
+          fill = top.length > 1 && top[0].seats === top[1].seats
+            ? `url(#${tiePattern(defs, top[0].party, top[1].party, col)})`
+            : partyShade(45, 100, col[top[0].party]);
+        }
+      }
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', sh[id].d); p.setAttribute('class', 'county'); p.setAttribute('fill', fill);
+      p.addEventListener('mouseenter', e => showTooltip(e, sh[id], c, col, rank));
+      p.addEventListener('mousemove', moveTooltip);
+      p.addEventListener('mouseleave', () => document.getElementById('tooltip').style.display = 'none');
+      svg.appendChild(p);
+    });
+
+    const f = sh.__inset;
+    const frame = document.createElementNS(ns, 'rect');
+    Object.entries({ x: f.x, y: f.y, width: f.w, height: f.h, rx: 6, class: 'inset-frame' }).forEach(([k, v]) => frame.setAttribute(k, v));
+    svg.appendChild(frame);
+    const il = document.createElementNS(ns, 'text');
+    il.setAttribute('x', f.x + 6); il.setAttribute('y', f.y + 13); il.setAttribute('class', 'inset-label');
+    il.textContent = 'Canary Islands'; svg.appendChild(il);
+
+    // Ceuta and Melilla are a few pixels across: name them next to their seat dots.
+    [['51', 'Ceuta'], ['52', 'Melilla']].forEach(([id, name]) => {
+      if (!sh[id]) return;
+      const t = document.createElementNS(ns, 'text');
+      t.setAttribute('x', sh[id].cx + 10); t.setAttribute('y', sh[id].cy + 3.5);
+      t.setAttribute('class', 'small-label'); t.textContent = name;
+      svg.appendChild(t);
+    });
+
+    // One dot per seat, coloured by party, in a small grid on the constituency.
+    ids.forEach(id => {
+      const c = byCode[id];
+      if (!c) return;
+      const dots = [];
+      groupByParty(c, rank).forEach(g => { for (let i = 0; i < g.seats; i++) dots.push(g.party); });
+      while (dots.length < c.seats_total) dots.push(null); // seats not allocated yet
+      const n = dots.length, cols = Math.ceil(Math.sqrt(n * 1.4)), rows = Math.ceil(n / cols);
+      const r = n > 20 ? 2.5 : 3.2, gap = r * 2 + 1.4;
+      const { cx, cy } = sh[id];
+      dots.forEach((party, i) => {
+        const row = Math.floor(i / cols), inRow = Math.min(cols, n - row * cols), colI = i % cols;
+        const d = document.createElementNS(ns, 'circle');
+        d.setAttribute('cx', cx + (colI - (inRow - 1) / 2) * gap);
+        d.setAttribute('cy', cy + (row - (rows - 1) / 2) * gap);
+        d.setAttribute('r', r); d.setAttribute('class', 'seat-dot');
+        d.setAttribute('fill', party ? col[party] : '#CBD5E1');
+        if (focus && party !== focus) d.setAttribute('opacity', 0.18);
+        svg.appendChild(d);
+      });
+    });
+
+    if (window.EE.enableZoomPan) window.EE.enableZoomPan(svg, { controls: { zoomIn: 'zoomIn', zoomOut: 'zoomOut', zoomReset: 'zoomReset', zoomLevel: 'zoomLevel' }, maxK: 12 });
+  }
+
+  // A constituency's seats per national party (PSC and PSOE count together), largest first.
+  function groupByParty(c, rank) {
+    const m = {};
+    c.seats.forEach(s => { m[s.national_party] = (m[s.national_party] || 0) + s.seats; });
+    return Object.entries(m).map(([party, seats]) => ({ party, seats }))
+      .sort((a, b) => b.seats - a.seats || rank(a.party) - rank(b.party));
+  }
+
+  function showTooltip(e, shape, c, col, rank) {
+    const tt = document.getElementById('tooltip');
+    let html = `<h3>${shape.name}</h3>`;
+    if (c) {
+      const allocated = c.seats.reduce((a, s) => a + s.seats, 0);
+      html += `<div class="tt-meta">${shape.type === 'island' ? 'Island constituency' : 'Province'} · ${c.seats_total} seat${c.seats_total === 1 ? '' : 's'}`
+        + (c.counted_pct < 100 ? ` · ${c.counted_pct.toFixed(1)}% counted` : '') + '</div>';
+      if (c.seats.length) {
+        c.seats.slice().sort((a, b) => b.seats - a.seats || rank(a.national_party) - rank(b.national_party)).forEach(s => {
+          const name = label(s.party) + (s.national_party !== s.party ? ` <span style="color:#94A3B8;font-weight:400">(${label(s.national_party)})</span>` : '');
+          html += `<div class="bar-row"${focus === s.national_party ? ' style="font-weight:700"' : ''}>
+            <div class="bar-label" style="color:${col[s.national_party]}">${name}</div>
+            <div class="bar-container"><div class="bar-fill" style="width:${s.seats / c.seats_total * 100}%;background:${col[s.national_party]}"></div></div>
+            <div class="bar-seats">${s.seats}</div></div>`;
+        });
+        if (allocated < c.seats_total) html += `<div class="no-data">${c.seats_total - allocated} not allocated yet</div>`;
+      } else html += '<div class="no-data">No seats allocated yet</div>';
+    } else html += '<div class="no-data">No data yet</div>';
+    tt.innerHTML = html; tt.style.display = 'block'; moveTooltip(e);
+  }
+  function moveTooltip(e) {
+    const tt = document.getElementById('tooltip');
+    const rect = document.getElementById('map-container').getBoundingClientRect();
+    let left = e.clientX - rect.left + 15;
+    if (left + 270 > rect.width) left = e.clientX - rect.left - 270;
+    tt.style.left = Math.max(4, left) + 'px'; tt.style.top = (e.clientY - rect.top - 10) + 'px';
+  }
+
+  function setFocus(party) {
+    focus = focus === party ? null : party;
+    const hint = document.getElementById('legendHint');
+    hint.textContent = focus
+      ? `Showing ${label(focus)}: shade = its share of each constituency's seats · tap again to go back`
+      : 'Colour = party with the most seats in the constituency';
+    render();
+  }
+
+  function buildLegend(ch, col) {
+    const lg = document.getElementById('legend');
+    lg.innerHTML = '';
+    ch.seats.forEach(p => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'legend-item clickable' + (focus === p.party ? ' active' : '');
+      btn.setAttribute('aria-pressed', focus === p.party ? 'true' : 'false');
+      btn.title = p.name;
+      btn.innerHTML = `<div class="legend-swatch" style="background:${col[p.party]}"></div>${label(p.party)}<span class="legend-seats">${p.seats}</span>`;
+      btn.onclick = () => setFocus(p.party);
+      lg.appendChild(btn);
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

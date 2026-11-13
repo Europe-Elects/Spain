@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spain Election Maps</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', sans-serif; background: #F8FAFC; color: #1E293B; margin: 0; padding: 24px 16px; }
+  main { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; } p { color: #64748B; font-size: 13px; margin: 0 0 20px; }
+  h2 { font-size: 15px; margin: 24px 0 8px; }
+  iframe { width: 100%; height: 860px; border: 1px solid #E2E8F0; border-radius: 8px; background: #fff; }
+  pre { background: #0F172A; color: #E2E8F0; padding: 12px; border-radius: 8px; font-size: 12px; overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Spain · election maps</h1>
+  <p>Demo with the official final 2023 result. On election night the same pages read the live seats file.</p>
+  <h2>Congress · seats by constituency</h2>
+  <iframe src="seats-map.html?house=congress" loading="lazy" title="Congress seats by constituency"></iframe>
+  <h2>Senate · seats by constituency</h2>
+  <iframe src="seats-map.html?house=senate" loading="lazy" title="Senate seats by constituency"></iframe>
+  <h2>Embed</h2>
+<pre>&lt;iframe src="seats-map.html?house=congress" width="100%" height="860" style="border:0"&gt;&lt;/iframe&gt;
+&lt;iframe src="seats-map.html?house=senate" width="100%" height="860" style="border:0"&gt;&lt;/iframe&gt;</pre>
+</main>
+</body>
+</html>
