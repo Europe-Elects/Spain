@@ -158,3 +158,34 @@ button.legend-item { line-height: 1.4; }
   .cta-arrow { animation: none; }
   @keyframes pulse { 0%, 100% { opacity: 1; } }
 }
+
+/* ---------- Spain pages: tabs, inset, gradient legend, empty state ---------- */
+.tab-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 2px 0 10px; }
+.level-tabs { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 3px; background: #F1F5F9; border-radius: 8px; }
+.level-tab { border: 0; background: transparent; font-family: inherit; font-size: 13px; font-weight: 500;
+             color: #475569; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
+.level-tab:hover { color: #0F172A; }
+.level-tab.active { background: #fff; color: #0F172A; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.level-tab:focus-visible { outline: 2px solid #2563EB; outline-offset: 1px; }
+.level-tab:disabled { color: #CBD5E1; cursor: default; }
+.level-tabs.small .level-tab { font-size: 12px; padding: 4px 10px; }
+.demo-pill { font-size: 11px; padding: 3px 8px; background: #E0E7FF; color: #3730A3; border-radius: 4px; font-weight: 600; }
+.county.muni { stroke: rgba(255,255,255,.55); stroke-width: .15; }
+.county.muni:hover { stroke: #0F172A; stroke-width: .6; opacity: .85; }
+.inset-frame { fill: none; stroke: #94A3B8; stroke-width: 1; stroke-dasharray: 4 3; pointer-events: none; }
+.inset-label { font-size: 10px; fill: #64748B; font-family: 'Inter', sans-serif; pointer-events: none; }
+.legend-group { font-size: 10px; color: #94A3B8; font-weight: 500; margin-left: 2px; }
+.legend-pct { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 2px; }
+.tt-meta { font-size: 11px; color: #64748B; margin: -4px 0 8px; }
+.grad-legend { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 11px; color: #64748B;
+               font-variant-numeric: tabular-nums; }
+.grad-legend .bar { flex: 1; max-width: 320px; height: 10px; border-radius: 3px; border: 1px solid #E2E8F0; }
+.empty-state { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+               pointer-events: none; font-size: 13px; color: #64748B; text-align: center; padding: 24px;
+               background: rgba(248,250,252,.6); }
+.empty-state[hidden], .grad-legend[hidden] { display: none; }
+.empty-state span { max-width: 420px; background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 16px; }
+@media (max-width: 520px) {
+  .level-tab { font-size: 12px; padding: 5px 10px; }
+  .grad-legend .bar { max-width: 100%; }
+}

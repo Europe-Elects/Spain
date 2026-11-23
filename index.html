@@ -10,7 +10,7 @@
   main { max-width: 1000px; margin: 0 auto; }
   h1 { font-size: 22px; margin: 0 0 4px; } p { color: #64748B; font-size: 13px; margin: 0 0 20px; }
   h2 { font-size: 15px; margin: 24px 0 8px; }
-  iframe { width: 100%; height: 860px; border: 1px solid #E2E8F0; border-radius: 8px; background: #fff; }
+  iframe { width: 100%; height: 900px; border: 1px solid #E2E8F0; border-radius: 8px; background: #fff; }
   pre { background: #0F172A; color: #E2E8F0; padding: 12px; border-radius: 8px; font-size: 12px; overflow-x: auto; }
 </style>
 </head>
@@ -18,22 +18,24 @@
 <main>
   <h1>Spain · election maps</h1>
   <p>Demo with the official final 2023 result. On election night the same pages read the live seats file.</p>
-  <h2>Congress · seats by constituency</h2>
-  <iframe src="seats-map.html?house=congress" loading="lazy" title="Congress seats by constituency"></iframe>
-  <h2>Senate · seats by constituency</h2>
-  <iframe src="seats-map.html?house=senate" loading="lazy" title="Senate seats by constituency"></iframe>
-  <h2>Congress · vote by region</h2>
-  <iframe src="results-map.html?level=regions" loading="lazy" title="Congress vote by region"></iframe>
-  <h2>Congress · vote by province</h2>
-  <iframe src="results-map.html?level=provinces" loading="lazy" title="Congress vote by province"></iframe>
-  <h2>Congress · vote by municipality</h2>
-  <iframe src="results-map.html?level=municipalities" loading="lazy" title="Congress vote by municipality"></iframe>
+  <h2>1 · Senate seats by constituency</h2>
+  <iframe src="senate-map.html" loading="lazy" title="Senate seats by constituency"></iframe>
+  <h2>2 · Congress vote · by region, province and municipality</h2>
+  <iframe src="results-map.html" loading="lazy" title="Congress vote by area"></iframe>
+  <h2>3 · Turnout · by region and province</h2>
+  <iframe src="turnout-map.html" loading="lazy" title="Turnout by area"></iframe>
+  <h2>4 · Swing · Congress vote by region</h2>
+  <iframe src="swing-map.html" loading="lazy" title="Swing by region"></iframe>
+  <h2>5 · Congress seats</h2>
+  <iframe src="hemicycle.html" loading="lazy" title="Congress seats" style="height:720px"></iframe>
   <h2>Embed</h2>
-<pre>&lt;iframe src="seats-map.html?house=congress" width="100%" height="860" style="border:0"&gt;&lt;/iframe&gt;
-&lt;iframe src="seats-map.html?house=senate" width="100%" height="860" style="border:0"&gt;&lt;/iframe&gt;
-&lt;iframe src="results-map.html?level=regions" width="100%" height="860" style="border:0"&gt;&lt;/iframe&gt;
-&lt;iframe src="results-map.html?level=provinces" width="100%" height="860" style="border:0"&gt;&lt;/iframe&gt;
-&lt;iframe src="results-map.html?level=municipalities" width="100%" height="860" style="border:0"&gt;&lt;/iframe&gt;</pre>
+  <p>Five embeds. The vote and turnout maps have their own tabs; <code>?level=regions|provinces|municipalities</code>
+  picks the tab they open on.</p>
+<pre>&lt;iframe src="senate-map.html" width="100%" height="900" style="border:0"&gt;&lt;/iframe&gt;
+&lt;iframe src="results-map.html" width="100%" height="900" style="border:0"&gt;&lt;/iframe&gt;
+&lt;iframe src="turnout-map.html" width="100%" height="900" style="border:0"&gt;&lt;/iframe&gt;
+&lt;iframe src="swing-map.html" width="100%" height="900" style="border:0"&gt;&lt;/iframe&gt;
+&lt;iframe src="hemicycle.html" width="100%" height="720" style="border:0"&gt;&lt;/iframe&gt;</pre>
 </main>
 </body>
 </html>

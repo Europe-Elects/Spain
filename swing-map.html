@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spain – Swing by Area</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  #tooltip { min-width: 330px; }
+  #tooltip .bar-label { width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #tooltip .bar-pct { min-width: 52px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="title">Spain · Swing</h1>
+    <div class="subtitle" id="subtitle">&nbsp;</div>
+    <div class="status-row">
+      <span class="last-updated" id="lastUpdated">Last updated: –</span>
+      <span class="counted-pill" id="countedPill"></span>
+      <span class="demo-pill" id="demoPill" hidden>Demo</span>
+    </div>
+  </div>
+  <div id="map-container" style="overflow:hidden">
+    <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
+    <svg id="map" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet"></svg>
+    <div id="emptyState" class="empty-state" hidden><span></span></div>
+    <div id="tooltip"></div>
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoomIn" title="Zoom in">+</button>
+      <div class="zoom-level" id="zoomLevel">1.0x</div>
+      <button class="zoom-btn" id="zoomOut" title="Zoom out">−</button>
+      <button class="zoom-btn reset" id="zoomReset" title="Reset view">↺</button>
+    </div>
+  </div>
+  <div class="cta" role="note">
+    <span class="cta-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    <span>Tap a party to see its swing everywhere. Default view shades each area by its biggest gainer.</span>
+  </div>
+  <div class="legend" id="legend"></div>
+  <div class="grad-legend" id="gradLegend" hidden>
+    <span id="gradLo"></span><div class="bar" id="gradBar"></div><span id="gradHi"></span>
+  </div>
+  <div class="legend-hint" id="legendHint">&nbsp;</div>
+  <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
+</div>
+<script src="assets/map-utils.js"></script>
+<script src="assets/es-parties.js"></script>
+<script src="assets/es-map.js"></script>
+<script>
+(function () {
+  const { NO_DATA_COLOR, hexToRgb, isLightFill, cssId, buildSplitPatterns, loadResults, autoRefresh,
+          formatTs, setCountedPill, setLiveDot } = window.EE;
+  const { NS, LEVELS, loadShapes, drawInset, levelTabs, moveTooltip, shortName, svgText, isDemo } = window.ES_MAP;
+  const { info } = window.ES_PARTIES;
+
+  // The live maps file once it exists (ES_MAP.loadData), this demo until then. Each area row carries the previous
+  // election under `prev`, by the same party keys (lists that merged or split are already
+  // added up), so swing = row[party] - row.prev[party].
+  const DATA_URL = 'spain_2023_results_demo.json';  // demo, until the live file exists
+  const MAX_PP = 10;  // full colour at a 10-point swing
+  const MID = { r: 248, g: 250, b: 252 }, LOSS = { r: 100, g: 116, b: 139 };
+
+  let level, data = null, focus = null;
+  const PARTIES = {};
+
+  const swing = (row, k) => row && row.prev && typeof row[k] === 'number' && typeof row.prev[k] === 'number'
+    ? +(row[k] - row.prev[k]).toFixed(2) : null;
+  const signed = d => (d > 0 ? '+' : d < 0 ? '−' : '±') + Math.abs(d).toFixed(1);
+  const prevLabel = () => data.prev_election || 'previous election';
+  const keys = () => data.parties.filter(k => k !== 'OTHERS');
+
+  function biggestGainer(row) {
+    let best = null;
+    keys().forEach(k => { const d = swing(row, k); if (d !== null && (!best || d > best.d)) best = { party: k, d }; });
+    return best && best.d > 0 ? best : null;
+  }
+  function mix(a, b, t) {
+    return `rgb(${Math.round(a.r + (b.r - a.r) * t)},${Math.round(a.g + (b.g - a.g) * t)},${Math.round(a.b + (b.b - a.b) * t)})`;
+  }
+  // Gain: white to the party's colour. Loss: white to slate.
+  const swingShade = (d, hex) => d === null ? NO_DATA_COLOR
+    : d >= 0 ? mix(MID, hexToRgb(hex), Math.min(1, d / MAX_PP)) : mix(MID, LOSS, Math.min(1, -d / MAX_PP));
+
+  async function init() {
+    data = await window.ES_MAP.loadData(DATA_URL);
+    // Regions only: one level, so no tabs.
+    level = 'regions';
+    await refresh();
+    autoRefresh(refresh, 60000);
+  }
+
+  async function refresh() {
+    data = await window.ES_MAP.loadData(DATA_URL);
+    data.parties.forEach(k => { const i = info(k); PARTIES[k] = { color: i.color, color2: i.color2, name: i.label, groupLabel: i.groupLabel }; });
+    await render();
+  }
+
+  async function render() {
+    const demo = isDemo(data);
+    const L = LEVELS[level];
+    const year = data.year || (demo ? '2023' : '2026');
+    document.getElementById('title').textContent = `Spain ${year} · Swing vs ${prevLabel()} by ${L.one}`;
+    document.getElementById('subtitle').textContent = `Change in each party's Congress vote share, in percentage points · ${L.count}`;
+    const pill = document.getElementById('demoPill');
+    pill.hidden = !demo; pill.textContent = `Demo · ${year} vs ${prevLabel()}`;
+    const lu = document.getElementById('lastUpdated');
+    lu.textContent = demo ? 'Official final results' : 'Last updated: ' + formatTs(data.fetched_at);
+    setLiveDot(lu, !demo && data.counted_pct < 100);
+    setCountedPill(document.getElementById('countedPill'), demo ? null : data.counted_pct);
+    document.getElementById('footer').textContent = '· Chart made by Andrei Miclea · Source: Ministerio del Interior'
+      + (demo ? ' (infoelectoral, official final results)' : ' (provisional count; previous result as the ministry publishes it)');
+    const sh = await loadShapes(level);
+    build(sh, data[level] || {});
+    buildLegend();
+  }
+
+  function build(sh, rows) {
+    const svg = document.getElementById('map');
+    svg.innerHTML = '';
+    buildSplitPatterns(svg, PARTIES);
+    const muni = level === 'municipalities';
+    let any = false;
+
+    const cells = sh.list.map(s => {
+      const row = rows[s.id];
+      let fill = NO_DATA_COLOR, op = null, d = null, labelParty = null;
+      if (focus) {
+        d = swing(row, focus); labelParty = focus;
+        const P = PARTIES[focus];
+        if (P.color2 && d !== null && d > 0) { fill = `url(#split-${cssId(focus)})`; op = Math.max(.12, Math.min(1, d / MAX_PP)); }
+        else fill = swingShade(d, P.color);
+      } else {
+        const best = biggestGainer(row);
+        if (best) {
+          d = best.d; labelParty = best.party;
+          const P = PARTIES[best.party], t = Math.min(1, best.d / MAX_PP);
+          if (P.color2) { fill = `url(#split-${cssId(best.party)})`; op = Math.max(.15, t); }
+          else fill = mix(MID, hexToRgb(P.color), t);
+        } else if (row && row.prev) fill = '#F8FAFC';
+      }
+      if (d !== null) any = true;
+      return { s, row, fill, op, d, labelParty };
+    });
+
+    cells.forEach(c => {
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', c.s.d); p.setAttribute('class', 'county' + (muni ? ' muni' : '')); p.setAttribute('fill', c.fill);
+      if (c.op !== null) p.setAttribute('fill-opacity', c.op);
+      p.addEventListener('mouseenter', e => showTooltip(e, c.s, c.row));
+      p.addEventListener('mousemove', e => moveTooltip(e, 330));
+      p.addEventListener('mouseleave', () => document.getElementById('tooltip').style.display = 'none');
+      svg.appendChild(p);
+    });
+    drawInset(svg, sh);
+
+    if (!muni) cells.forEach(c => {
+      if (c.d === null || c.s.cx == null) return;
+      // Striped fills are read against their lighter half; solid ones by their own colour.
+      const light = c.op !== null ? c.op < .55 || isLightFill(PARTIES[c.labelParty].color) : isLightFill(c.fill);
+      if (level === 'regions') svgText(svg, c.s.cx, c.s.cy - 3, 'county-label' + (light ? '' : ' light'), shortName(c.s.name));
+      // Regions in the default view also name the gainer; provinces are too small for it.
+      const who = !focus && level === 'regions' ? PARTIES[c.labelParty].name + ' ' : '';
+      svgText(svg, c.s.cx, c.s.cy + (level === 'regions' ? 8 : 3), 'county-pct' + (light ? '' : ' light'), who + signed(c.d));
+    });
+
+    const es = document.getElementById('emptyState');
+    es.hidden = any;
+    es.firstElementChild.textContent = Object.keys(rows).length
+      ? `No ${prevLabel()} figures for these areas in the data file, so there is no swing to show yet.`
+      : `No ${LEVELS[level].one} results yet. The swing appears as the count comes in.`;
+
+    const gl = document.getElementById('gradLegend');
+    gl.hidden = !focus;
+    if (focus) {
+      document.getElementById('gradLo').textContent = `−${MAX_PP} pp`;
+      document.getElementById('gradHi').textContent = `+${MAX_PP} pp`;
+      document.getElementById('gradBar').style.background = `linear-gradient(to right, ${mix(MID, LOSS, 1)}, #F8FAFC, ${PARTIES[focus].color})`;
+    }
+    document.getElementById('legendHint').textContent = focus
+      ? `Showing ${PARTIES[focus].name}: grey = lost vote share, colour = gained · tap again to go back`
+      : `Colour = the party that gained most since ${prevLabel()} · stronger colour = bigger gain`;
+
+    window.EE.enableZoomPan(svg, { controls: { zoomIn: 'zoomIn', zoomOut: 'zoomOut', zoomReset: 'zoomReset', zoomLevel: 'zoomLevel' }, maxK: muni ? 40 : 12 });
+  }
+
+  function showTooltip(e, s, row) {
+    const tt = document.getElementById('tooltip');
+    let html = `<h3>${row ? row.name : s.name}</h3>`;
+    if (row && row.prev) {
+      if (typeof row.counted_pct === 'number' && row.counted_pct < 100) html += `<div class="tt-meta">${row.counted_pct.toFixed(1)}% counted</div>`;
+      const year = data.year || (isDemo(data) ? '2023' : '2026');
+      html += `<div class="bar-row" style="color:#94A3B8;font-size:11px"><div class="bar-label"></div>
+        <div class="bar-pct">${prevLabel()}</div><div class="bar-pct">${year}</div><div class="bar-pct">Swing</div></div>`;
+      keys().map(k => ({ k, d: swing(row, k) }))
+        .filter(r => typeof row[r.k] === 'number' || typeof row.prev[r.k] === 'number')
+        .sort((a, b) => (row[b.k] ?? 0) - (row[a.k] ?? 0)).forEach(({ k, d }) => {
+          const P = PARTIES[k], cur = row[k], prev = row.prev[k];
+          html += `<div class="bar-row"${focus === k ? ' style="font-weight:700"' : ''}>
+            <div class="bar-label" style="color:${P.color}">${P.name}</div>
+            <div class="bar-pct">${typeof prev === 'number' ? prev.toFixed(1) + '%' : '–'}</div>
+            <div class="bar-pct">${typeof cur === 'number' ? cur.toFixed(1) + '%' : '–'}</div>
+            <div class="bar-pct" style="font-weight:600;color:${d === null ? '#94A3B8' : d > 0 ? '#1D4ED8' : d < 0 ? '#64748B' : '#334155'}">${d === null ? '–' : signed(d)}</div></div>`;
+        });
+    } else html += '<div class="no-data">No data</div>';
+    tt.innerHTML = html; tt.style.display = 'block'; moveTooltip(e, 330);
+  }
+
+  function buildLegend() {
+    const lg = document.getElementById('legend');
+    lg.innerHTML = '';
+    keys().forEach(k => {
+      const P = PARTIES[k];
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'legend-item clickable' + (focus === k ? ' active' : '');
+      btn.setAttribute('aria-pressed', focus === k ? 'true' : 'false');
+      const sw = P.color2 ? `linear-gradient(135deg, ${P.color} 0 50%, ${P.color2} 50% 100%)` : P.color;
+      const d = swing(data.national, k);
+      btn.innerHTML = `<div class="legend-swatch" style="background:${sw}"></div>${P.name}`
+        + (d !== null ? `<span class="legend-pct">${signed(d)}</span>` : '');
+      btn.onclick = () => { focus = focus === k ? null : k; render(); };
+      lg.appendChild(btn);
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

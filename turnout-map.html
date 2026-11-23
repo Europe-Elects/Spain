@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spain – Turnout by Area</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  #tooltip { min-width: 260px; }
+  .tt-table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .tt-table th { font-weight: 500; color: #94A3B8; text-align: right; padding: 2px 0 4px 8px; font-size: 11px; }
+  .tt-table th:first-child, .tt-table td:first-child { text-align: left; padding-left: 0; }
+  .tt-table td { text-align: right; padding: 3px 0 3px 8px; color: #334155; border-top: 1px solid #F1F5F9; }
+  .tt-table tr.active td { font-weight: 700; color: #0F172A; }
+  .nat { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: #475569; margin: 0 0 10px; font-variant-numeric: tabular-nums; }
+  .nat b { color: #0F172A; font-size: 14px; }
+  .nat .chg { font-size: 11px; font-weight: 600; margin-left: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="title">Spain · Turnout</h1>
+    <div class="subtitle" id="subtitle">&nbsp;</div>
+    <div class="status-row">
+      <span class="last-updated" id="lastUpdated">Last updated: –</span>
+      <span class="demo-pill" id="demoPill" hidden>Demo · 2023 result</span>
+    </div>
+  </div>
+  <div class="nat" id="national"></div>
+  <div class="tab-row">
+    <div class="level-tabs" id="levelTabs" role="tablist" aria-label="Level"></div>
+    <div class="level-tabs small" id="timeTabs" role="tablist" aria-label="Time"></div>
+    <div class="level-tabs small" id="modeTabs" role="tablist" aria-label="View"></div>
+  </div>
+  <div id="map-container" style="overflow:hidden">
+    <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
+    <svg id="map" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet"></svg>
+    <div id="emptyState" class="empty-state" hidden><span></span></div>
+    <div id="tooltip"></div>
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoomIn" title="Zoom in">+</button>
+      <div class="zoom-level" id="zoomLevel">1.0x</div>
+      <button class="zoom-btn" id="zoomOut" title="Zoom out">−</button>
+      <button class="zoom-btn reset" id="zoomReset" title="Reset view">↺</button>
+    </div>
+  </div>
+  <div class="grad-legend" id="gradLegend">
+    <span id="gradLo"></span><div class="bar" id="gradBar"></div><span id="gradHi"></span>
+  </div>
+  <div class="legend-hint" id="legendHint">&nbsp;</div>
+  <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
+</div>
+<script src="assets/map-utils.js"></script>
+<script src="assets/es-map.js"></script>
+<script>
+(function () {
+  const { NO_DATA_COLOR, isLightFill, turnoutShade, loadResults, autoRefresh, formatTs, setLiveDot } = window.EE;
+  const { NS, LEVELS, loadShapes, drawInset, levelTabs, moveTooltip, shortName, svgText, isDemo } = window.ES_MAP;
+
+  // The live maps file once it exists (ES_MAP.loadData), this demo until then.
+  const DATA_URL = 'spain_2023_results_demo.json';  // demo, until the live file exists
+  // The ministry's two daytime updates, then turnout at the close of polls (20:00), all
+  // without the vote from abroad (CERA), which is counted days later.
+  const TIMES = [{ key: 't14', tab: '14:00', long: 'at 14:00' },
+                 { key: 't18', tab: '18:00', long: 'at 18:00' },
+                 { key: 't20', tab: 'Close of polls', long: 'at the close of polls' }];
+  const LOSS = { r: 194, g: 65, b: 12 }, GAIN = { r: 67, g: 56, b: 202 }, MID = { r: 248, g: 250, b: 252 };
+
+  let level, data = null, time = null, mode = 'level', timeChosen = false;
+
+  const val = (row, k) => row && typeof row[k] === 'number' ? row[k] : null;
+  const change = (row, k) => {
+    const a = val(row, k), b = val(row, 'prev_' + k);
+    return a === null || b === null ? null : +(a - b).toFixed(2);
+  };
+  const shown = row => mode === 'change' ? change(row, time) : val(row, time);
+  const signed = (d, digits = 1) => (d > 0 ? '+' : d < 0 ? '−' : '±') + Math.abs(d).toFixed(digits);
+  const prevLabel = () => data.prev_election || 'previous election';
+  const hasTime = k => val(data.national, k) !== null ||
+    ['regions', 'provinces', 'municipalities'].some(lv => Object.values(data[lv] || {}).some(r => val(r, k) !== null));
+  const hasPrev = () => hasTime('prev_' + time);
+
+  function mix(a, b, t) {
+    return `rgb(${Math.round(a.r + (b.r - a.r) * t)},${Math.round(a.g + (b.g - a.g) * t)},${Math.round(a.b + (b.b - a.b) * t)})`;
+  }
+  const changeShade = (d, max) => d === null ? NO_DATA_COLOR
+    : d >= 0 ? mix(MID, GAIN, Math.min(1, d / max)) : mix(MID, LOSS, Math.min(1, -d / max));
+
+  // Scale from the 2nd to the 98th percentile, so a few tiny municipalities at 100% or
+  // 20% don't wash out the rest of the map.
+  function range(values) {
+    const v = values.filter(x => x !== null).sort((a, b) => a - b);
+    if (!v.length) return null;
+    const q = p => v[Math.min(v.length - 1, Math.max(0, Math.round(p * (v.length - 1))))];
+    return { lo: q(0.02), hi: q(0.98) };
+  }
+
+  async function init() {
+    data = await window.ES_MAP.loadData(DATA_URL);
+    level = levelTabs(document.getElementById('levelTabs'), ['regions', 'provinces'],
+                      lv => { level = lv; render(); });
+    await refresh();
+    autoRefresh(refresh, 60000);
+  }
+
+  async function refresh() {
+    data = await window.ES_MAP.loadData(DATA_URL);
+    // Follow the latest update until the reader picks a time themselves.
+    if (!timeChosen) time = ([...TIMES].reverse().find(t => hasTime(t.key)) || TIMES[0]).key;
+    await render();
+  }
+
+  function tabs(el, items, current, onPick) {
+    el.innerHTML = '';
+    items.forEach(it => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'level-tab' + (it.key === current ? ' active' : '');
+      b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', it.key === current);
+      b.textContent = it.tab; b.disabled = !!it.disabled;
+      if (it.title) b.title = it.title;
+      b.onclick = () => { if (it.key !== current) onPick(it.key); };
+      el.appendChild(b);
+    });
+  }
+
+  async function render() {
+    const demo = isDemo(data);
+    const year = demo ? '2023' : '2026';
+    const L = LEVELS[level], T = TIMES.find(t => t.key === time);
+    if (mode === 'change' && !hasPrev()) mode = 'level';
+
+    tabs(document.getElementById('timeTabs'), TIMES.map(t => ({ ...t, disabled: !hasTime(t.key), title: hasTime(t.key) ? '' : 'Not published yet' })),
+         time, k => { time = k; timeChosen = true; render(); });
+    tabs(document.getElementById('modeTabs'),
+         [{ key: 'level', tab: 'Turnout' },
+          { key: 'change', tab: `Change vs ${prevLabel()}`, disabled: !hasPrev(), title: hasPrev() ? '' : `No ${prevLabel()} figures in the data file` }],
+         mode, k => { mode = k; render(); });
+
+    document.getElementById('title').textContent = `Spain ${year} · Turnout by ${L.one}`;
+    document.getElementById('subtitle').textContent = mode === 'change'
+      ? `Change in turnout ${T.long} against ${prevLabel()}, in percentage points · ${L.count}`
+      : `Turnout ${T.long} across ${L.count} · resident voters (the vote from abroad is counted later)`;
+    document.getElementById('demoPill').hidden = !demo;
+    const lu = document.getElementById('lastUpdated');
+    lu.textContent = demo ? 'Official final result, 23 July 2023' : 'Last updated: ' + formatTs(data.fetched_at);
+    setLiveDot(lu, !demo && data.counted_pct < 100);
+    document.getElementById('footer').textContent = '· Chart made by Andrei Miclea · Source: Ministerio del Interior'
+      + (demo ? ' (infoelectoral, official final result 2023)' : ' (turnout updates and provisional count)');
+
+    buildNational();
+    const sh = await loadShapes(level);
+    build(sh, data[level] || {});
+  }
+
+  function buildNational() {
+    const el = document.getElementById('national');
+    el.innerHTML = '<span>Spain</span>' + TIMES.map(t => {
+      const v = val(data.national, t.key);
+      if (v === null) return `<span>${t.tab} <b>–</b></span>`;
+      const d = change(data.national, t.key);
+      const c = d === null ? '' : `<span class="chg" style="color:${d >= 0 ? '#4338CA' : '#C2410C'}">${signed(d)}</span>`;
+      return `<span>${t.tab} <b>${v.toFixed(1)}%</b>${c}</span>`;
+    }).join('');
+  }
+
+  function build(sh, rows) {
+    const svg = document.getElementById('map');
+    svg.innerHTML = '';
+    const muni = level === 'municipalities';
+    const values = sh.list.map(s => shown(rows[s.id]));
+    const r = range(values);
+    let fillFor, lo, hi;
+    if (mode === 'change') {
+      const max = r ? Math.max(3, Math.ceil(Math.max(Math.abs(r.lo), Math.abs(r.hi)))) : 3;
+      lo = -max; hi = max;
+      fillFor = v => changeShade(v, max);
+    } else {
+      lo = r ? Math.floor(r.lo) : 0; hi = r ? Math.ceil(r.hi) : 100;
+      if (hi - lo < 4) { lo -= 2; hi += 2; }
+      fillFor = v => v === null ? NO_DATA_COLOR : turnoutShade(Math.max(v, lo + 0.01), lo, hi);
+    }
+
+    sh.list.forEach((s, i) => {
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', s.d); p.setAttribute('class', 'county' + (muni ? ' muni' : ''));
+      p.setAttribute('fill', fillFor(values[i]));
+      p.addEventListener('mouseenter', e => showTooltip(e, s, rows[s.id]));
+      p.addEventListener('mousemove', e => moveTooltip(e, 260));
+      p.addEventListener('mouseleave', () => document.getElementById('tooltip').style.display = 'none');
+      svg.appendChild(p);
+    });
+    drawInset(svg, sh);
+
+    if (!muni) sh.list.forEach((s, i) => {
+      const v = values[i];
+      if (v === null || s.cx == null) return;
+      const light = isLightFill(fillFor(v));
+      const text = mode === 'change' ? signed(v) : v.toFixed(1) + '%';
+      if (level === 'regions') svgText(svg, s.cx, s.cy - 3, 'county-label' + (light ? '' : ' light'), shortName(s.name));
+      svgText(svg, s.cx, s.cy + (level === 'regions' ? 8 : 3), 'county-pct' + (light ? '' : ' light'), text);
+    });
+
+    const any = values.some(v => v !== null);
+    const es = document.getElementById('emptyState');
+    es.hidden = any;
+    const T = TIMES.find(t => t.key === time);
+    es.firstElementChild.textContent = time === 't20'
+      ? `No ${LEVELS[level].one} turnout yet. It fills in as the count comes in after 20:00.`
+      : `No ${LEVELS[level].one} turnout ${T.long} yet. The ministry publishes it shortly after ${T.tab}.`;
+
+    const bar = document.getElementById('gradBar');
+    document.getElementById('gradLegend').style.visibility = any ? 'visible' : 'hidden';
+    if (mode === 'change') {
+      document.getElementById('gradLo').textContent = signed(lo, 0) + ' pp';
+      document.getElementById('gradHi').textContent = signed(hi, 0) + ' pp';
+      bar.style.background = `linear-gradient(to right, ${mix(MID, LOSS, 1)}, ${mix(MID, MID, 0)}, ${mix(MID, GAIN, 1)})`;
+      document.getElementById('legendHint').textContent = `Orange = lower turnout than ${prevLabel()}, blue = higher`;
+    } else {
+      document.getElementById('gradLo').textContent = lo + '%';
+      document.getElementById('gradHi').textContent = hi + '%';
+      bar.style.background = `linear-gradient(to right, ${turnoutShade(lo + 0.01, lo, hi)}, ${turnoutShade(hi, lo, hi)})`;
+      document.getElementById('legendHint').textContent = muni
+        ? 'Scale from the 2nd to the 98th percentile of municipalities, so the smallest villages don\'t set it'
+        : 'Darker = higher turnout';
+    }
+
+    window.EE.enableZoomPan(svg, { controls: { zoomIn: 'zoomIn', zoomOut: 'zoomOut', zoomReset: 'zoomReset', zoomLevel: 'zoomLevel' }, maxK: muni ? 40 : 12 });
+  }
+
+  function showTooltip(e, s, row) {
+    const tt = document.getElementById('tooltip');
+    let html = `<h3>${row ? row.name : s.name}</h3>`;
+    if (row && TIMES.some(t => val(row, t.key) !== null || val(row, 'prev_' + t.key) !== null)) {
+      const withPrev = TIMES.some(t => val(row, 'prev_' + t.key) !== null);
+      html += `<table class="tt-table"><tr><th></th><th>${isDemo(data) ? '2023' : '2026'}</th>`
+        + (withPrev ? `<th>${prevLabel()}</th><th>Change</th>` : '') + '</tr>';
+      TIMES.forEach(t => {
+        const v = val(row, t.key), p = val(row, 'prev_' + t.key), d = change(row, t.key);
+        html += `<tr class="${t.key === time ? 'active' : ''}"><td>${t.tab}</td><td>${v === null ? '–' : v.toFixed(1) + '%'}</td>`
+          + (withPrev ? `<td>${p === null ? '–' : p.toFixed(1) + '%'}</td>`
+             + `<td style="color:${d === null ? '#94A3B8' : d >= 0 ? '#4338CA' : '#C2410C'}">${d === null ? '–' : signed(d) + ' pp'}</td>` : '')
+          + '</tr>';
+      });
+      html += '</table>';
+    } else html += '<div class="no-data">No data</div>';
+    tt.innerHTML = html; tt.style.display = 'block'; moveTooltip(e, 260);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

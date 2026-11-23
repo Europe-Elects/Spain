@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spain – Congress Seats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .demo-pill { font-size: 11px; padding: 3px 8px; background: #E0E7FF; color: #3730A3; border-radius: 4px; font-weight: 600; }
+  #hemi-wrap { position: relative; background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 10px 6px; }
+  #hemi-wrap .map-logo { position: absolute; top: 10px; left: 10px; }
+  #hemi { display: block; width: 100%; height: auto; max-height: 520px; }
+  .seat { stroke: #fff; stroke-width: .8; transition: opacity .15s; }
+  .seat.dim { opacity: .15; }
+  .majority-line { stroke: #0F172A; stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .hemi-total { font: 700 44px 'Inter', sans-serif; fill: #0F172A; text-anchor: middle; }
+  .hemi-sub { font: 500 13px 'Inter', sans-serif; fill: #64748B; text-anchor: middle; }
+  .legend-group { font-size: 10px; color: #94A3B8; font-weight: 500; margin-left: 2px; }
+  .legend-seats { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 2px; }
+  .legend-change { font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 1px; }
+  .legend-change.up { color: #15803D; } .legend-change.down { color: #B91C1C; } .legend-change.same { color: #94A3B8; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="title">Spain · Congress of Deputies</h1>
+    <div class="subtitle" id="subtitle">&nbsp;</div>
+    <div class="status-row">
+      <span class="last-updated" id="lastUpdated">Last updated: –</span>
+      <span class="counted-pill" id="countedPill"></span>
+      <span class="demo-pill" id="demoPill" hidden>Demo · 2023 result</span>
+    </div>
+  </div>
+  <div id="hemi-wrap">
+    <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
+    <svg id="hemi" viewBox="0 0 1000 540" role="img" aria-label="Seats in the Congress of Deputies"></svg>
+  </div>
+  <div class="legend" id="legend"></div>
+  <div class="legend-hint" id="legendHint">Tap a party to highlight its seats · change against the previous election</div>
+  <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
+</div>
+<script src="assets/map-utils.js"></script>
+<script src="assets/es-parties.js"></script>
+<script>
+(function () {
+  const { loadResults, autoRefresh, formatTs, setCountedPill, setLiveDot } = window.EE;
+  const { info } = window.ES_PARTIES;
+  const NS = 'http://www.w3.org/2000/svg';
+
+  // The seats file (same as senate-map.html). Election night: point this at the live file.
+  const DATA_URL = 'spain_2023_seats_demo.json';
+
+  // Seating order, left to right. Parties not listed sit between the centre and PP.
+  const ORDER = ['EH Bildu', 'SUMAR', 'B.N.G.', 'ERC', 'PSOE', 'EAJ-PNV', 'CCa', 'JxCAT - JUNTS',
+                 'U.P.N.', 'PP', 'VOX'];
+  const pos = k => { const i = ORDER.indexOf(k); return i < 0 ? ORDER.indexOf('U.P.N.') - 0.5 : i; };
+
+  const W = 1000, CX = W / 2, CY = 500, R = 470, R0 = 190;
+  let feed = null, focus = null;
+
+  // Seat positions for n seats in a half circle: rows of dots, each row's seat count in
+  // proportion to its length, all seats then ordered by angle (left to right).
+  function layout(n) {
+    let rows = 1;
+    while (true) {
+      const gap = (R - R0) / Math.max(rows - 1, 1);
+      const cap = Array.from({ length: rows }, (_, i) => Math.floor(Math.PI * (R0 + gap * i) / gap));
+      if (cap.reduce((a, b) => a + b, 0) >= n) break;
+      rows++;
+    }
+    const gap = (R - R0) / Math.max(rows - 1, 1);
+    const radii = Array.from({ length: rows }, (_, i) => R0 + gap * i);
+    const sum = radii.reduce((a, b) => a + b, 0);
+    const per = radii.map(r => Math.floor(n * r / sum));
+    for (let i = rows - 1; per.reduce((a, b) => a + b, 0) < n; i = (i - 1 + rows) % rows) per[i]++;
+    const seats = [];
+    radii.forEach((r, i) => {
+      for (let j = 0; j < per[i]; j++) {
+        const a = Math.PI * (per[i] === 1 ? 0.5 : 1 - j / (per[i] - 1));
+        seats.push({ a, x: CX + r * Math.cos(a), y: CY - r * Math.sin(a) });
+      }
+    });
+    seats.sort((p, q) => q.a - p.a || p.y - q.y);
+    return { seats, dot: gap * 0.42 };
+  }
+
+  function swatch(k) {
+    const i = info(k);
+    return i.color2 ? `linear-gradient(135deg, ${i.color} 0 50%, ${i.color2} 50% 100%)` : i.color;
+  }
+
+  async function refresh() {
+    feed = await loadResults(DATA_URL);
+    render();
+  }
+
+  function render() {
+    const ch = feed.congress;
+    const demo = /^DEMO/.test(feed.election || '');
+    document.getElementById('title').textContent = `Spain ${demo ? '2023' : '2026'} · Congress of Deputies`;
+    document.getElementById('subtitle').textContent = `${ch.seats_total} seats · ${ch.majority} for a majority`;
+    document.getElementById('demoPill').hidden = !demo;
+    const lu = document.getElementById('lastUpdated');
+    lu.textContent = demo ? 'Official final result, 23 July 2023' : 'Last updated: ' + formatTs(feed.fetched_at);
+    setLiveDot(lu, !demo && ch.counted_pct < 100);
+    setCountedPill(document.getElementById('countedPill'), ch.counted_pct);
+    document.getElementById('footer').textContent = '· Chart made by Andrei Miclea · Source: Ministerio del Interior'
+      + (demo ? ' (infoelectoral, official final result 2023)' : ' (provisional count)');
+
+    const parties = ch.seats.slice().sort((a, b) => pos(a.party) - pos(b.party));
+    const owners = [];
+    parties.forEach(p => { for (let i = 0; i < p.seats; i++) owners.push(p.party); });
+    while (owners.length < ch.seats_total) owners.splice(Math.ceil(owners.length / 2), 0, null);
+
+    const { seats, dot } = layout(ch.seats_total);
+    const svg = document.getElementById('hemi');
+    svg.innerHTML = '';
+    // Two-group parties (Sumar) get a split dot.
+    const defs = document.createElementNS(NS, 'defs');
+    svg.appendChild(defs);
+    const fill = k => {
+      if (!k) return '#E2E8F0';
+      const i = info(k);
+      if (!i.color2) return i.color;
+      const id = 'split-' + k.replace(/[^\w]/g, '');
+      if (!defs.querySelector('#' + id)) {
+        defs.insertAdjacentHTML('beforeend', `<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="50%" stop-color="${i.color}"/><stop offset="50%" stop-color="${i.color2}"/></linearGradient>`);
+      }
+      return `url(#${id})`;
+    };
+    seats.forEach((s, i) => {
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', s.x.toFixed(1)); c.setAttribute('cy', s.y.toFixed(1)); c.setAttribute('r', dot.toFixed(1));
+      c.setAttribute('class', 'seat' + (focus && owners[i] !== focus ? ' dim' : ''));
+      c.setAttribute('fill', fill(owners[i]));
+      if (owners[i]) {
+        const t = document.createElementNS(NS, 'title');
+        t.textContent = info(owners[i]).label;
+        c.appendChild(t);
+      }
+      svg.appendChild(c);
+    });
+    const line = document.createElementNS(NS, 'line');
+    Object.entries({ x1: CX, y1: CY - R0 + 30, x2: CX, y2: CY - R - 18, class: 'majority-line' })
+      .forEach(([k, v]) => line.setAttribute(k, v));
+    svg.appendChild(line);
+    const allocated = owners.filter(Boolean).length;
+    const shown = focus ? ch.seats.find(p => p.party === focus) : null;
+    [[CY - 40, 'hemi-total', shown ? String(shown.seats) : String(ch.seats_total)],
+     [CY - 14, 'hemi-sub', shown ? info(focus).label
+        : allocated < ch.seats_total ? `${allocated} of ${ch.seats_total} seats allocated` : 'seats']]
+      .forEach(([y, cls, text]) => {
+        const t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', CX); t.setAttribute('y', y); t.setAttribute('class', cls); t.textContent = text;
+        svg.appendChild(t);
+      });
+
+    const lg = document.getElementById('legend');
+    lg.innerHTML = '';
+    ch.seats.forEach(p => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'legend-item clickable' + (focus === p.party ? ' active' : '');
+      b.setAttribute('aria-pressed', focus === p.party ? 'true' : 'false');
+      b.title = p.name;
+      const g = info(p.party).groupLabel;
+      const ch_ = p.seat_change;
+      const change = ch_ === null || ch_ === undefined ? ''
+        : `<span class="legend-change ${ch_ > 0 ? 'up' : ch_ < 0 ? 'down' : 'same'}">${ch_ > 0 ? '+' : ch_ < 0 ? '−' : '±'}${Math.abs(ch_)}</span>`;
+      b.innerHTML = `<div class="legend-swatch" style="background:${swatch(p.party)}"></div>${info(p.party).label}`
+        + (g ? `<span class="legend-group">${g}</span>` : '') + `<span class="legend-seats">${p.seats}</span>` + change;
+      b.onclick = () => { focus = focus === p.party ? null : p.party; render(); };
+      lg.appendChild(b);
+    });
+  }
+
+  refresh().then(() => autoRefresh(refresh, 60000));
+})();
+</script>
+</body>
+</html>
