@@ -5,8 +5,9 @@ locally with `python3 -m http.server 8000` (fetch() fails on file://).
 
 Five embeds:
 
-- `senate-map.html` — Senate seats by constituency (59), one dot per seat, plus the
-  national seat bar.
+- `seats-map.html` — seats by constituency, with tabs for the Deputies (Congress, 52
+  constituencies, the default) and the Senate (59): one dot per seat, plus the national seat
+  bar. `?house=senate` opens the Senate tab.
 - `results-map.html` — Congress vote share, with tabs for region (19), province (52) and
   municipality (8,131); tap a party to shade by its share. `?level=` picks the opening tab.
 - `turnout-map.html` — turnout at 14:00, 18:00 and the close of polls, with tabs for region
@@ -17,7 +18,7 @@ Five embeds:
 - `hemicycle.html` — Congress seats (350) as a hemicycle, parties seated left to right, with
   the majority line and each party's seat change.
 
-The two seats pages read the client seats file (`DATA_URL` at the top of each script); now
+The seats map and the hemicycle read the client seats file (`DATA_URL` at the top of each script); now
 the 2023 demo `spain_2023_seats_demo.json`, built by `demo_2023.py` in the private collector
 repo.
 

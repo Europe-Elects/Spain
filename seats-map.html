@@ -3,11 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spain – Senate Seats</title>
+<title>Spain – Seats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/map.css">
 <style>
+  .house-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #F1F5F9; border-radius: 8px; margin: 2px 0 10px; }
+  .house-tab {
+    border: 0; background: transparent; font-family: inherit; font-size: 13px; font-weight: 500;
+    color: #475569; padding: 6px 14px; border-radius: 6px; cursor: pointer;
+  }
+  .house-tab:hover { color: #0F172A; }
+  .house-tab.active { background: #fff; color: #0F172A; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .house-tab:focus-visible { outline: 2px solid #2563EB; outline-offset: 1px; }
+
   .demo-pill { font-size: 11px; padding: 3px 8px; background: #E0E7FF; color: #3730A3; border-radius: 4px; font-weight: 600; }
 
   .seatbar-wrap { margin-bottom: 10px; }
@@ -35,6 +44,7 @@
   .legend-seats { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 2px; }
 
   @media (max-width: 520px) {
+    .house-tab { font-size: 12px; padding: 5px 10px; }
     .seatbar { height: 22px; }
     .seg { font-size: 10px; }
   }
@@ -50,6 +60,10 @@
       <span class="counted-pill" id="countedPill"></span>
       <span class="demo-pill" id="demoPill" hidden>Demo · 2023 result</span>
     </div>
+  </div>
+  <div class="house-tabs" role="tablist" aria-label="House">
+    <button class="house-tab" role="tab" data-house="congress">Deputies</button>
+    <button class="house-tab" role="tab" data-house="senate">Senate</button>
   </div>
   <div class="seatbar-wrap">
     <div class="seatbar-top"><strong id="seatbarTitle">&nbsp;</strong><span id="seatbarInfo"></span></div>
@@ -91,8 +105,8 @@
   const { info } = window.ES_PARTIES;
   const label = a => info(a).label;
 
-  // The Senate only; the Congress seats are in hemicycle.html.
-  const house = 'senate';
+  const params = new URLSearchParams(location.search);
+  let house = params.get('house') === 'senate' ? 'senate' : 'congress';
   let feed = null, focus = null;
   const shapes = {}; // house -> { id: {name, type, canary, d, cx, cy} }
 
@@ -126,6 +140,12 @@
   }
 
   async function init() {
+    document.querySelectorAll('.house-tab').forEach(b => b.onclick = () => {
+      if (b.dataset.house === house) return;
+      house = b.dataset.house; focus = null;
+      const u = new URL(location.href); u.searchParams.set('house', house); history.replaceState(null, '', u);
+      render();
+    });
     await refresh();
     autoRefresh(refresh, 60000);
   }
@@ -142,13 +162,17 @@
     const order = ch.seats.map(p => p.party);
     const rank = k => { const i = order.indexOf(k); return i < 0 ? 999 : i; };
 
+    document.querySelectorAll('.house-tab').forEach(b => {
+      const a = b.dataset.house === house;
+      b.classList.toggle('active', a); b.setAttribute('aria-selected', a);
+    });
     const demo = /^DEMO/.test(feed.election || '');
     const year = demo ? '2023' : '2026';
     document.getElementById('title').textContent =
-      `Spain ${year} · ${house === 'congress' ? 'Congress' : 'Senate'} seats by constituency`;
+      `Spain ${year} · Seats by constituency`;
     document.getElementById('subtitle').textContent = house === 'congress'
-      ? `${ch.constituencies_total} constituencies (50 provinces, Ceuta, Melilla) · ${ch.seats_total} seats`
-      : `${ch.constituencies_total} constituencies (provinces, with the Balearic and Canary Islands by island) · ${ch.seats_total} directly elected seats`;
+      ? `Congress of Deputies · ${ch.constituencies_total} constituencies (50 provinces, Ceuta, Melilla) · ${ch.seats_total} seats`
+      : `Senate · ${ch.constituencies_total} constituencies (provinces, with the Balearic and Canary Islands by island) · ${ch.seats_total} directly elected seats`;
     document.getElementById('demoPill').hidden = !demo;
     const lu = document.getElementById('lastUpdated');
     lu.textContent = demo ? 'Official final result, 23 July 2023' : 'Last updated: ' + formatTs(feed.fetched_at);
