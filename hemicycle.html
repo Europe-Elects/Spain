@@ -44,14 +44,16 @@
 </div>
 <script src="assets/map-utils.js"></script>
 <script src="assets/es-parties.js"></script>
+<script src="assets/es-map.js"></script>
 <script>
 (function () {
-  const { loadResults, autoRefresh, formatTs, setCountedPill, setLiveDot } = window.EE;
+  const { autoRefresh, formatTs, setCountedPill, setLiveDot } = window.EE;
   const { info } = window.ES_PARTIES;
   const NS = 'http://www.w3.org/2000/svg';
 
-  // The seats file (same as seats-map.html). Election night: point this at the live file.
-  const DATA_URL = 'spain_2023_seats_demo.json';
+  // The live maps file (its `congress_seats`, refreshed as seats are declared) once it
+  // exists, else the 2023 demo seats file.
+  const DEMO_URL = 'spain_2023_seats_demo.json';
 
   // Seating order, left to right. Parties not listed sit between the centre and PP.
   const ORDER = ['EH Bildu', 'SUMAR', 'B.N.G.', 'ERC', 'PSOE', 'EAJ-PNV', 'CCa', 'JxCAT - JUNTS',
@@ -94,12 +96,12 @@
 
   async function refresh() {
     await window.ES_PARTIES.ready;  // Europarty and EP group from the party database (labels)
-    feed = await loadResults(DATA_URL);
+    feed = await window.ES_MAP.loadData(DEMO_URL);
     render();
   }
 
   function render() {
-    const ch = feed.congress;
+    const ch = feed.congress_seats || feed.congress;
     const demo = /^DEMO/.test(feed.election || '');
     document.getElementById('title').textContent = `Spain ${demo ? '2023' : '2026'} · Congress of Deputies`;
     document.getElementById('subtitle').textContent = `${ch.seats_total} seats · ${ch.majority} for a majority`;
