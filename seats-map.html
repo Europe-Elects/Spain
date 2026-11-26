@@ -151,6 +151,7 @@
   }
 
   async function refresh() {
+    await window.ES_PARTIES.ready;  // Europarty and EP group from the party database (labels)
     feed = await loadResults(DATA_URL);
     await render();
   }

@@ -94,6 +94,7 @@
   }
 
   async function refresh() {
+    await window.ES_PARTIES.ready;  // Europarty and EP group from the party database (labels)
     data = await window.ES_MAP.loadData(DATA_URL);
     data.parties.forEach(k => { const i = info(k); PARTIES[k] = { color: i.color, color2: i.color2, name: i.label, groupLabel: i.groupLabel }; });
     await render();
