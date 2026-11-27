@@ -41,10 +41,33 @@
     'ASG':           { label: 'ASG',      groups: ['*'] },
     'A.H.I.':        { label: 'AHI',      groups: ['*'] },
     'OTHERS':        { label: 'Others',   groups: [], color: '#CBD5E1' },
-    // 2026 lists: Europe Elects IDs are ready; add the ministry's abbreviation as the key once it is
-    // known (from the results feed), e.g.  'FRENTE AMPLIO': { label: 'FA', id: 'ALA277', groups: [...] }.
-    //   FA ALA277 · Comp.–FV ALA278 · UPC ALA279 · Existe ALA280 · D21+ ALA281 · CC-1ºCAN ALA118 ·
-    //   Senate: SdP ALA282 · ERC/EHB ALA283 · Comuns ALA284 · Ara Més ALA285 · FaS ALA286 · Sa Unió ALA287
+    // 2026: the ministry's abbreviations of the national groupings (getCandidaturas, media
+    // API). Groups set the colours; the label tag comes from the party database by id.
+    'FA':            { label: 'FA',        id: 'ALA277', groups: ['Greens/EFA', 'LEFT'] },
+    'PODEMOS':       { label: 'Podemos',   groups: ['LEFT'] },
+    'JxCat':         { label: 'Junts',     id: 'ES731801', groups: ['NI'] },
+    'EH BILDU':      { label: 'EH Bildu',  id: 'ES120670', groups: ['LEFT'] },
+    'BNG':           { label: 'BNG',       id: 'ES014003', groups: ['Greens/EFA'] },
+    'CCa-1ºCAN':     { label: 'CC',        id: 'ALA118', groups: ['*'] },
+    'UPN-PP':        { label: 'UPN–PP',    groups: ['*'] },
+    'NC-BC, PODEMOS, IU, SUMAR': { label: 'UPC', id: 'ALA279', groups: ['LEFT'] },
+    'COMPROMIS-EUPV-PODEM-ERPV': { label: 'Compromís', id: 'ALA278', groups: ['Greens/EFA'] },
+    'TERUEL EXISTE': { label: 'Teruel Existe', id: 'ALA280', groups: ['*'] },
+    'D21':           { label: 'D21+',      id: 'ALA281', groups: ['*'] },
+    'SALF':          { label: 'SALF',      groups: ['NI'] },
+    'ADELANTE ANDALUCÍA': { label: 'Adelante Andalucía', groups: ['*'] },
+    'PACMA':         { label: 'PACMA',     groups: ['*'] },
+    'GBAI':          { label: 'Geroa Bai', groups: ['*'] },
+    // 2026 Senate-only groupings.
+    'SDP (PSOE, IU, MS, MM, COMPROMIS, CHA, BATZARRE)': { label: 'Senado de Progreso', id: 'ALA282', groups: ['S&D'] },
+    'ERC-EH BILDU':  { label: 'ERC–EH Bildu', id: 'ALA283', groups: ['Greens/EFA', 'LEFT'] },
+    'C-DEM':         { label: 'Comuns',    id: 'ALA284', groups: ['Greens/EFA', 'LEFT'] },
+    'PSIB-PSOE-MÉS PER MALLORCA-SUMAR-EUIB': { label: 'Acord de Progrés (Mallorca)', groups: ['S&D'] },
+    'PSOE-MÉS PER MENORCA-EM-EU-PODEMOS':    { label: 'Menorca al Senat', groups: ['S&D'] },
+    'PSOE-SUMAR-EUIB-ARA EIVISSA-PODEM':     { label: 'Eivissa al Senat', groups: ['S&D'] },
+    'PSOE-GxF-M.SUMAR': { label: 'Formentera al Senat', id: 'ALA286', groups: ['S&D'] },
+    'SA UNIÓ':       { label: 'Sa Unió',   id: 'ALA287', groups: ['*'] },
+    'FV':            { label: 'Formentera Viva', groups: ['*'] },
   };
 
   // ---- Europe Elects party database (as published by the country pages) ----

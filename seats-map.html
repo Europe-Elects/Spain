@@ -6,7 +6,7 @@
 <title>Spain – Seats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261127a">
+<link rel="stylesheet" href="assets/map.css?v=20261127b">
 <style>
   .house-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #F1F5F9; border-radius: 8px; }
   .house-tab {
@@ -93,9 +93,9 @@
   <div class="legend-hint" id="legendHint">Colour = party with the most seats in the constituency · Europe Elects colours by European Parliament group</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261127a"></script>
-<script src="assets/es-parties.js?v=20261127a"></script>
-<script src="assets/es-map.js?v=20261127a"></script>
+<script src="assets/map-utils.js?v=20261127b"></script>
+<script src="assets/es-parties.js?v=20261127b"></script>
+<script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
   const { NO_DATA_COLOR, isLightFill, partyShade, cssId, bbox, makeProjection, featurePath,
@@ -258,6 +258,10 @@
     svg.innerHTML = '';
     const defs = document.createElementNS(ns, 'defs'); svg.appendChild(defs);
     const byCode = Object.fromEntries(ch.constituencies.map(c => [c.code, c]));
+    // Until 2026 Eivissa and Formentera elected their senator together (075); the shapes
+    // are the 2026 constituencies (073, 074), so both islands show that one seat.
+    const joint = byCode['075'] && !byCode['073'];
+    if (joint) byCode['073'] = byCode['074'] = byCode['075'];
     const ids = Object.keys(sh).filter(k => k !== '__inset');
 
     // Seat share of the focused party per constituency, for the shading scale.
@@ -306,7 +310,7 @@
     // One dot per seat, coloured by party, in a small grid on the constituency.
     ids.forEach(id => {
       const c = byCode[id];
-      if (!c) return;
+      if (!c || (joint && id === '074')) return;  // the joint seat's dot sits on Eivissa
       const dots = [];
       groupByParty(c, rank).forEach(g => { for (let i = 0; i < g.seats; i++) dots.push(g.party); });
       while (dots.length < c.seats_total) dots.push(null); // seats not allocated yet
@@ -338,7 +342,7 @@
 
   function showTooltip(e, shape, c, col, rank) {
     const tt = document.getElementById('tooltip');
-    let html = `<h3>${shape.name}</h3>`;
+    let html = `<h3>${c ? c.name : shape.name}</h3>`;  // c.name: "Eivissa-Formentera" in 2023
     if (c) {
       const allocated = c.seats.reduce((a, s) => a + s.seats, 0);
       html += `<div class="tt-meta">${shape.type === 'island' ? 'Island constituency' : 'Province'} · ${c.seats_total} seat${c.seats_total === 1 ? '' : 's'}`
