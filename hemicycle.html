@@ -60,9 +60,12 @@
   let year;
 
   // Seating order, left to right. Parties not listed sit between the centre and PP.
-  const ORDER = ['EH Bildu', 'SUMAR', 'B.N.G.', 'ERC', 'PSOE', 'EAJ-PNV', 'CCa', 'JxCAT - JUNTS',
-                 'U.P.N.', 'PP', 'VOX'];
-  const pos = k => { const i = ORDER.indexOf(k); return i < 0 ? ORDER.indexOf('U.P.N.') - 0.5 : i; };
+  const ORDER = [
+    'EH Bildu', 'EH BILDU', 'PODEMOS', 'SUMAR', 'FA', 'NC-BC, PODEMOS, IU, SUMAR',
+    'COMPROMIS-EUPV-PODEM-ERPV', 'B.N.G.', 'BNG', 'ERC', 'PSOE', 'GBAI', 'EAJ-PNV', 'CCa',
+    'CCa-1ºCAN', 'TERUEL EXISTE', 'JxCAT - JUNTS', 'JxCat', 'U.P.N.', 'UPN-PP', 'PP', 'VOX', 'SALF',
+  ];
+  const pos = k => { const i = ORDER.indexOf(k); return i < 0 ? ORDER.indexOf('PP') - 0.5 : i; };
 
   const W = 1000, CX = W / 2, CY = 500, R = 470, R0 = 190;
   let feed = null, focus = null;
