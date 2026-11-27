@@ -31,6 +31,7 @@
   </div>
   <div class="nat" id="national"></div>
   <div class="tab-row">
+    <div class="level-tabs" id="yearTabs" role="tablist" aria-label="Election"></div>
     <div class="level-tabs" id="levelTabs" role="tablist" aria-label="Level"></div>
     <div class="level-tabs small" id="timeTabs" role="tablist" aria-label="Time"></div>
     <div class="level-tabs small" id="modeTabs" role="tablist" aria-label="View"></div>
@@ -58,10 +59,12 @@
 <script>
 (function () {
   const { NO_DATA_COLOR, isLightFill, turnoutShade, loadResults, autoRefresh, formatTs, setLiveDot } = window.EE;
-  const { NS, LEVELS, loadShapes, drawInset, levelTabs, moveTooltip, shortName, svgText, isDemo } = window.ES_MAP;
+  const { NS, LEVELS, loadShapes, drawInset, levelTabs, moveTooltip, shortName, svgText, isDemo,
+          yearTabs, loadYear, EMPTY_NOTE } = window.ES_MAP;
 
-  // The live maps file once it exists (ES_MAP.loadData), this demo until then.
-  const DATA_URL = 'spain_2023_results_demo.json';  // demo, until the live file exists
+  // 2023: this file. 2026: the live maps file, empty until it exists (ES_MAP.loadYear); on
+  // the day it has the 14:00 and 18:00 updates before any result.
+  const DATA_URL = 'spain_2023_results_demo.json';
   // The ministry's two daytime updates, then turnout at the close of polls (20:00), all
   // without the vote from abroad (CERA), which is counted days later.
   const TIMES = [{ key: 't14', tab: '14:00', long: 'at 14:00' },
@@ -69,7 +72,7 @@
                  { key: 't20', tab: 'Close of polls', long: 'at the close of polls' }];
   const LOSS = { r: 194, g: 65, b: 12 }, GAIN = { r: 67, g: 56, b: 202 }, MID = { r: 248, g: 250, b: 252 };
 
-  let level, data = null, time = null, mode = 'level', timeChosen = false;
+  let year, level, data = null, time = null, mode = 'level', timeChosen = false;
 
   const val = (row, k) => row && typeof row[k] === 'number' ? row[k] : null;
   const change = (row, k) => {
@@ -99,7 +102,7 @@
   }
 
   async function init() {
-    data = await window.ES_MAP.loadData(DATA_URL);
+    year = yearTabs(document.getElementById('yearTabs'), y => { year = y; timeChosen = false; mode = 'level'; refresh(); });
     level = levelTabs(document.getElementById('levelTabs'), ['regions', 'provinces'],
                       lv => { level = lv; render(); });
     await refresh();
@@ -107,7 +110,10 @@
   }
 
   async function refresh() {
-    data = await window.ES_MAP.loadData(DATA_URL);
+    const y = year;
+    const d = await loadYear(y, DATA_URL);
+    if (y !== year) return;  // the year changed while this was loading
+    data = d;
     // Follow the latest update until the reader picks a time themselves.
     if (!timeChosen) time = ([...TIMES].reverse().find(t => hasTime(t.key)) || TIMES[0]).key;
     await render();
@@ -128,7 +134,6 @@
 
   async function render() {
     const demo = isDemo(data);
-    const year = demo ? '2023' : '2026';
     const L = LEVELS[level], T = TIMES.find(t => t.key === time);
     if (mode === 'change' && !hasPrev()) mode = 'level';
 
@@ -145,7 +150,8 @@
       : `Turnout ${T.long} across ${L.count} · resident voters (the vote from abroad is counted later)`;
     document.getElementById('demoPill').hidden = !demo;
     const lu = document.getElementById('lastUpdated');
-    lu.textContent = demo ? 'Official final result, 23 July 2023' : 'Last updated: ' + formatTs(data.fetched_at);
+    lu.textContent = demo ? 'Official final result, 23 July 2023'
+      : data.empty ? 'Waiting for results' : 'Last updated: ' + formatTs(data.fetched_at);
     setLiveDot(lu, !demo && data.counted_pct < 100);
     document.getElementById('footer').textContent = '· Chart made by Andrei Miclea · Source: Ministerio del Interior'
       + (demo ? ' (infoelectoral, official final result 2023)' : ' (turnout updates and provisional count)');
@@ -207,7 +213,7 @@
     const es = document.getElementById('emptyState');
     es.hidden = any;
     const T = TIMES.find(t => t.key === time);
-    es.firstElementChild.textContent = time === 't20'
+    es.firstElementChild.textContent = data.empty ? EMPTY_NOTE : time === 't20'
       ? `No ${LEVELS[level].one} turnout yet. It fills in as the count comes in after 20:00.`
       : `No ${LEVELS[level].one} turnout ${T.long} yet. The ministry publishes it shortly after ${T.tab}.`;
 

@@ -23,7 +23,10 @@
       <span class="demo-pill" id="demoPill" hidden>Demo · 2023 result</span>
     </div>
   </div>
-  <div class="tab-row"><div class="level-tabs" id="levelTabs" role="tablist" aria-label="Level"></div></div>
+  <div class="tab-row">
+    <div class="level-tabs" id="yearTabs" role="tablist" aria-label="Election"></div>
+    <div class="level-tabs" id="levelTabs" role="tablist" aria-label="Level"></div>
+  </div>
   <div id="map-container" style="overflow:hidden">
     <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
     <svg id="map" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet"></svg>
@@ -51,14 +54,15 @@
 (function () {
   const { NO_DATA_COLOR, isLightFill, partyShade, cssId, buildSplitPatterns, loadResults, autoRefresh,
           formatTs, setCountedPill, setLiveDot } = window.EE;
-  const { NS, LEVELS, loadShapes, drawInset, levelTabs, moveTooltip, shortName, svgText, isDemo } = window.ES_MAP;
+  const { NS, LEVELS, loadShapes, drawInset, levelTabs, moveTooltip, shortName, svgText, isDemo,
+          yearTabs, loadYear, EMPTY_NOTE } = window.ES_MAP;
   const { info } = window.ES_PARTIES;
 
-  // The live maps file once it exists (ES_MAP.loadData), this demo until then.
-  const DATA_URL = 'spain_2023_results_demo.json';  // demo, until the live file exists
+  // 2023: this file. 2026: the live maps file, empty until it exists (ES_MAP.loadYear).
+  const DATA_URL = 'spain_2023_results_demo.json';
   const HINT = 'Colour = party with the most votes · Europe Elects colours by European Parliament group';
 
-  let level, data = null, focus = null;
+  let year, level, data = null, focus = null;
   const PARTIES = {};
 
   // The party with the most votes, leaving out "Others".
@@ -73,18 +77,24 @@
   const fillOf = k => PARTIES[k].color2 ? `url(#split-${cssId(k)})` : PARTIES[k].color;
 
   async function init() {
-    data = await window.ES_MAP.loadData(DATA_URL);
-    // No municipality tab on election night: the live file has regions and provinces only.
-    level = levelTabs(document.getElementById('levelTabs'),
-                      ['regions', 'provinces'].concat(data.municipalities ? ['municipalities'] : []),
-                      lv => { level = lv; render(); });
-    await refresh();
+    year = yearTabs(document.getElementById('yearTabs'), y => { year = y; focus = null; refresh(true); });
+    await refresh(true);
     autoRefresh(refresh, 60000);
   }
 
-  async function refresh() {
+  // `tabs`: rebuild the level tabs (on start and when the year changes). Municipalities
+  // exist only in the 2023 file; the live file has regions and provinces.
+  async function refresh(tabs) {
     await window.ES_PARTIES.ready;  // Europarty and EP group from the party database (labels)
-    data = await window.ES_MAP.loadData(DATA_URL);
+    const y = year;
+    const d = await loadYear(y, DATA_URL);
+    if (y !== year) return;  // the year changed while this was loading
+    data = d;
+    if (tabs === true) {
+      level = levelTabs(document.getElementById('levelTabs'),
+                        ['regions', 'provinces'].concat(data.municipalities ? ['municipalities'] : []),
+                        lv => { level = lv; render(); });
+    }
     data.parties.forEach(k => { const i = info(k); PARTIES[k] = { color: i.color, color2: i.color2, name: i.label, groupLabel: i.groupLabel }; });
     await render();
   }
@@ -97,7 +107,8 @@
     document.getElementById('subtitle').textContent = `Vote share across ${L.count}` + (typeof t === 'number' ? ` · turnout ${t.toFixed(1)}%` : '');
     document.getElementById('demoPill').hidden = !demo;
     const lu = document.getElementById('lastUpdated');
-    lu.textContent = demo ? 'Official final result, 23 July 2023' : 'Last updated: ' + formatTs(data.fetched_at);
+    lu.textContent = demo ? 'Official final result, 23 July 2023'
+      : data.empty ? 'Waiting for results' : 'Last updated: ' + formatTs(data.fetched_at);
     setLiveDot(lu, !demo && data.counted_pct < 100);
     setCountedPill(document.getElementById('countedPill'), demo ? null : data.counted_pct);
     document.getElementById('footer').textContent = '· Chart made by Andrei Miclea · Source: Ministerio del Interior'
@@ -150,7 +161,8 @@
 
     const es = document.getElementById('emptyState');
     es.hidden = Object.keys(rows).length > 0;
-    es.firstElementChild.textContent = `No ${LEVELS[level].one} results yet. They appear here as the ministry publishes them.`;
+    es.firstElementChild.textContent = data.empty ? EMPTY_NOTE
+      : `No ${LEVELS[level].one} results yet. They appear here as the ministry publishes them.`;
 
     window.EE.enableZoomPan(svg, { controls: { zoomIn: 'zoomIn', zoomOut: 'zoomOut', zoomReset: 'zoomReset', zoomLevel: 'zoomLevel' }, maxK: muni ? 40 : 12 });
   }

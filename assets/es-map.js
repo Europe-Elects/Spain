@@ -9,6 +9,10 @@
  *   dataUrl(fallback)        -> ?data=<file>.json if given (a plain file name next to the
  *                               page, for rehearsals and tests), else the page's default
  *   loadData(demo)           -> ?data= if given, else the live maps file, else the demo
+ *   yearTabs(el, onChange)   -> the 2023 / 2026 buttons, kept in ?year=; returns the year to
+ *                               start on (2026 from election night, 2023 before)
+ *   loadYear(year, demo)     -> 2023: the demo file; 2026: the live file only, or an empty
+ *                               placeholder ({empty: true}) until the live file exists
  */
 (function () {
   'use strict';
@@ -129,6 +133,59 @@
   // The data file's election label marks the 2023 demo ("DEMO: ...") and rehearsals.
   const isDemo = d => /^DEMO/.test(d.election || '');
 
+  // ---- 2023 / 2026 ----
+  // Polls close at 20:00 Madrid time (19:00 UTC) on 29 November: from then on the pages
+  // open on 2026, before that on 2023. ?year= overrides.
+  const NIGHT = Date.UTC(2026, 10, 29, 19, 0);
+  const YEARS = ['2023', '2026'];
+
+  function yearTabs(el, onChange) {
+    const asked = new URLSearchParams(location.search).get('year');
+    let current = YEARS.includes(asked) ? asked : (Date.now() >= NIGHT ? '2026' : '2023');
+    el.innerHTML = '';
+    YEARS.forEach(y => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'level-tab'; b.setAttribute('role', 'tab');
+      b.dataset.year = y; b.textContent = y;
+      b.onclick = () => {
+        if (y === current) return;
+        current = y; mark();
+        const u = new URL(location.href); u.searchParams.set('year', y); history.replaceState(null, '', u);
+        onChange(y);
+      };
+      el.appendChild(b);
+    });
+    function mark() {
+      el.querySelectorAll('.level-tab').forEach(b => {
+        const a = b.dataset.year === current;
+        b.classList.toggle('active', a); b.setAttribute('aria-selected', a);
+      });
+    }
+    mark();
+    return current;
+  }
+
+  // What a 2026 page shows before the live file exists: nothing, with a note.
+  const EMPTY_2026 = () => ({ empty: true, election: '2026', parties: [], national: {}, regions: {},
+                              provinces: {}, counted_pct: 0 });
+  let live2026 = false;
+
+  // 2023: the demo file (or ?data=). 2026: the live file, never the demo. Once the live file
+  // has loaded, a failed refresh throws, so autoRefresh keeps the map as it is.
+  async function loadYear(year, demo) {
+    if (year === '2023') return window.EE.loadResults(dataUrl(demo));
+    try {
+      const d = await window.EE.loadResults(LIVE_URL);
+      live2026 = true;
+      return d;
+    } catch (err) {
+      if (live2026) throw err;
+      return EMPTY_2026();
+    }
+  }
+  const EMPTY_NOTE = 'No 2026 results yet. Polls close at 20:00 Madrid time on 29 November; '
+    + 'results appear here as the ministry publishes them.';
+
   window.ES_MAP = { NS, LEVELS, SVG_W, SVG_H, loadShapes, drawInset, levelTabs, moveTooltip,
-                    shortName, svgText, isDemo, dataUrl, loadData };
+                    shortName, svgText, isDemo, dataUrl, loadData, yearTabs, loadYear, EMPTY_NOTE };
 })();

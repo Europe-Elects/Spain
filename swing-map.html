@@ -24,6 +24,7 @@
       <span class="demo-pill" id="demoPill" hidden>Demo</span>
     </div>
   </div>
+  <div class="tab-row"><div class="level-tabs" id="yearTabs" role="tablist" aria-label="Election"></div></div>
   <div id="map-container" style="overflow:hidden">
     <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
     <svg id="map" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet"></svg>
@@ -54,17 +55,19 @@
 (function () {
   const { NO_DATA_COLOR, hexToRgb, isLightFill, cssId, buildSplitPatterns, loadResults, autoRefresh,
           formatTs, setCountedPill, setLiveDot } = window.EE;
-  const { NS, LEVELS, loadShapes, drawInset, levelTabs, moveTooltip, shortName, svgText, isDemo } = window.ES_MAP;
+  const { NS, LEVELS, loadShapes, drawInset, levelTabs, moveTooltip, shortName, svgText, isDemo,
+          yearTabs, loadYear, EMPTY_NOTE } = window.ES_MAP;
   const { info } = window.ES_PARTIES;
 
-  // The live maps file once it exists (ES_MAP.loadData), this demo until then. Each area row carries the previous
+  // 2023: this file (against 2019). 2026: the live maps file (against 2023), empty until it
+  // exists (ES_MAP.loadYear). Each area row carries the previous
   // election under `prev`, by the same party keys (lists that merged or split are already
   // added up), so swing = row[party] - row.prev[party].
-  const DATA_URL = 'spain_2023_results_demo.json';  // demo, until the live file exists
+  const DATA_URL = 'spain_2023_results_demo.json';
   const MAX_PP = 10;  // full colour at a 10-point swing
   const MID = { r: 248, g: 250, b: 252 }, LOSS = { r: 100, g: 116, b: 139 };
 
-  let level, data = null, focus = null;
+  let year, level, data = null, focus = null;
   const PARTIES = {};
 
   const swing = (row, k) => row && row.prev && typeof row[k] === 'number' && typeof row.prev[k] === 'number'
@@ -86,16 +89,19 @@
     : d >= 0 ? mix(MID, hexToRgb(hex), Math.min(1, d / MAX_PP)) : mix(MID, LOSS, Math.min(1, -d / MAX_PP));
 
   async function init() {
-    data = await window.ES_MAP.loadData(DATA_URL);
-    // Regions only: one level, so no tabs.
+    // Regions only: one level, so no level tabs.
     level = 'regions';
+    year = yearTabs(document.getElementById('yearTabs'), y => { year = y; focus = null; refresh(); });
     await refresh();
     autoRefresh(refresh, 60000);
   }
 
   async function refresh() {
     await window.ES_PARTIES.ready;  // Europarty and EP group from the party database (labels)
-    data = await window.ES_MAP.loadData(DATA_URL);
+    const y = year;
+    const d = await loadYear(y, DATA_URL);
+    if (y !== year) return;  // the year changed while this was loading
+    data = d;
     data.parties.forEach(k => { const i = info(k); PARTIES[k] = { color: i.color, color2: i.color2, name: i.label, groupLabel: i.groupLabel }; });
     await render();
   }
@@ -103,13 +109,13 @@
   async function render() {
     const demo = isDemo(data);
     const L = LEVELS[level];
-    const year = data.year || (demo ? '2023' : '2026');
-    document.getElementById('title').textContent = `Spain ${year} · Swing vs ${prevLabel()} by ${L.one}`;
+    document.getElementById('title').textContent = `Spain ${year} · Swing vs ${data.empty ? '2023' : prevLabel()} by ${L.one}`;
     document.getElementById('subtitle').textContent = `Change in each party's Congress vote share, in percentage points · ${L.count}`;
     const pill = document.getElementById('demoPill');
     pill.hidden = !demo; pill.textContent = `Demo · ${year} vs ${prevLabel()}`;
     const lu = document.getElementById('lastUpdated');
-    lu.textContent = demo ? 'Official final results' : 'Last updated: ' + formatTs(data.fetched_at);
+    lu.textContent = demo ? 'Official final results'
+      : data.empty ? 'Waiting for results' : 'Last updated: ' + formatTs(data.fetched_at);
     setLiveDot(lu, !demo && data.counted_pct < 100);
     setCountedPill(document.getElementById('countedPill'), demo ? null : data.counted_pct);
     document.getElementById('footer').textContent = '· Chart made by Andrei Miclea · Source: Ministerio del Interior'
@@ -170,7 +176,7 @@
 
     const es = document.getElementById('emptyState');
     es.hidden = any;
-    es.firstElementChild.textContent = Object.keys(rows).length
+    es.firstElementChild.textContent = data.empty ? EMPTY_NOTE : Object.keys(rows).length
       ? `No ${prevLabel()} figures for these areas in the data file, so there is no swing to show yet.`
       : `No ${LEVELS[level].one} results yet. The swing appears as the count comes in.`;
 
