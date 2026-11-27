@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/map.css?v=20261127a">
 <style>
-  .house-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #F1F5F9; border-radius: 8px; margin: 2px 0 10px; }
+  .house-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #F1F5F9; border-radius: 8px; }
   .house-tab {
     border: 0; background: transparent; font-family: inherit; font-size: 13px; font-weight: 500;
     color: #475569; padding: 6px 14px; border-radius: 6px; cursor: pointer;
@@ -61,9 +61,12 @@
       <span class="demo-pill" id="demoPill" hidden>Demo · 2023 result</span>
     </div>
   </div>
-  <div class="house-tabs" role="tablist" aria-label="House">
-    <button class="house-tab" role="tab" data-house="congress">Deputies</button>
-    <button class="house-tab" role="tab" data-house="senate">Senate</button>
+  <div class="tab-row">
+    <div class="level-tabs" id="yearTabs" role="tablist" aria-label="Election"></div>
+    <div class="house-tabs" role="tablist" aria-label="House">
+      <button class="house-tab" role="tab" data-house="congress">Deputies</button>
+      <button class="house-tab" role="tab" data-house="senate">Senate</button>
+    </div>
   </div>
   <div class="seatbar-wrap">
     <div class="seatbar-top"><strong id="seatbarTitle">&nbsp;</strong><span id="seatbarInfo"></span></div>
@@ -73,6 +76,7 @@
   <div id="map-container" style="overflow:hidden">
     <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
     <svg id="map" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet"></svg>
+    <div id="emptyState" class="empty-state" hidden><span></span></div>
     <div id="tooltip"></div>
     <div class="zoom-controls">
       <button class="zoom-btn" id="zoomIn" title="Zoom in">+</button>
@@ -91,6 +95,7 @@
 </div>
 <script src="assets/map-utils.js?v=20261127a"></script>
 <script src="assets/es-parties.js?v=20261127a"></script>
+<script src="assets/es-map.js?v=20261127a"></script>
 <script>
 (function () {
   const { NO_DATA_COLOR, isLightFill, partyShade, cssId, bbox, makeProjection, featurePath,
@@ -98,6 +103,14 @@
 
   // The seats file the client gets. Election night: point this at the live file.
   const DATA_URL = 'spain_2023_seats_demo.json';
+  // 2023: that file. 2026: the live maps file's `congress` / `senate` (seats by
+  // constituency, refreshed every 5 minutes), empty until it exists (ES_MAP.loadYear).
+  const { yearTabs, loadYear, EMPTY_NOTE } = window.ES_MAP;
+  let year;
+  // A house with nothing declared yet: every constituency grey.
+  const emptyHouse = h => h === 'congress'
+    ? { seats: [], constituencies: [], seats_total: 350, majority: 176, constituencies_total: 52, counted_pct: 0 }
+    : { seats: [], constituencies: [], seats_total: 208, majority: null, constituencies_total: 59, counted_pct: 0 };
   const GEO = { congress: 'geo/congress.geojson', senate: 'geo/senate.geojson' };
   const SVG_W = 1000, SVG_H = 640;
   // Europe Elects names and EP-group colours (assets/es-parties.js), keyed by the
@@ -146,18 +159,22 @@
       const u = new URL(location.href); u.searchParams.set('house', house); history.replaceState(null, '', u);
       render();
     });
+    year = yearTabs(document.getElementById('yearTabs'), y => { year = y; focus = null; refresh(); });
     await refresh();
     autoRefresh(refresh, 60000);
   }
 
   async function refresh() {
     await window.ES_PARTIES.ready;  // Europarty and EP group from the party database (labels)
-    feed = await loadResults(DATA_URL);
+    const y = year;
+    const d = await loadYear(y, DATA_URL);
+    if (y !== year) return;  // the year changed while this was loading
+    feed = d;
     await render();
   }
 
   async function render() {
-    const ch = feed[house];
+    const ch = feed[house] || emptyHouse(house);
     const sh = await loadShapes(house);
     const col = colours(ch);
     const order = ch.seats.map(p => p.party);
@@ -168,7 +185,6 @@
       b.classList.toggle('active', a); b.setAttribute('aria-selected', a);
     });
     const demo = /^DEMO/.test(feed.election || '');
-    const year = demo ? '2023' : '2026';
     document.getElementById('title').textContent =
       `Spain ${year} · Seats by constituency`;
     document.getElementById('subtitle').textContent = house === 'congress'
@@ -176,7 +192,12 @@
       : `Senate · ${ch.constituencies_total} constituencies (provinces, with the Balearic and Canary Islands by island) · ${ch.seats_total} directly elected seats`;
     document.getElementById('demoPill').hidden = !demo;
     const lu = document.getElementById('lastUpdated');
-    lu.textContent = demo ? 'Official final result, 23 July 2023' : 'Last updated: ' + formatTs(feed.fetched_at);
+    lu.textContent = demo ? 'Official final result, 23 July 2023'
+      : feed.empty ? 'Waiting for results' : 'Last updated: ' + formatTs(feed.fetched_at);
+    const es = document.getElementById('emptyState');
+    es.hidden = ch.seats.length > 0;
+    es.firstElementChild.textContent = feed.empty ? EMPTY_NOTE
+      : 'No seats declared yet. They appear here as the ministry publishes the count.';
     setLiveDot(lu, !demo && ch.counted_pct < 100);
     setCountedPill(document.getElementById('countedPill'), ch.counted_pct);
     document.getElementById('footer').textContent = '· Chart made by Andrei Miclea · Source: Ministerio del Interior'

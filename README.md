@@ -3,7 +3,11 @@
 Embeddable maps in the style of the Bulgaria pages (same `assets/`, plus `assets/es-map.js` for the Spain tabs, shapes and Canaries inset). No build step; serve
 locally with `python3 -m http.server 8000` (fetch() fails on file://).
 
-Five embeds:
+Five embeds. Each has 2023 / 2026 buttons (`?year=` picks one), except the swing map,
+which is 2026 against 2023 only. Before polls close on 29 November (20:00 Madrid) the pages
+open on 2023, after that on 2026. 2026 reads only the live maps file and stays empty, with a
+note, until it exists; 2023 reads the demo files.
+
 
 - `seats-map.html` — seats by constituency, with tabs for the Deputies (Congress, 52
   constituencies, the default) and the Senate (59): one dot per seat, plus the national seat

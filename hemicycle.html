@@ -34,6 +34,7 @@
       <span class="demo-pill" id="demoPill" hidden>Demo · 2023 result</span>
     </div>
   </div>
+  <div class="tab-row"><div class="level-tabs" id="yearTabs" role="tablist" aria-label="Election"></div></div>
   <div id="hemi-wrap">
     <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
     <svg id="hemi" viewBox="0 0 1000 540" role="img" aria-label="Seats in the Congress of Deputies"></svg>
@@ -51,9 +52,12 @@
   const { info } = window.ES_PARTIES;
   const NS = 'http://www.w3.org/2000/svg';
 
-  // The live maps file (its `congress_seats`, refreshed as seats are declared) once it
-  // exists, else the 2023 demo seats file.
+  // 2023: the demo seats file. 2026: the live maps file's `congress_seats` (refreshed as
+  // seats are declared), empty until it exists (ES_MAP.loadYear).
   const DEMO_URL = 'spain_2023_seats_demo.json';
+  const { yearTabs, loadYear } = window.ES_MAP;
+  const EMPTY = { seats: [], seats_total: 350, majority: 176, counted_pct: 0 };
+  let year;
 
   // Seating order, left to right. Parties not listed sit between the centre and PP.
   const ORDER = ['EH Bildu', 'SUMAR', 'B.N.G.', 'ERC', 'PSOE', 'EAJ-PNV', 'CCa', 'JxCAT - JUNTS',
@@ -96,18 +100,22 @@
 
   async function refresh() {
     await window.ES_PARTIES.ready;  // Europarty and EP group from the party database (labels)
-    feed = await window.ES_MAP.loadData(DEMO_URL);
+    const y = year;
+    const d = await loadYear(y, DEMO_URL);
+    if (y !== year) return;  // the year changed while this was loading
+    feed = d;
     render();
   }
 
   function render() {
-    const ch = feed.congress_seats || feed.congress;
+    const ch = feed.congress_seats || feed.congress || EMPTY;
     const demo = /^DEMO/.test(feed.election || '');
     document.getElementById('title').textContent = `Spain ${demo ? '2023' : '2026'} · Congress of Deputies`;
     document.getElementById('subtitle').textContent = `${ch.seats_total} seats · ${ch.majority} for a majority`;
     document.getElementById('demoPill').hidden = !demo;
     const lu = document.getElementById('lastUpdated');
-    lu.textContent = demo ? 'Official final result, 23 July 2023' : 'Last updated: ' + formatTs(feed.fetched_at);
+    lu.textContent = demo ? 'Official final result, 23 July 2023'
+      : feed.empty ? 'Waiting for results' : 'Last updated: ' + formatTs(feed.fetched_at);
     setLiveDot(lu, !demo && ch.counted_pct < 100);
     setCountedPill(document.getElementById('countedPill'), ch.counted_pct);
     document.getElementById('footer').textContent = '· Chart made by Andrei Miclea · Source: Ministerio del Interior'
@@ -155,6 +163,7 @@
     const shown = focus ? ch.seats.find(p => p.party === focus) : null;
     [[CY - 40, 'hemi-total', shown ? String(shown.seats) : String(ch.seats_total)],
      [CY - 14, 'hemi-sub', shown ? info(focus).label
+        : !allocated && !demo ? 'Results from 20:00 Madrid time, 29 November'
         : allocated < ch.seats_total ? `${allocated} of ${ch.seats_total} seats allocated` : 'seats']]
       .forEach(([y, cls, text]) => {
         const t = document.createElementNS(NS, 'text');
@@ -181,6 +190,7 @@
     });
   }
 
+  year = yearTabs(document.getElementById('yearTabs'), y => { year = y; focus = null; refresh(); });
   refresh().then(() => autoRefresh(refresh, 60000));
 })();
 </script>

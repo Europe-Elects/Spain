@@ -24,7 +24,6 @@
       <span class="demo-pill" id="demoPill" hidden>Demo</span>
     </div>
   </div>
-  <div class="tab-row"><div class="level-tabs" id="yearTabs" role="tablist" aria-label="Election"></div></div>
   <div id="map-container" style="overflow:hidden">
     <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
     <svg id="map" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet"></svg>
@@ -59,8 +58,8 @@
           yearTabs, loadYear, EMPTY_NOTE } = window.ES_MAP;
   const { info } = window.ES_PARTIES;
 
-  // 2023: this file (against 2019). 2026: the live maps file (against 2023), empty until it
-  // exists (ES_MAP.loadYear). Each area row carries the previous
+  // The live maps file (2026 against 2023), empty until it exists (ES_MAP.loadYear). Each
+  // area row carries the previous
   // election under `prev`, by the same party keys (lists that merged or split are already
   // added up), so swing = row[party] - row.prev[party].
   const DATA_URL = 'spain_2023_results_demo.json';
@@ -91,7 +90,8 @@
   async function init() {
     // Regions only: one level, so no level tabs.
     level = 'regions';
-    year = yearTabs(document.getElementById('yearTabs'), y => { year = y; focus = null; refresh(); });
+    // 2026 against 2023 only: the 2023 file has no 2019 figures to compare with.
+    year = '2026';
     await refresh();
     autoRefresh(refresh, 60000);
   }
