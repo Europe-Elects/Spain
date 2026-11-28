@@ -50,3 +50,39 @@ state, and swing and turnout change stay empty without `prev` figures.
   `municipalities.geojson`; Canaries moved into an inset. Rebuild with `tools/build.js` (needs `npm i es-atlas
   topojson-client`); `tools/islands.json` maps each Senate island constituency to its
   municipalities, from the ministry's nomenclator; `tools/regions.json` maps provinces to regions.
+
+## Election night dashboard (for WordPress)
+
+- `election-night.html` — one dashboard with everything: stat tiles (three largest lists, turnout),
+  lower-house projection/results with the hemicycle, the four maps (seats, vote, turnout, swing),
+  vote share and seats at every election since 1989 (stacked bars at the real election dates),
+  turnout, and seats by constituency. Panels load as they scroll into view; the page reports its
+  height so the WordPress frame fits it. Every embedded page takes `?embed=1` (hides its own title;
+  the panel has one). Other parameters (e.g. `?year=2023`) are passed on to every panel.
+- In WordPress, a Custom HTML block. The wrapper makes the post wider than the theme's text column
+  (up to 1400 px):
+
+```html
+<div style="width:min(1400px, calc(100vw - 32px)); position:relative; left:50%; transform:translateX(-50%);">
+<iframe id="ee-spain-2026" src="https://europe-elects.github.io/Spain/election-night.html"
+  style="width:100%;height:2600px;border:0" scrolling="no" title="Spain national parliament election 2026"></iframe>
+</div>
+<script>
+window.addEventListener('message', function (e) {
+  var h = e.data && e.data['datawrapper-height'] && e.data['datawrapper-height']['ee-spain-2026'];
+  if (h) document.getElementById('ee-spain-2026').style.height = h + 'px';
+});
+</script>
+```
+
+  If the theme still clips it (a sidebar, or `overflow:hidden` on the content), add under Appearance →
+  Customize → Additional CSS, with the post's ID (the `postid-…` class on the page's `<body>`):
+  `.postid-12345 #secondary { display:none } .postid-12345 .content-area, .postid-12345 .entry-content { max-width:none; width:100%; overflow:visible }`
+
+- `sheet-charts.html?view=` — the charts read from the election-night Google Sheet (published as CSV;
+  link and tab ids in `assets/sheet-data.js`): `projection`, `results`, `provinces`, `turnout`,
+  `history-votes`, `history-seats`. Party names in the sheet map to Europe Elects names and colours in
+  `SHEET_KEYS` there; a new party needs a line. Lists of several parties show a "parties" button that
+  lists their members, read from the Europe Elects party database (alliances.csv on the country pages).
+- Wording is for an international audience: "national parliament election (lower house)" for Congress,
+  "(upper house)" for the Senate.
