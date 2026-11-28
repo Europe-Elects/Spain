@@ -5,55 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spain – Seats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261127b">
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css?v=20261128b">
 <style>
-  .house-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #F1F5F9; border-radius: 8px; }
+  .house-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #ECEAE4; border-radius: 8px; }
   .house-tab {
-    border: 0; background: transparent; font-family: inherit; font-size: 13px; font-weight: 500;
-    color: #475569; padding: 6px 14px; border-radius: 6px; cursor: pointer;
+    border: 0; background: transparent; font-family: inherit; font-size: 15px; font-weight: 500;
+    color: #565B66; padding: 6px 14px; border-radius: 6px; cursor: pointer;
   }
-  .house-tab:hover { color: #0F172A; }
-  .house-tab.active { background: #fff; color: #0F172A; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-  .house-tab:focus-visible { outline: 2px solid #2563EB; outline-offset: 1px; }
+  .house-tab:hover { color: #1A1D23; }
+  .house-tab.active { background: #1B2A4A; color: #fff; font-weight: 700; box-shadow: none; }
+  .house-tab:focus-visible { outline: 2px solid #2A5DB0; outline-offset: 1px; }
 
-  .demo-pill { font-size: 11px; padding: 3px 8px; background: #E0E7FF; color: #3730A3; border-radius: 4px; font-weight: 600; }
+  .demo-pill { font-size: 13px; padding: 3px 8px; background: #E3EBF7; color: #1E4C99; border-radius: 4px; font-weight: 600; }
 
   .seatbar-wrap { margin-bottom: 10px; }
-  .seatbar-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: #475569; margin-bottom: 4px; }
-  .seatbar-top strong { color: #0F172A; font-size: 13px; }
-  .seatbar { position: relative; display: flex; height: 26px; border-radius: 6px; overflow: hidden; background: #E2E8F0; }
-  .seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff;
+  .seatbar-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; color: #565B66; margin-bottom: 4px; }
+  .seatbar-top strong { color: #1A1D23; font-size: 15px; }
+  .seatbar { position: relative; display: flex; height: 26px; border-radius: 6px; overflow: hidden; background: #E4E2DB; }
+  .seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #fff;
          font-variant-numeric: tabular-nums; border-right: 1px solid rgba(255,255,255,.6); cursor: pointer; transition: opacity .15s; }
   .seg:last-child { border-right: 0; }
-  .seg.dark-text { color: #0F172A; }
+  .seg.dark-text { color: #1A1D23; }
   .seg.dim { opacity: .3; }
-  .majority { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed #0F172A; pointer-events: none; }
-  .seatbar-note { font-size: 11px; color: #64748B; margin-top: 4px; }
+  .majority { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed #1A1D23; pointer-events: none; }
+  .seatbar-note { font-size: 13px; color: #565B66; margin-top: 4px; }
 
   .county { stroke-width: .7; }
   .seat-dot { stroke: #fff; stroke-width: .6; pointer-events: none; transition: opacity .2s; }
-  .inset-frame { fill: none; stroke: #94A3B8; stroke-width: 1; stroke-dasharray: 4 3; pointer-events: none; }
-  .inset-label { font-size: 10px; fill: #64748B; font-family: 'Inter', sans-serif; pointer-events: none; }
-  .bar-seats { font-size: 11px; color: #0F172A; width: 44px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .inset-frame { fill: none; stroke: #8B8F98; stroke-width: 1; stroke-dasharray: 4 3; pointer-events: none; }
+  .inset-label { font-size: 11px; fill: #565B66; font-family: 'Advent Pro', sans-serif; pointer-events: none; }
+  .bar-seats { font-size: 13px; color: #1A1D23; width: 44px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
   #tooltip { min-width: 290px; }
   #tooltip .bar-label { width: 130px; overflow: hidden; text-overflow: ellipsis; }
-  .small-label { font-size: 10px; fill: #475569; font-family: 'Inter', sans-serif; font-weight: 600; pointer-events: none; }
-  .tt-meta { font-size: 11px; color: #64748B; margin: -4px 0 8px; }
-  .legend-group { font-size: 10px; color: #94A3B8; font-weight: 500; margin-left: 2px; }
+  .small-label { font-size: 11px; fill: #565B66; font-family: 'Advent Pro', sans-serif; font-weight: 600; pointer-events: none; }
+  .tt-meta { font-size: 13px; color: #565B66; margin: -4px 0 8px; }
+  .legend-group { font-size: 12px; color: #8B8F98; font-weight: 500; margin-left: 2px; }
   .legend-seats { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 2px; }
 
   @media (max-width: 520px) {
-    .house-tab { font-size: 12px; padding: 5px 10px; }
+    .house-tab { font-size: 14px; padding: 5px 10px; }
     .seatbar { height: 22px; }
-    .seg { font-size: 10px; }
+    .seg { font-size: 12px; }
   }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <h1 id="title">Spain · Seats by constituency</h1>
+    <h1 id="title">Spain · National parliament election (lower house)</h1>
     <div class="subtitle" id="subtitle">&nbsp;</div>
     <div class="status-row">
       <span class="last-updated" id="lastUpdated">Last updated: –</span>
@@ -64,8 +64,8 @@
   <div class="tab-row">
     <div class="level-tabs" id="yearTabs" role="tablist" aria-label="Election"></div>
     <div class="house-tabs" role="tablist" aria-label="House">
-      <button class="house-tab" role="tab" data-house="congress">Deputies</button>
-      <button class="house-tab" role="tab" data-house="senate">Senate</button>
+      <button class="house-tab" role="tab" data-house="congress">Lower house · Congress</button>
+      <button class="house-tab" role="tab" data-house="senate">Upper house · Senate</button>
     </div>
   </div>
   <div class="seatbar-wrap">
@@ -93,8 +93,8 @@
   <div class="legend-hint" id="legendHint">Colour = party with the most seats in the constituency · Europe Elects colours by European Parliament group</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261127b"></script>
-<script src="assets/es-parties.js?v=20261127b"></script>
+<script src="assets/map-utils.js?v=20261128b"></script>
+<script src="assets/es-parties.js?v=20261128b"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
@@ -186,10 +186,10 @@
     });
     const demo = /^DEMO/.test(feed.election || '');
     document.getElementById('title').textContent =
-      `Spain ${year} · Seats by constituency`;
+      `Spain ${year} · National parliament election (${house === 'congress' ? 'lower' : 'upper'} house)`;
     document.getElementById('subtitle').textContent = house === 'congress'
-      ? `Congress of Deputies · ${ch.constituencies_total} constituencies (50 provinces, Ceuta, Melilla) · ${ch.seats_total} seats`
-      : `Senate · ${ch.constituencies_total} constituencies (provinces, with the Balearic and Canary Islands by island) · ${ch.seats_total} directly elected seats`;
+      ? `Seats by constituency in Congress · ${ch.constituencies_total} constituencies (50 provinces and the cities of Ceuta and Melilla) · ${ch.seats_total} seats`
+      : `Seats by constituency in the Senate · ${ch.constituencies_total} constituencies (provinces, with the Balearic and Canary Islands by island) · ${ch.seats_total} directly elected seats`;
     document.getElementById('demoPill').hidden = !demo;
     const lu = document.getElementById('lastUpdated');
     lu.textContent = demo ? 'Official final result, 23 July 2023'
@@ -211,7 +211,7 @@
   function buildSeatbar(ch, col) {
     const total = ch.seats_total;
     const allocated = ch.seats.reduce((a, p) => a + p.seats, 0);
-    document.getElementById('seatbarTitle').textContent = house === 'congress' ? 'Congress of Deputies' : 'Senate';
+    document.getElementById('seatbarTitle').textContent = house === 'congress' ? 'Lower house (Congress)' : 'Upper house (Senate)';
     document.getElementById('seatbarInfo').textContent = allocated < total
       ? `${allocated} of ${total} seats allocated` : `${total} seats`;
     const bar = document.getElementById('seatbar');
@@ -274,7 +274,7 @@
       if (c && c.seats.length) {
         if (focus) {
           const s = share(c);
-          fill = s > 0 ? partyShade(s, maxShare, col[focus]) : '#F8FAFC';
+          fill = s > 0 ? partyShade(s, maxShare, col[focus]) : '#F7F6F2';
         } else {
           const top = groupByParty(c, rank);
           fill = top.length > 1 && top[0].seats === top[1].seats
@@ -323,7 +323,7 @@
         d.setAttribute('cx', cx + (colI - (inRow - 1) / 2) * gap);
         d.setAttribute('cy', cy + (row - (rows - 1) / 2) * gap);
         d.setAttribute('r', r); d.setAttribute('class', 'seat-dot');
-        d.setAttribute('fill', party ? col[party] : '#CBD5E1');
+        d.setAttribute('fill', party ? col[party] : '#D5D3CC');
         if (focus && party !== focus) d.setAttribute('opacity', 0.18);
         svg.appendChild(d);
       });
@@ -350,8 +350,8 @@
       if (c.seats.length) {
         c.seats.slice().sort((a, b) => b.seats - a.seats || rank(a.national_party) - rank(b.national_party)).forEach(s => {
           const g = info(s.national_party).groupLabel;
-          const name = label(s.party) + (s.national_party !== s.party ? ` <span style="color:#94A3B8;font-weight:400">(${label(s.national_party)})</span>` : '')
-            + (g ? ` <span style="color:#94A3B8;font-weight:400">${g}</span>` : '');
+          const name = label(s.party) + (s.national_party !== s.party ? ` <span style="color:#8B8F98;font-weight:400">(${label(s.national_party)})</span>` : '')
+            + (g ? ` <span style="color:#8B8F98;font-weight:400">${g}</span>` : '');
           html += `<div class="bar-row"${focus === s.national_party ? ' style="font-weight:700"' : ''}>
             <div class="bar-label" style="color:${col[s.national_party]}">${name}</div>
             <div class="bar-container"><div class="bar-fill" style="width:${s.seats / c.seats_total * 100}%;background:${col[s.national_party]}"></div></div>
