@@ -80,6 +80,7 @@
   .panel.expanded .expand { padding: 3px 9px; }
   .panel.expanded .expand .lbl { display: inline; }
   .panel .body { padding: 10px 12px 4px; }
+  .panel .body.pad-poll { padding: 14px 18px 8px; }   /* the country page has no margins of its own */
   .credits { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--navy); border-radius: 6px; padding: 14px 18px 12px; }
   .credits h2 { font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
   .credits ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 28px; }
@@ -139,7 +140,7 @@
 
   <section class="panel span-12">
     <div class="panel-head"><h2>Polling average</h2><span class="note">National parliament election · Europe Elects country page</span></div>
-    <iframe data-src="https://europe-elects.github.io/country-pages/?country=ES&view=polling&head=0" data-ext="1" title="Spain polling average" scrolling="no" style="height:640px"></iframe>
+    <div class="body pad-poll"><iframe data-src="https://europe-elects.github.io/country-pages/?country=ES&view=polling&head=0" data-ext="1" title="Spain polling average" scrolling="no" style="height:640px"></iframe></div>
   </section>
 
   <section class="panel span-12">
