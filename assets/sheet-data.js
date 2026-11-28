@@ -14,7 +14,7 @@
   'use strict';
 
   const SHEET_ID = '1w4ZMe8IdrMmAxn1CTwgnHKu-Z2H8B6f2qMNQp33x5f8';
-  const PUB_URL = '';   // the "Publish to web" CSV link, see above
+  const PUB_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrDsU4OLbbT8stoMNzZViQyL4qClMJURIDqLY3O3QNfBALuVnAxQksQ_-sDqFTraF5-9PBhDS-kkF-/pub?output=csv';   // the "Publish to web" CSV link, see above
 
   const TABS = {
     projection:    0,
@@ -27,8 +27,11 @@
   };
 
   const q = new URLSearchParams(location.search);
-  const pub = q.get('pub') || PUB_URL;
-  const sheetId = q.get('sheet') || SHEET_ID;
+  let pub = q.get('pub') || PUB_URL;
+  let sheetId = q.get('sheet') || SHEET_ID;
+  // An ordinary sheet link (…/spreadsheets/d/<id>/edit…) pasted into PUB_URL: use it as the sheet id.
+  const plain = /\/spreadsheets\/d\/([\w-]{20,})/.exec(pub || '');
+  if (plain && !/\/d\/e\//.test(pub)) { sheetId = plain[1]; pub = ''; }
   const local = q.get('csv');   // tests: ?csv=folder → folder/<tab>.csv next to the page
 
   function url(tab) {
