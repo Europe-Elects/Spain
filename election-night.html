@@ -22,7 +22,13 @@
   h1 small { display: block; font-size: 15px; letter-spacing: .12em; color: #D6DCE8; font-weight: 600; margin-top: 2px; }
   /* Inside the website (an iframe), the post's own title is enough: no title band here. */
   html.framed .top h1 { display: none; }
-  html.framed .top { justify-content: flex-end; }
+  html.framed .dash { padding-top: 6px; }
+  /* …and the status line becomes a full-width strip under the post title */
+  html.framed .top { display: block; }
+  html.framed .status { display: flex; width: 100%; background: #fff; border: 1px solid var(--line); border-left: 4px solid #FFCC00;
+    border-radius: 4px; padding: 9px 14px; font-size: 16px; color: var(--ink); }
+  html.framed .status .upd { margin-left: auto; color: var(--muted); font-size: 14px; }
+  @media (max-width: 560px) { html.framed .status { flex-wrap: wrap; } html.framed .status .upd { margin-left: 16px; width: 100%; } }
   .status { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--muted); }
   .status b { color: var(--ink); }
   .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; flex-shrink: 0; }
@@ -70,7 +76,7 @@
 <div class="dash">
   <div class="span-12 top">
     <h1>Spain · National parliament election<small>29 November 2026 · lower house (Congress) and upper house (Senate)</small></h1>
-    <span class="status" id="status"><i></i><span>Polls close at 20:00 Madrid time</span></span>
+    <span class="status" id="status"><i></i><span>Polls close at 20:00 Madrid time</span><span class="upd">Polls, results and maps update every minute</span></span>
   </div>
 
   <section class="panel span-6 poll" id="pollPanel1">
@@ -91,7 +97,7 @@
 
   <section class="panel span-5">
     <div class="panel-head"><h2>Lower house seats</h2><span class="note">350 seats · 176 for a majority</span></div>
-    <iframe data-src="hemicycle.html?embed=1" title="Seats in the lower house (Congress)" style="height:600px"></iframe>
+    <iframe data-src="hemicycle.html?embed=1" title="Seats in the lower house (Congress)" style="height:740px"></iframe>
   </section>
 
   <section class="panel span-12">
@@ -135,8 +141,8 @@
   </footer>
 </div>
 
-<script src="assets/es-parties.js?v=20261128c"></script>
-<script src="assets/sheet-data.js?v=20261128c"></script>
+<script src="assets/es-parties.js?v=20261128d"></script>
+<script src="assets/sheet-data.js?v=20261128d"></script>
 <script>
 (function () {
   'use strict';
@@ -209,7 +215,7 @@
     try { state.results = hasNumbers(await load('results')); } catch (e) { /* idem */ }
     const st = $('status'), t = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
     st.classList.toggle('live', state.polls || state.results);
-    st.lastElementChild.innerHTML = state.results ? `<b>Counting</b> · updated ${t} Madrid time`
+    st.children[1].innerHTML = state.results ? `<b>Counting</b> · updated ${t} Madrid time`
       : state.polls ? `<b>Election-day polls published</b> · counting starts shortly · ${t} Madrid time`
       : 'Polls close at 20:00 Madrid time';
     foldPolls(force === '1' || (force !== '0' && state.results));
