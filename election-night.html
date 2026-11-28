@@ -3,100 +3,226 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spain – Election Night</title>
+<title>Spain – National Parliament Election 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* Europe Elects look (country pages): warm background, navy bands, Advent Pro. */
+  :root { --bg: #F7F6F2; --line: #E4E2DB; --line2: #ECEAE4; --navy: #1B2A4A; --blue: #2A5DB0; --ink: #1A1D23; --muted: #565B66; --up: #1E4C99; --down: #A8441A; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F8FAFC; color: #1E293B; }
-  .wrap { max-width: 992px; margin: 0 auto; padding: 12px 0 0; }
-  nav { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 0 16px 10px; align-items: center; }
-  .group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .group-label { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #94A3B8; margin-right: 2px; }
-  .tabs { display: inline-flex; flex-wrap: wrap; gap: 3px; padding: 3px; background: #E2E8F0; border-radius: 8px; }
-  .tab { border: 0; background: transparent; font: 500 13px 'Inter', sans-serif; color: #475569; padding: 6px 11px; border-radius: 6px; cursor: pointer; }
-  .tab:hover { color: #0F172A; }
-  .tab.active { background: #fff; color: #0F172A; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-  .tab:focus-visible { outline: 2px solid #2563EB; outline-offset: 1px; }
-  select { display: none; width: calc(100% - 32px); margin: 0 16px 10px; font: 600 14px 'Inter', sans-serif; padding: 9px 10px;
-    border: 1px solid #CBD5E1; border-radius: 8px; background: #fff; color: #0F172A; }
-  iframe { display: block; width: 100%; border: 0; }
-  iframe[hidden] { display: none; }
-  @media (max-width: 640px) { nav { display: none; } select { display: block; } }
+  html, body { background: var(--bg); }
+  body { font-family: 'Advent Pro', system-ui, sans-serif; color: var(--ink); font-size: 16px; line-height: 1.3; }
+  .dash { max-width: 1400px; margin: 0 auto; padding: 14px 16px 24px; display: grid; gap: 14px;
+          grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .span-12 { grid-column: span 12; } .span-7 { grid-column: span 7; } .span-5 { grid-column: span 5; } .span-6 { grid-column: span 6; }
+
+  .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+  h1 { display: inline-block; background: var(--navy); color: #fff; font-size: 24px; font-weight: 700; line-height: 1.15;
+       padding: 9px 18px; border-radius: 2px; letter-spacing: .1em; text-transform: uppercase; }
+  h1 small { display: block; font-size: 15px; letter-spacing: .12em; color: #D6DCE8; font-weight: 600; margin-top: 2px; }
+  .status { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--muted); }
+  .status b { color: var(--ink); }
+  .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; flex-shrink: 0; }
+  .status.live i { background: #22C55E; animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+
+  /* stat tiles */
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .tile { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--blue); border-radius: 6px; padding: 12px 16px; min-width: 0; }
+  .tile .l { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue); }
+  .tile .v { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; min-width: 0; }
+  .tile .v b { font-size: 34px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; margin-left: auto; }
+  .tile .v b:only-child { margin-left: 0; }
+  .tile .v span { font-size: 21px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile .v .sw { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; align-self: center; }
+  .tile .s { margin-top: 4px; font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .up { color: var(--up); font-weight: 700; } .down { color: var(--down); font-weight: 700; }
+
+  /* panels */
+  .panel { background: #fff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; min-width: 0; display: flex; flex-direction: column; }
+  .panel-head { background: var(--navy); color: #fff; padding: 9px 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+  .panel-head h2 { font-size: 16px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .panel-head .note { font-size: 14px; color: #D6DCE8; }
+  .seg { display: inline-flex; flex-wrap: wrap; gap: 2px; background: rgba(255,255,255,.12); padding: 2px; border-radius: 6px; }
+  .seg button { border: 0; background: transparent; color: #D6DCE8; font: 700 15px 'Advent Pro', system-ui, sans-serif; padding: 4px 11px; border-radius: 4px; cursor: pointer; }
+  .seg button:hover { color: #fff; }
+  .seg button[aria-pressed="true"] { background: #fff; color: var(--navy); }
+  .seg button:focus-visible { outline: 2px solid #F2B705; outline-offset: 1px; }
+  .panel iframe { display: block; width: 100%; border: 0; background: #fff; }
+  .panel .body { padding: 10px 12px 4px; }
+  .foot { text-align: center; font-size: 14px; color: var(--muted); }
+
+  @media (max-width: 1000px) {
+    .span-7, .span-5, .span-6 { grid-column: span 12; }
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .dash { padding: 10px 10px 18px; gap: 10px; }
+    h1 { font-size: 18px; padding: 7px 12px; letter-spacing: .06em; } h1 small { font-size: 13px; }
+    .tiles { gap: 10px; }
+    .tile { padding: 10px 12px; }
+    .tile .v b { font-size: 28px; } .tile .v span { font-size: 17px; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <nav id="nav" aria-label="Charts"></nav>
-  <select id="pick" aria-label="Chart"></select>
-  <div id="frames"></div>
+<div class="dash">
+  <div class="span-12 top">
+    <h1>Spain · National parliament election<small>29 November 2026 · lower house (Congress) and upper house (Senate)</small></h1>
+    <span class="status" id="status"><i></i><span>Waiting for the first projection</span></span>
+  </div>
+
+  <div class="span-12 tiles" id="tiles"></div>
+
+  <section class="panel span-7">
+    <div class="panel-head"><h2 id="congressTitle">Lower house (Congress)</h2>
+      <div class="seg" data-frame="congress">
+        <button data-src="sheet-charts.html?view=projection&embed=1" aria-pressed="true">Projection</button>
+        <button data-src="sheet-charts.html?view=results&embed=1" aria-pressed="false">Results</button>
+      </div></div>
+    <div class="body"><iframe id="congress" title="Lower house projection" style="height:560px"></iframe></div>
+  </section>
+
+  <section class="panel span-5">
+    <div class="panel-head"><h2>Lower house seats</h2><span class="note">350 seats · 176 for a majority</span></div>
+    <iframe data-src="hemicycle.html?embed=1" title="Seats in the lower house (Congress)" style="height:600px"></iframe>
+  </section>
+
+  <section class="panel span-12">
+    <div class="panel-head"><h2>Maps</h2>
+      <div class="seg" data-frame="maps">
+        <button data-src="seats-map.html?embed=1" aria-pressed="true">Seats</button>
+        <button data-src="results-map.html?embed=1" aria-pressed="false">Vote</button>
+        <button data-src="turnout-map.html?embed=1" aria-pressed="false">Turnout</button>
+        <button data-src="swing-map.html?embed=1" aria-pressed="false">Swing</button>
+      </div></div>
+    <iframe id="maps" title="Map" style="height:860px"></iframe>
+  </section>
+
+  <section class="panel span-6">
+    <div class="panel-head"><h2>Lower house vote share</h2><span class="note">Every election since 1989</span></div>
+    <div class="body"><iframe data-src="sheet-charts.html?view=history-votes&embed=1" title="Lower house vote share since 1989" style="height:520px"></iframe></div>
+  </section>
+  <section class="panel span-6">
+    <div class="panel-head"><h2>Lower house seats</h2><span class="note">Every election since 1989</span></div>
+    <div class="body"><iframe data-src="sheet-charts.html?view=history-seats&embed=1" title="Lower house seats since 1989" style="height:520px"></iframe></div>
+  </section>
+
+  <section class="panel span-5">
+    <div class="panel-head"><h2>Turnout</h2><span class="note">National parliament elections</span></div>
+    <div class="body"><iframe data-src="sheet-charts.html?view=turnout&embed=1" title="Turnout" style="height:380px"></iframe></div>
+  </section>
+  <section class="panel span-7">
+    <div class="panel-head"><h2>Lower house seats by constituency</h2><span class="note">52 constituencies</span></div>
+    <div class="body"><iframe data-src="sheet-charts.html?view=provinces&embed=1" data-maxh="640" title="Lower house seats by constituency" style="height:380px"></iframe></div>
+  </section>
+
+  <div class="span-12 foot">Europe Elects · projection from the Europe Elects election-night sheet · results from the Spanish Ministry of the Interior</div>
 </div>
+
+<script src="assets/es-parties.js?v=20261128b"></script>
+<script src="assets/sheet-data.js?v=20261128b"></script>
 <script>
 (function () {
   'use strict';
-  // Every embed on one page. `h`: frame height for the maps (they fill their frame); the sheet
-  // charts report their own height. ?tab=<id> opens a tab; ?tabs=a,b,c shows only those, in that
-  // order. Query parameters for one embed go after the id: ?tab=seats&house=senate.
-  const TABS = [
-    { id: 'projection',    group: 'Tonight', label: 'Projection',      src: 'sheet-charts.html?view=projection' },
-    { id: 'results',       group: 'Tonight', label: 'Results',         src: 'sheet-charts.html?view=results' },
-    { id: 'hemicycle',     group: 'Tonight', label: 'Congress seats',  src: 'hemicycle.html', h: 720 },
-    { id: 'provinces',     group: 'Tonight', label: 'Seats by province', src: 'sheet-charts.html?view=provinces' },
-    { id: 'seats',         group: 'Maps',    label: 'Seats map',       src: 'seats-map.html', h: 900 },
-    { id: 'vote',          group: 'Maps',    label: 'Vote map',        src: 'results-map.html', h: 900 },
-    { id: 'turnout-map',   group: 'Maps',    label: 'Turnout map',     src: 'turnout-map.html', h: 900 },
-    { id: 'swing',         group: 'Maps',    label: 'Swing map',       src: 'swing-map.html', h: 900 },
-    { id: 'turnout',       group: 'History', label: 'Turnout',         src: 'sheet-charts.html?view=turnout' },
-    { id: 'history-votes', group: 'History', label: 'Vote share',      src: 'sheet-charts.html?view=history-votes' },
-    { id: 'history-seats', group: 'History', label: 'Seats',           src: 'sheet-charts.html?view=history-seats' },
-  ];
-  const q = new URLSearchParams(location.search);
-  const only = (q.get('tabs') || '').split(',').map((s) => s.trim()).filter(Boolean);
-  const tabs = only.length ? only.map((id) => TABS.find((t) => t.id === id)).filter(Boolean) : TABS;
-  // Pass the page's other parameters (e.g. ?year=2023, ?house=senate) on to every embed.
-  const pass = new URLSearchParams(q); ['tab', 'tabs'].forEach((k) => pass.delete(k));
-  const withPass = (src) => (pass.toString() ? src + (src.includes('?') ? '&' : '?') + pass.toString() : src);
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const fmt = (v, d = 1) => (v == null ? '–' : v.toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }));
+  const signed = (v, d = 1) => (v == null ? '' : (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt(Math.abs(v), d));
+  const pass = new URLSearchParams(location.search); pass.delete('embed');
+  const withPass = (src) => (pass.toString() ? src + '&' + pass.toString() : src);   // e.g. ?year=2023 for every panel
 
-  const nav = document.getElementById('nav'), pick = document.getElementById('pick'), box = document.getElementById('frames');
-  const frames = {};
-  const groups = [...new Set(tabs.map((t) => t.group))];
-  nav.innerHTML = groups.map((g) => `<div class="group"><span class="group-label">${g}</span><div class="tabs" role="tablist">` +
-    tabs.filter((t) => t.group === g).map((t) => `<button class="tab" role="tab" data-id="${t.id}" aria-selected="false">${t.label}</button>`).join('') +
-    '</div></div>').join('');
-  pick.innerHTML = groups.map((g) => `<optgroup label="${g}">` + tabs.filter((t) => t.group === g).map((t) => `<option value="${t.id}">${t.label}</option>`).join('') + '</optgroup>').join('');
-
-  function show(id) {
-    const t = tabs.find((x) => x.id === id) || tabs[0];
-    if (!frames[t.id]) {   // load each embed the first time it is opened, then keep it (and its state)
-      const f = document.createElement('iframe');
-      f.src = withPass(t.src); f.title = t.label; f.loading = 'eager';
-      f.style.height = (t.h || 600) + 'px';
-      box.appendChild(f); frames[t.id] = f;
-    }
-    Object.entries(frames).forEach(([k, f]) => { f.hidden = k !== t.id; });
-    nav.querySelectorAll('.tab').forEach((b) => { const on = b.dataset.id === t.id; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
-    pick.value = t.id;
-    postHeight();
-  }
-  nav.addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (b) show(b.dataset.id); });
-  pick.addEventListener('change', () => show(pick.value));
-
-  // Sheet charts report their height; size their frame to it.
+  // ---- frames: load as they come near the screen; sheet charts report their height
+  const lazy = new IntersectionObserver((ents) => ents.forEach((e) => {
+    if (e.isIntersecting && !e.target.getAttribute('src')) { e.target.src = withPass(e.target.dataset.src); lazy.unobserve(e.target); }
+  }), { rootMargin: '600px' });
+  document.querySelectorAll('iframe[data-src]').forEach((f) => lazy.observe(f));
+  document.querySelectorAll('.seg').forEach((seg) => {
+    const frame = $(seg.dataset.frame);
+    const pick = (b) => {
+      seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+      frame.src = withPass(b.dataset.src);
+      if (seg.dataset.frame === 'congress') $('congressTitle').textContent = `Lower house (Congress) · ${b.textContent.toLowerCase()}`;
+    };
+    seg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) pick(b); });
+    pick(seg.querySelector('[aria-pressed="true"]'));
+  });
   window.addEventListener('message', (e) => {
     if (!e.data || e.data.type !== 'ee-height') return;
-    const f = Object.values(frames).find((x) => x.contentWindow === e.source);
-    if (f) { f.style.height = e.data.h + 'px'; postHeight(); }
+    const f = [...document.querySelectorAll('iframe')].find((x) => x.contentWindow === e.source);
+    if (!f) return;
+    f.style.height = Math.min(e.data.h, +f.dataset.maxh || Infinity) + 'px';
+    postHeight();
   });
-  // …and this page reports its own height to WordPress (see README: the embed snippet).
+
+  // ---- stat tiles: the three largest lists and turnout, from the election-night sheet
+  const { load, num, isPct, party } = window.ES_SHEET;
+  function table(g) {
+    const hr = g.findIndex((row) => row.some((c) => /^party$/i.test(c)));
+    if (hr < 0) return [];
+    const head = g[hr], pc = head.findIndex((c) => /^party$/i.test(c));
+    const col = (re, fb) => { const i = head.findIndex((c) => re.test(c)); return i >= 0 ? i : fb; };
+    const v = col(/vote/i, pc + 1), s = col(/seat/i, pc + 2), pv = col(/20\d\d.*\bv$/i, -1), ps = col(/20\d\d.*\bs$/i, -1);
+    return g.slice(hr + 1).filter((r) => r[pc] && !/^(year|total)$/i.test(r[pc])).map((r) => ({
+      name: r[pc], v: num(r[v]), s: num(r[s]), pv: pv >= 0 ? num(r[pv]) : null, ps: ps >= 0 ? num(r[ps]) : null, vPct: isPct(r[v]),
+    }));
+  }
+  function turnout(g) {
+    for (let r = 0; r < g.length; r++) {
+      const yc = g[r].findIndex((c) => /^year$/i.test(c));
+      if (yc < 0 || !/^turnout$/i.test(g[r][yc + 1] || '')) continue;
+      const rows = g.slice(r + 1).map((x) => ({ y: x[yc], t: num(x[yc + 1]) })).filter((x) => x.y && x.t != null && !/^year$/i.test(x.y));
+      if (rows.length) return rows;
+    }
+    return [];
+  }
+  const tile = (label, main, sub) => `<div class="tile"><div class="l">${label}</div><div class="v">${main}</div><div class="s">${sub}</div></div>`;
+  async function tiles() {
+    let proj = [], res = [], tt = [];
+    try { await window.ES_PARTIES.ready; } catch (e) { /* fallback colours */ }
+    try { const g = await load('projection'); proj = table(g); tt = turnout(g); } catch (e) { /* not readable yet */ }
+    try { res = table(await load('results')); } catch (e) { /* idem */ }
+    try { const t2 = turnout(await load('turnout')); if (t2.length) tt = t2; } catch (e) { /* idem */ }
+    const prev = Object.fromEntries(res.map((r) => [r.name, r]));
+    const hasRes = res.some((r) => r.s != null);
+    const rows = (hasRes ? res : proj).filter((r) => r.s != null || r.v != null);
+    rows.forEach((r) => { if (!r.vPct && r.v != null && r.v <= 1) r.v *= 100; });
+    rows.sort((a, b) => (b.s ?? -1) - (a.s ?? -1) || (b.v ?? -1) - (a.v ?? -1));
+    const st = $('status');
+    st.classList.toggle('live', rows.length > 0);
+    st.lastElementChild.innerHTML = rows.length
+      ? `<b>${hasRes ? 'Results' : 'Projection'}</b> · updated ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} Madrid time`
+      : 'Waiting for the first projection · polls close 20:00 Madrid time';
+    let html = '';
+    ['Largest list · lower house', 'Second', 'Third'].forEach((lab, i) => {
+      const r = rows[i];
+      if (!r) { html += tile(lab, '<b>–</b>', 'After polls close'); return; }
+      const p = party(r.name), pr = prev[r.name] || {};
+      const ds = r.s != null && pr.ps != null ? r.s - pr.ps : null;
+      const dv = r.v != null && pr.pv != null ? r.v - pr.pv : null;
+      const cl = (d) => (d > 0 ? 'up' : d < 0 ? 'down' : '');
+      html += tile(lab,
+        `<span class="sw" style="background:${p.color2 ? `linear-gradient(90deg,${p.color} 50%,${p.color2} 50%)` : p.color}"></span><span>${esc(p.label)}</span><b>${r.s ?? '–'}</b>`,
+        `${r.v == null ? '' : fmt(r.v) + '%'}${dv != null ? ` <span class="${cl(dv)}">${signed(dv)}</span>` : ''} · ${r.s ?? '–'} seats${ds != null ? ` <span class="${cl(ds)}">${signed(ds, 0)}</span> vs 2023` : ''}`);
+    });
+    const now = tt.find((x) => /2026/.test(x.y)), last = tt.filter((x) => !/2026/.test(x.y)).pop();
+    const tv = (x) => (x.t <= 1 ? x.t * 100 : x.t);
+    html += tile('Turnout', `<b>${now ? fmt(tv(now)) + '%' : '–'}</b>`,
+      now && last ? `<span class="${tv(now) >= tv(last) ? 'up' : 'down'}">${signed(tv(now) - tv(last))}</span> vs ${esc(last.y)}` : (last ? `${esc(last.y)}: ${fmt(tv(last))}%` : ''));
+    $('tiles').innerHTML = html;
+    postHeight();
+  }
+  tiles();
+  setInterval(tiles, 60000);
+
+  // ---- this page's height, for the WordPress frame
   function postHeight() {
     if (window.parent === window) return;
-    const h = Math.ceil(document.documentElement.scrollHeight);
+    const h = Math.ceil(document.body.getBoundingClientRect().height);
     window.parent.postMessage({ 'datawrapper-height': { 'ee-spain-2026': h } }, '*');
     window.parent.postMessage({ type: 'ee-height', id: 'ee-spain-2026', h }, '*');
   }
   new ResizeObserver(postHeight).observe(document.body);
-
-  show(q.get('tab') || tabs[0].id);
 })();
 </script>
 </body>
