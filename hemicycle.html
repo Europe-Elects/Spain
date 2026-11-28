@@ -3,30 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spain – Congress Seats</title>
+<title>Spain – Lower House Seats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261127b">
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css?v=20261128b">
 <style>
-  .demo-pill { font-size: 11px; padding: 3px 8px; background: #E0E7FF; color: #3730A3; border-radius: 4px; font-weight: 600; }
-  #hemi-wrap { position: relative; background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 10px 6px; }
+  .demo-pill { font-size: 13px; padding: 3px 8px; background: #E3EBF7; color: #1E4C99; border-radius: 4px; font-weight: 600; }
+  #hemi-wrap { position: relative; background: #fff; border: 1px solid #E4E2DB; border-radius: 10px; padding: 14px 10px 6px; }
   #hemi-wrap .map-logo { position: absolute; top: 10px; left: 10px; }
   #hemi { display: block; width: 100%; height: auto; max-height: 520px; }
   .seat { stroke: #fff; stroke-width: .8; transition: opacity .15s; }
   .seat.dim { opacity: .15; }
-  .majority-line { stroke: #0F172A; stroke-width: 1.5; stroke-dasharray: 5 4; }
-  .hemi-total { font: 700 44px 'Inter', sans-serif; fill: #0F172A; text-anchor: middle; }
-  .hemi-sub { font: 500 13px 'Inter', sans-serif; fill: #64748B; text-anchor: middle; }
-  .legend-group { font-size: 10px; color: #94A3B8; font-weight: 500; margin-left: 2px; }
+  .majority-line { stroke: #1A1D23; stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .hemi-total { font: 700 45px 'Advent Pro', sans-serif; fill: #1A1D23; text-anchor: middle; }
+  .hemi-sub { font: 500 14px 'Advent Pro', sans-serif; fill: #565B66; text-anchor: middle; }
+  .legend-group { font-size: 12px; color: #8B8F98; font-weight: 500; margin-left: 2px; }
   .legend-seats { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 2px; }
-  .legend-change { font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 1px; }
-  .legend-change.up { color: #15803D; } .legend-change.down { color: #B91C1C; } .legend-change.same { color: #94A3B8; }
+  .legend-change { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 1px; }
+  .legend-change.up { color: #1E4C99; } .legend-change.down { color: #A8441A; } .legend-change.same { color: #8B8F98; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <h1 id="title">Spain · Congress of Deputies</h1>
+    <h1 id="title">Spain · National parliament election (lower house)</h1>
     <div class="subtitle" id="subtitle">&nbsp;</div>
     <div class="status-row">
       <span class="last-updated" id="lastUpdated">Last updated: –</span>
@@ -37,14 +37,14 @@
   <div class="tab-row"><div class="level-tabs" id="yearTabs" role="tablist" aria-label="Election"></div></div>
   <div id="hemi-wrap">
     <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
-    <svg id="hemi" viewBox="0 0 1000 540" role="img" aria-label="Seats in the Congress of Deputies"></svg>
+    <svg id="hemi" viewBox="0 0 1000 540" role="img" aria-label="Seats in Congress, the lower house of the national parliament"></svg>
   </div>
   <div class="legend" id="legend"></div>
   <div class="legend-hint" id="legendHint">Tap a party to highlight its seats · change against the previous election</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261127b"></script>
-<script src="assets/es-parties.js?v=20261127b"></script>
+<script src="assets/map-utils.js?v=20261128b"></script>
+<script src="assets/es-parties.js?v=20261128b"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
@@ -113,8 +113,8 @@
   function render() {
     const ch = feed.congress_seats || feed.congress || EMPTY;
     const demo = /^DEMO/.test(feed.election || '');
-    document.getElementById('title').textContent = `Spain ${demo ? '2023' : '2026'} · Congress of Deputies`;
-    document.getElementById('subtitle').textContent = `${ch.seats_total} seats · ${ch.majority} for a majority`;
+    document.getElementById('title').textContent = `Spain ${demo ? '2023' : '2026'} · National parliament election (lower house)`;
+    document.getElementById('subtitle').textContent = `Seats in Congress · ${ch.seats_total} seats · ${ch.majority} for a majority`;
     document.getElementById('demoPill').hidden = !demo;
     const lu = document.getElementById('lastUpdated');
     lu.textContent = demo ? 'Official final result, 23 July 2023'
@@ -136,7 +136,7 @@
     const defs = document.createElementNS(NS, 'defs');
     svg.appendChild(defs);
     const fill = k => {
-      if (!k) return '#E2E8F0';
+      if (!k) return '#E4E2DB';
       const i = info(k);
       if (!i.color2) return i.color;
       const id = 'split-' + k.replace(/[^\w]/g, '');
