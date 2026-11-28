@@ -6,7 +6,7 @@
 <title>Spain – Lower House Vote by Area</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128g">
+<link rel="stylesheet" href="assets/map.css?v=20261128h">
 <style>
   #tooltip { min-width: 300px; }
   #tooltip .bar-label { width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -79,7 +79,7 @@
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
 <script src="assets/map-utils.js?v=20261128f"></script>
-<script src="assets/es-parties.js?v=20261128f"></script>
+<script src="assets/es-parties.js?v=20261128h"></script>
 <script src="assets/party-card.js?v=20261128f"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
@@ -128,7 +128,7 @@
                         lv => { level = lv; render(); });
     }
     setupSearch();
-    data.parties.forEach(k => { const i = info(k); PARTIES[k] = { color: i.color, color2: i.color2, name: i.label, groupLabel: i.groupLabel }; });
+    data.parties.forEach(k => { const i = info(k); PARTIES[k] = { color: i.color, color2: i.color2, name: i.label, ideo: window.ES_PARTIES.ideo(i), groupLabel: i.groupLabel }; });
     await render();
   }
 
@@ -225,7 +225,7 @@
       if (!path) return;
       const dot = document.createElement('div'); dot.className = 'extreme-dot';
       const lab = document.createElement('div'); lab.className = 'extreme';
-      lab.innerHTML = `<small>${what} · ${P.name}</small>${m.name}${sub(m.id)} <b>${m.v.toFixed(1)}%</b>`;
+      lab.innerHTML = `<small>${what} · ${P.ideo}${P.name}</small>${m.name}${sub(m.id)} <b>${m.v.toFixed(1)}%</b>`;
       box.append(dot, lab);
       marks.push({ path, dot, lab });
     };
@@ -348,7 +348,7 @@
         .sort((a, b) => (a === 'OTHERS') - (b === 'OTHERS') || row[b] - row[a]).forEach(k => {
           const P = PARTIES[k], active = focus === k;
           html += `<div class="bar-row"${active ? ' style="font-weight:700"' : ''}>
-            <div class="bar-label" style="color:${P.color === '#D5D3CC' ? '#565B66' : P.color}">${P.name}${P.groupLabel ? ` <span style="color:#8B8F98;font-weight:400">${P.groupLabel}</span>` : ''}</div>
+            <div class="bar-label" style="color:${P.color === '#D5D3CC' ? '#565B66' : P.color}">${P.ideo}${P.name}${P.groupLabel ? ` <span style="color:#8B8F98;font-weight:400">${P.groupLabel}</span>` : ''}</div>
             <div class="bar-container"><div class="bar-fill" style="width:${row[k]}%;background:${P.color}"></div></div>
             <div class="bar-pct">${row[k].toFixed(1)}%</div></div>`;
         });
@@ -367,7 +367,7 @@
       btn.setAttribute('aria-pressed', focus === k ? 'true' : 'false');
       const sw = P.color2 ? `linear-gradient(135deg, ${P.color} 0 50%, ${P.color2} 50% 100%)` : P.color;
       const nat = data.national[k];
-      btn.innerHTML = `<div class="legend-swatch" style="background:${sw}"></div>${P.name}`
+      btn.innerHTML = `<div class="legend-swatch" style="background:${sw}"></div>${P.ideo}${P.name}`
         + (P.groupLabel ? `<span class="legend-group">${P.groupLabel}</span>` : '')
         + (typeof nat === 'number' ? `<span class="legend-pct">${nat.toFixed(1)}%</span>` : '');
       btn.onclick = () => {

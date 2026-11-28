@@ -6,7 +6,7 @@
 <title>Spain – Turnout and Vote Share</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128g">
+<link rel="stylesheet" href="assets/map.css?v=20261128h">
 <style>
   /* a normal scrolling page (the maps fill a fixed-height frame instead), so its height can be measured */
   html, body { height: auto; } body { display: block; overflow: visible; } .container { flex: none; }
@@ -45,7 +45,7 @@
   <div class="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior (infoelectoral, official final result 2023)</div>
 </div>
 <script src="assets/map-utils.js?v=20261128f"></script>
-<script src="assets/es-parties.js?v=20261128f"></script>
+<script src="assets/es-parties.js?v=20261128h"></script>
 <script src="assets/party-card.js?v=20261128f"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
@@ -77,7 +77,7 @@
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'legend-item clickable'; b.dataset.k = k;
       const sw = i.color2 ? `linear-gradient(135deg, ${i.color} 0 50%, ${i.color2} 50% 100%)` : i.color;
-      b.innerHTML = `<div class="legend-swatch" style="background:${sw}"></div>${i.label}`
+      b.innerHTML = `<div class="legend-swatch" style="background:${sw}"></div>${window.ES_PARTIES.ideo(i)}${i.label}`
         + (i.groupLabel ? `<span class="legend-group">${i.groupLabel}</span>` : '')
         + `<span class="legend-pct">${data.national[k].toFixed(1)}%</span>`;
       b.onclick = () => { party = k; draw(); };
@@ -165,7 +165,7 @@
     hit.setAttribute('cx', p.cx); hit.setAttribute('cy', p.cy);
     tip.innerHTML = `<h3>${p.name}${p.sub ? `<span class="bg-name">${p.sub}</span>` : ''}</h3>`
       + `<div class="row"><span>Turnout</span><b>${fmt(p.x)}</b></div>`
-      + `<div class="row"><span>${P.label}</span><b>${fmt(p.y)}</b></div>`;
+      + `<div class="row"><span>${window.ES_PARTIES.ideo(P)}${P.label}</span><b>${fmt(p.y)}</b></div>`;
     tip.style.display = 'block';
     const wrap = document.getElementById('chart-wrap').getBoundingClientRect();
     let x = e.clientX - wrap.left + 14, y = e.clientY - wrap.top + 14;

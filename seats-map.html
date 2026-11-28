@@ -6,7 +6,7 @@
 <title>Spain – Seats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128g">
+<link rel="stylesheet" href="assets/map.css?v=20261128h">
 <style>
   .house-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #ECEAE4; border-radius: 8px; }
   .house-tabs[hidden] { display: none; }
@@ -95,7 +95,7 @@
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
 <script src="assets/map-utils.js?v=20261128f"></script>
-<script src="assets/es-parties.js?v=20261128f"></script>
+<script src="assets/es-parties.js?v=20261128h"></script>
 <script src="assets/party-card.js?v=20261128f"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
@@ -361,7 +361,7 @@
       if (c.seats.length) {
         c.seats.slice().sort((a, b) => b.seats - a.seats || rank(a.national_party) - rank(b.national_party)).forEach(s => {
           const g = info(s.national_party).groupLabel;
-          const name = label(s.party) + (s.national_party !== s.party ? ` <span style="color:#8B8F98;font-weight:400">(${label(s.national_party)})</span>` : '')
+          const name = window.ES_PARTIES.ideo(info(s.party)) + label(s.party) + (s.national_party !== s.party ? ` <span style="color:#8B8F98;font-weight:400">(${label(s.national_party)})</span>` : '')
             + (g ? ` <span style="color:#8B8F98;font-weight:400">${g}</span>` : '');
           html += `<div class="bar-row"${focus === s.national_party ? ' style="font-weight:700"' : ''}>
             <div class="bar-label" style="color:${col[s.national_party]}">${name}</div>
@@ -399,7 +399,7 @@
       btn.className = 'legend-item clickable' + (focus === p.party ? ' active' : '');
       btn.setAttribute('aria-pressed', focus === p.party ? 'true' : 'false');
       const g = info(p.party).groupLabel;
-      btn.innerHTML = `<div class="legend-swatch" style="${swStyle(p.party)}"></div>${label(p.party)}`
+      btn.innerHTML = `<div class="legend-swatch" style="${swStyle(p.party)}"></div>${window.ES_PARTIES.ideo(info(p.party))}${label(p.party)}`
         + (info(p.party).bracket ? `<span class="legend-group" title="Parties on this list">${info(p.party).bracket}</span>` : '')
         + (g ? `<span class="legend-group">${g}</span>` : '') + `<span class="legend-seats">${p.seats}</span>`;
       btn.onclick = () => setFocus(p.party);

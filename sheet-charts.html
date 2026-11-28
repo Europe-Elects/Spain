@@ -6,7 +6,7 @@
 <title>Spain – Election Night Charts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128f">
+<link rel="stylesheet" href="assets/map.css?v=20261128h">
 <style>
   /* map.css sizes pages to the frame (maps); these charts are as tall as their content. */
   html, body { height: auto; }
@@ -109,7 +109,7 @@
 </div>
 <div id="tip"></div>
 <script src="assets/map-utils.js?v=20261128f"></script>
-<script src="assets/es-parties.js?v=20261128f"></script>
+<script src="assets/es-parties.js?v=20261128h"></script>
 <script src="assets/party-card.js?v=20261128f"></script>
 <script src="assets/sheet-data.js?v=20261128f"></script>
 <script>
@@ -218,7 +218,7 @@
       const mem = window.ES_PARTIES.members ? window.ES_PARTIES.members(p.id) : [];
       const open = mem.length && openLists.has(x.name);
       const tog = mem.length ? `<button class="list-tog" data-list="${esc(x.name)}" aria-expanded="${!!open}" title="${open ? 'Hide' : 'Show'} the ${mem.length} parties on this list"><span class="chev">${open ? '▾' : '▸'}</span>${esc(p.bracket || `[${mem.length} parties]`)}</button>` : '';
-      html += `<div class="pname" data-k="${esc(x.name)}"><span class="sw" style="${ringed(p)}"></span><span>${esc(p.label)}</span>${tag}${tog}</div>`;
+      html += `<div class="pname" data-k="${esc(x.name)}"><span class="sw" style="${ringed(p)}"></span><span>${window.ES_PARTIES.ideo(p)}${esc(p.label)}</span>${tag}${tog}</div>`;
       html += `<div class="bar-col" data-k="${esc(x.name)}"><div class="bar"><div class="fill" style="width:${((x.v ?? 0) / maxV) * 100}%;background:${fill(p)}"></div>`;
       if (res && x.pv != null) html += `<div class="prev" style="left:calc(${(x.pv / maxV) * 100}% - 1px)" title="2023: ${fmt(x.pv)}%"></div>`;
       html += '</div></div>';
@@ -294,7 +294,7 @@
     $('chart').innerHTML = html;
     $('legend').innerHTML = order.map((name) => {
       const p = party(name);
-      return `<button class="legend-item clickable${provFocus === name ? ' active' : ''}" data-p="${esc(name)}"><span class="legend-swatch" style="${ringed(p)}"></span>${esc(p.label)}<span class="legend-pct">${totals[name]}</span></button>`;
+      return `<button class="legend-item clickable${provFocus === name ? ' active' : ''}" data-p="${esc(name)}"><span class="legend-swatch" style="${ringed(p)}"></span>${window.ES_PARTIES.ideo(p)}${esc(p.label)}<span class="legend-pct">${totals[name]}</span></button>`;
     }).join('');
     $('hint').textContent = 'Tap a party to highlight its seats';
     if (window.ES_CARD && !$('chart').dataset.cardProv) {
@@ -474,7 +474,7 @@
       h.addEventListener('mouseleave', hideTip);
     });
     const leg = series.filter(big);
-    $('legend').innerHTML = leg.map((sr) => `<button class="legend-item clickable${focus === sr.name ? ' active' : ''}" data-n="${esc(sr.name)}" aria-pressed="${focus === sr.name}"><span class="legend-swatch" style="${ringed(sr.p)}"></span>${esc(sr.name.split('/')[0])}</button>`).join('')
+    $('legend').innerHTML = leg.map((sr) => `<button class="legend-item clickable${focus === sr.name ? ' active' : ''}" data-n="${esc(sr.name)}" aria-pressed="${focus === sr.name}"><span class="legend-swatch" style="${ringed(sr.p)}"></span>${window.ES_PARTIES.ideo(sr.p)}${esc(sr.name.split('/')[0])}</button>`).join('')
       + `<span class="legend-item"><span class="legend-swatch" style="background:#ECEAE4"></span>${kind === 'pct' ? 'Others' : 'Smaller parties'}</span>`;
     $('hint').textContent = 'Elections placed at their real dates · bars stacked by EP group, left to right · fill = Europarty, ring = EP group · tap a party to pick it out · hover a bar for every party'
       + (over.length ? ` · check the sheet: ${over.join(', ')} add${over.length > 1 ? '' : 's'} up to more than ${kind === 'pct' ? '100%' : total + ' seats'}` : '');
