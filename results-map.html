@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spain – Congress Vote by Area</title>
+<title>Spain – Lower House Vote by Area</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261127b">
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css?v=20261128b">
 <style>
   #tooltip { min-width: 300px; }
   #tooltip .bar-label { width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -15,7 +15,7 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1 id="title">Spain · Congress vote</h1>
+    <h1 id="title">Spain · National parliament election (lower house)</h1>
     <div class="subtitle" id="subtitle">&nbsp;</div>
     <div class="status-row">
       <span class="last-updated" id="lastUpdated">Last updated: –</span>
@@ -47,8 +47,8 @@
   <div class="legend-hint" id="legendHint">Colour = party with the most votes · Europe Elects colours by European Parliament group</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261127b"></script>
-<script src="assets/es-parties.js?v=20261127b"></script>
+<script src="assets/map-utils.js?v=20261128b"></script>
+<script src="assets/es-parties.js?v=20261128b"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
@@ -102,9 +102,9 @@
   async function render() {
     const demo = isDemo(data);
     const L = LEVELS[level];
-    document.getElementById('title').textContent = `Spain ${demo ? '2023' : '2026'} · Congress vote by ${L.one}`;
+    document.getElementById('title').textContent = `Spain ${demo ? '2023' : '2026'} · National parliament election (lower house)`;
     const t = data.national.turnout;
-    document.getElementById('subtitle').textContent = `Vote share across ${L.count}` + (typeof t === 'number' ? ` · turnout ${t.toFixed(1)}%` : '');
+    document.getElementById('subtitle').textContent = `Congress vote by ${L.one} · vote share across ${L.count}` + (typeof t === 'number' ? ` · turnout ${t.toFixed(1)}%` : '');
     document.getElementById('demoPill').hidden = !demo;
     const lu = document.getElementById('lastUpdated');
     lu.textContent = demo ? 'Official final result, 23 July 2023'
@@ -179,7 +179,7 @@
         .sort((a, b) => (a === 'OTHERS') - (b === 'OTHERS') || row[b] - row[a]).forEach(k => {
           const P = PARTIES[k], active = focus === k;
           html += `<div class="bar-row"${active ? ' style="font-weight:700"' : ''}>
-            <div class="bar-label" style="color:${P.color === '#CBD5E1' ? '#64748B' : P.color}">${P.name}${P.groupLabel ? ` <span style="color:#94A3B8;font-weight:400">${P.groupLabel}</span>` : ''}</div>
+            <div class="bar-label" style="color:${P.color === '#D5D3CC' ? '#565B66' : P.color}">${P.name}${P.groupLabel ? ` <span style="color:#8B8F98;font-weight:400">${P.groupLabel}</span>` : ''}</div>
             <div class="bar-container"><div class="bar-fill" style="width:${row[k]}%;background:${P.color}"></div></div>
             <div class="bar-pct">${row[k].toFixed(1)}%</div></div>`;
         });
