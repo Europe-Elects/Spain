@@ -152,9 +152,13 @@
   const groupKey = (g) => GROUP_KEY[String(g).toUpperCase()] || null;
 
   function describe(p) {
+    // Europarty, EP group and labels come from the party database only. A party without a database
+    // entry has none (grey, no tag). The EP groups typed in PARTIES are used only if the database
+    // itself could not be loaded, so the maps aren't all grey on election night.
     const db = p.id && AFF[p.id];
-    const eps = db ? parts(db.europarty) : (p.groups || []).map((g) => GROUP_TO_EUROPARTY[g]).filter(Boolean);
-    const grps = db ? parts(db.epGroup).map(groupKey).filter(Boolean) : (p.groups || []).filter((g) => g !== '*');
+    const dbDown = Object.keys(AFF).length === 0;
+    const eps = db ? parts(db.europarty) : dbDown ? (p.groups || []).map((g) => GROUP_TO_EUROPARTY[g]).filter(Boolean) : [];
+    const grps = db ? parts(db.epGroup).map(groupKey).filter(Boolean) : dbDown ? (p.groups || []).filter((g) => g !== '*') : [];
     const tag = db ? tagOf(db.europarty, db.epGroup) : groupName(grps.join('|'));
     const mem = members(p.id);
     const short = mem.slice(0, 4).map((m) => m.abbr);
@@ -188,5 +192,15 @@
       europarties: parts(d.europarty), groups: parts(d.epGroup).map(groupKey).filter(Boolean), members: members(id) };
   }
 
-  window.ES_PARTIES = { info, byId, members, profile, GROUP_COLORS, EUROPARTY_COLORS, ready: readyOrTimeout };
+  // Government status in the outgoing lower house (by the ministry's key): G = in government,
+  // S = supports the government in parliament (confidence and supply). Edit as it changes;
+  // after the election, set it for the new government.
+  const GOV = {
+    'PSOE': 'G', 'SUMAR': 'G',
+    'ERC': 'S', 'EH Bildu': 'S', 'EAJ-PNV': 'S', 'B.N.G.': 'S', 'CCa': 'S',
+    // Junts withdrew its support in October 2025.
+  };
+  const gov = (k) => GOV[k] || '';
+
+  window.ES_PARTIES = { info, byId, members, profile, gov, GROUP_COLORS, EUROPARTY_COLORS, ready: readyOrTimeout };
 })();
