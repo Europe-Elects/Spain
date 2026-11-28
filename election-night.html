@@ -45,6 +45,7 @@
   .seg button { border: 0; background: transparent; color: #D6DCE8; font: 700 15px 'Advent Pro', system-ui, sans-serif; padding: 4px 11px; border-radius: 4px; cursor: pointer; }
   .seg button:hover { color: #fff; }
   .seg button[aria-pressed="true"] { background: #fff; color: var(--navy); }
+  .seg button[hidden] { display: none; }
   .seg button:focus-visible { outline: 2px solid #F2B705; outline-offset: 1px; }
   /* polls once the count has started: moved down and folded */
   .fold { border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; font: 700 14px 'Advent Pro', system-ui, sans-serif;
@@ -118,9 +119,13 @@
 
   <section class="panel span-7">
     <div class="panel-head"><h2>Maps</h2>
+      <div class="seg" data-house-seg aria-label="House">
+        <button data-house="congress" aria-pressed="true">Lower house</button>
+        <button data-house="senate" aria-pressed="false">Upper house</button>
+      </div>
       <div class="seg" data-frame="maps">
         <button data-src="results-map.html?embed=1&level=municipalities" aria-pressed="true">Vote</button>
-        <button data-src="seats-map.html?embed=1" aria-pressed="false">Seats</button>
+        <button data-src="seats-map.html?embed=1&v=20261128g" aria-pressed="false" data-both>Seats</button>
         <button data-src="turnout-map.html?embed=1&level=municipalities" aria-pressed="false">Turnout</button>
         <button data-src="swing-map.html?embed=1" aria-pressed="false">Swing</button>
       </div></div>
@@ -140,11 +145,6 @@
   <section class="panel span-12">
     <div class="panel-head"><h2>Lower house results</h2><span class="note">Change against 2023 · tap [ ] to see the parties on a joint list</span></div>
     <div class="body"><iframe data-src="sheet-charts.html?view=results&embed=1" title="Lower house results" style="height:560px"></iframe></div>
-  </section>
-
-  <section class="panel span-12">
-    <div class="panel-head"><h2>Upper house seats</h2><span class="note">Senate · 208 directly elected seats · by constituency</span></div>
-    <iframe id="senate" title="Seats in the upper house (Senate)" style="height:860px"></iframe>
   </section>
 
   <section class="panel span-6">
@@ -203,15 +203,30 @@
   let year = fixedYear || '2023';
   const withYear = (src) => { const u = withPass(src); return /[?&]year=/.test(u) ? u : u + '&year=' + year; };
   const mapSeg = document.querySelector('.seg[data-frame="maps"]');
+  // Lower house: vote, seats, turnout and swing maps. Upper house: the Senate seats map only (the
+  // ministry publishes the Senate by constituency, so the other maps exist for the lower house only).
+  const houseSeg = document.querySelector('.seg[data-house-seg]');
+  let house = 'congress';
+  const mapSrc = () => {
+    const src = mapSeg.querySelector('[aria-pressed="true"]').dataset.src;
+    return /seats-map/.test(src) ? src + '&house=' + house : src;   // the panel's switch replaces the map's own
+  };
+  houseSeg.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b || b.dataset.house === house) return;
+    house = b.dataset.house;
+    houseSeg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    mapSeg.querySelectorAll('button').forEach((x) => { x.hidden = house === 'senate' && !('both' in x.dataset); });
+    if (house === 'senate') mapSeg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', 'both' in x.dataset));
+    $('maps').src = withYear(mapSrc());
+  });
   function loadMapFrames() {
-    $('maps').src = withYear(mapSeg.querySelector('[aria-pressed="true"]').dataset.src);
+    $('maps').src = withYear(mapSrc());
     $('hemi').src = withYear('hemicycle.html?embed=1');
-    $('senate').src = withYear('seats-map.html?embed=1&house=senate');
   }
   mapSeg.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     mapSeg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
-    $('maps').src = withYear(b.dataset.src);
+    $('maps').src = withYear(mapSrc());
   });
   loadMapFrames();
   async function checkYear() {
@@ -279,7 +294,7 @@
   }));
 
   // ---- expand: every panel gets a button that pops it out to fill the screen. Inside the WordPress
-  // frame this needs allowfullscreen on the <iframe>; without it the chart opens in a new tab instead.
+  // frame this needs allowfullscreen on the <iframe>; without it there is no button (nothing opens elsewhere).
   const ICON_OPEN = '<svg class="open" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5"/></svg>';
   const ICON_SHUT = '<svg class="shut" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 1v5H1M15 6h-5V1M10 15v-5h5M1 10h5v5"/></svg>';
   const canFull = document.fullscreenEnabled || document.webkitFullscreenEnabled;
@@ -293,12 +308,9 @@
     open = on ? sec : null;
     if (!on) postHeight();
   }
-  function frameUrl(sec) {
-    const f = sec.querySelector('iframe');
-    return f.getAttribute('src') || (f.dataset.ext ? f.dataset.src : withPass(f.dataset.src));
-  }
   document.querySelectorAll('.dash > section.panel').forEach((sec) => {
     if (sec.querySelector('iframe[data-ext]')) return;   // the polling average (country page) has no expand button
+    if (!canFull && window.parent !== window) return;    // framed without fullscreen permission: no button
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'expand';
     b.innerHTML = ICON_OPEN + ICON_SHUT + '<span class="lbl">Expand</span>';
@@ -316,8 +328,7 @@
         try { setOpen(sec, true); await (sec.requestFullscreen || sec.webkitRequestFullscreen).call(sec); return; }
         catch (e) { setOpen(sec, false); }
       }
-      if (window.parent === window) { setOpen(sec, true); return; }   // own page: fill the window
-      window.open(frameUrl(sec), '_blank', 'noopener');               // framed without fullscreen permission
+      setOpen(sec, true);   // fullscreen refused: fill the window instead
     });
   });
   const onFs = () => { if (open && !(document.fullscreenElement || document.webkitFullscreenElement)) setOpen(open, false); };
