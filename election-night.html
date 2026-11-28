@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spain – Election Night</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F8FAFC; color: #1E293B; }
+  .wrap { max-width: 992px; margin: 0 auto; padding: 12px 0 0; }
+  nav { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 0 16px 10px; align-items: center; }
+  .group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .group-label { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #94A3B8; margin-right: 2px; }
+  .tabs { display: inline-flex; flex-wrap: wrap; gap: 3px; padding: 3px; background: #E2E8F0; border-radius: 8px; }
+  .tab { border: 0; background: transparent; font: 500 13px 'Inter', sans-serif; color: #475569; padding: 6px 11px; border-radius: 6px; cursor: pointer; }
+  .tab:hover { color: #0F172A; }
+  .tab.active { background: #fff; color: #0F172A; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .tab:focus-visible { outline: 2px solid #2563EB; outline-offset: 1px; }
+  select { display: none; width: calc(100% - 32px); margin: 0 16px 10px; font: 600 14px 'Inter', sans-serif; padding: 9px 10px;
+    border: 1px solid #CBD5E1; border-radius: 8px; background: #fff; color: #0F172A; }
+  iframe { display: block; width: 100%; border: 0; }
+  iframe[hidden] { display: none; }
+  @media (max-width: 640px) { nav { display: none; } select { display: block; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav id="nav" aria-label="Charts"></nav>
+  <select id="pick" aria-label="Chart"></select>
+  <div id="frames"></div>
+</div>
+<script>
+(function () {
+  'use strict';
+  // Every embed on one page. `h`: frame height for the maps (they fill their frame); the sheet
+  // charts report their own height. ?tab=<id> opens a tab; ?tabs=a,b,c shows only those, in that
+  // order. Query parameters for one embed go after the id: ?tab=seats&house=senate.
+  const TABS = [
+    { id: 'projection',    group: 'Tonight', label: 'Projection',      src: 'sheet-charts.html?view=projection' },
+    { id: 'results',       group: 'Tonight', label: 'Results',         src: 'sheet-charts.html?view=results' },
+    { id: 'hemicycle',     group: 'Tonight', label: 'Congress seats',  src: 'hemicycle.html', h: 720 },
+    { id: 'provinces',     group: 'Tonight', label: 'Seats by province', src: 'sheet-charts.html?view=provinces' },
+    { id: 'seats',         group: 'Maps',    label: 'Seats map',       src: 'seats-map.html', h: 900 },
+    { id: 'vote',          group: 'Maps',    label: 'Vote map',        src: 'results-map.html', h: 900 },
+    { id: 'turnout-map',   group: 'Maps',    label: 'Turnout map',     src: 'turnout-map.html', h: 900 },
+    { id: 'swing',         group: 'Maps',    label: 'Swing map',       src: 'swing-map.html', h: 900 },
+    { id: 'turnout',       group: 'History', label: 'Turnout',         src: 'sheet-charts.html?view=turnout' },
+    { id: 'history-votes', group: 'History', label: 'Vote share',      src: 'sheet-charts.html?view=history-votes' },
+    { id: 'history-seats', group: 'History', label: 'Seats',           src: 'sheet-charts.html?view=history-seats' },
+  ];
+  const q = new URLSearchParams(location.search);
+  const only = (q.get('tabs') || '').split(',').map((s) => s.trim()).filter(Boolean);
+  const tabs = only.length ? only.map((id) => TABS.find((t) => t.id === id)).filter(Boolean) : TABS;
+  // Pass the page's other parameters (e.g. ?year=2023, ?house=senate) on to every embed.
+  const pass = new URLSearchParams(q); ['tab', 'tabs'].forEach((k) => pass.delete(k));
+  const withPass = (src) => (pass.toString() ? src + (src.includes('?') ? '&' : '?') + pass.toString() : src);
+
+  const nav = document.getElementById('nav'), pick = document.getElementById('pick'), box = document.getElementById('frames');
+  const frames = {};
+  const groups = [...new Set(tabs.map((t) => t.group))];
+  nav.innerHTML = groups.map((g) => `<div class="group"><span class="group-label">${g}</span><div class="tabs" role="tablist">` +
+    tabs.filter((t) => t.group === g).map((t) => `<button class="tab" role="tab" data-id="${t.id}" aria-selected="false">${t.label}</button>`).join('') +
+    '</div></div>').join('');
+  pick.innerHTML = groups.map((g) => `<optgroup label="${g}">` + tabs.filter((t) => t.group === g).map((t) => `<option value="${t.id}">${t.label}</option>`).join('') + '</optgroup>').join('');
+
+  function show(id) {
+    const t = tabs.find((x) => x.id === id) || tabs[0];
+    if (!frames[t.id]) {   // load each embed the first time it is opened, then keep it (and its state)
+      const f = document.createElement('iframe');
+      f.src = withPass(t.src); f.title = t.label; f.loading = 'eager';
+      f.style.height = (t.h || 600) + 'px';
+      box.appendChild(f); frames[t.id] = f;
+    }
+    Object.entries(frames).forEach(([k, f]) => { f.hidden = k !== t.id; });
+    nav.querySelectorAll('.tab').forEach((b) => { const on = b.dataset.id === t.id; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
+    pick.value = t.id;
+    postHeight();
+  }
+  nav.addEventListener('click', (e) => { const b = e.target.closest('.tab'); if (b) show(b.dataset.id); });
+  pick.addEventListener('change', () => show(pick.value));
+
+  // Sheet charts report their height; size their frame to it.
+  window.addEventListener('message', (e) => {
+    if (!e.data || e.data.type !== 'ee-height') return;
+    const f = Object.values(frames).find((x) => x.contentWindow === e.source);
+    if (f) { f.style.height = e.data.h + 'px'; postHeight(); }
+  });
+  // …and this page reports its own height to WordPress (see README: the embed snippet).
+  function postHeight() {
+    if (window.parent === window) return;
+    const h = Math.ceil(document.documentElement.scrollHeight);
+    window.parent.postMessage({ 'datawrapper-height': { 'ee-spain-2026': h } }, '*');
+    window.parent.postMessage({ type: 'ee-height', id: 'ee-spain-2026', h }, '*');
+  }
+  new ResizeObserver(postHeight).observe(document.body);
+
+  show(q.get('tab') || tabs[0].id);
+})();
+</script>
+</body>
+</html>

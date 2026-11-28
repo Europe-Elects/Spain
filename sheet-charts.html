@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spain – Election Night Charts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css?v=20261127b">
+<style>
+  /* map.css sizes pages to the frame (maps); these charts are as tall as their content. */
+  html, body { height: auto; }
+  body { overflow: visible; display: block; }
+  .container { flex: none; }
+  .card { position: relative; background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 14px 12px; }
+  .card .map-logo { position: static; margin-bottom: 8px; }
+  .empty { padding: 36px 12px; text-align: center; color: #64748B; font-size: 13px; }
+  .note { font-size: 11px; color: #94A3B8; margin-top: 6px; }
+
+  /* seat strip */
+  .strip-wrap { margin: 2px 0 14px; }
+  .strip { position: relative; display: flex; height: 22px; border-radius: 4px; overflow: hidden; background: #F1F5F9; }
+  .strip > span { height: 100%; border-right: 2px solid #fff; }
+  .strip > span:last-child { border-right: 0; }
+  .majority { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 2px dashed #0F172A; }
+  .strip-labels { display: flex; justify-content: space-between; font-size: 11px; color: #64748B; margin-top: 4px; }
+
+  /* party rows */
+  .rows { display: grid; grid-template-columns: minmax(120px, 210px) 1fr auto auto; gap: 7px 10px; align-items: center; }
+  .rows .h { font-size: 11px; color: #94A3B8; font-weight: 500; }
+  .rows .h.r { text-align: right; }
+  .pname { font-size: 13px; font-weight: 600; color: #0F172A; display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .pname .sw { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .pname .tag { font-size: 10px; font-weight: 500; color: #94A3B8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { position: relative; height: 14px; background: #F1F5F9; border-radius: 0 4px 4px 0; }
+  .bar .fill { height: 100%; border-radius: 0 4px 4px 0; }
+  .bar .prev { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #0F172A; opacity: .55; border-radius: 1px; }
+  .val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; color: #0F172A; white-space: nowrap; }
+  .val small { font-size: 11px; font-weight: 600; margin-left: 4px; }
+  .seats { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 52px; color: #0F172A; white-space: nowrap; }
+  .seats small { font-size: 11px; font-weight: 600; margin-left: 3px; }
+  .up { color: #15803D; } .down { color: #B91C1C; } .same { color: #94A3B8; }
+
+  /* provinces */
+  .prov { display: grid; grid-template-columns: minmax(110px, 160px) 1fr; gap: 6px 10px; align-items: center; }
+  .prov .pn { font-size: 12px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prov .pn b { color: #94A3B8; font-weight: 500; margin-left: 4px; font-size: 11px; }
+  .dots { display: flex; flex-wrap: wrap; gap: 3px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 1px #fff; cursor: default; }
+  .dot.free { background: #fff; box-shadow: inset 0 0 0 1.5px #CBD5E1; }
+  .dot.dim { opacity: .15; }
+
+  /* svg charts */
+  svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
+  .axis text, .lbl { font: 500 11px 'Inter', sans-serif; fill: #64748B; }
+  .grid line { stroke: #E2E8F0; }
+  .baseline { stroke: #94A3B8; }
+  .barlbl { font: 600 11px 'Inter', sans-serif; fill: #0F172A; text-anchor: middle; }
+  .endlbl { font: 600 11px 'Inter', sans-serif; }
+  .series path { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .series.dim path, .series.dim circle, .series.dim text { opacity: .12; }
+  .cross { stroke: #94A3B8; stroke-width: 1; }
+  #tip { position: fixed; display: none; pointer-events: none; z-index: 10; background: #fff; border: 1px solid #E2E8F0;
+    border-radius: 8px; box-shadow: 0 4px 14px rgba(15,23,42,.12); padding: 8px 10px; font-size: 12px; min-width: 150px; }
+  #tip h4 { font-size: 12px; margin-bottom: 6px; color: #0F172A; }
+  #tip .tr { display: flex; align-items: center; gap: 6px; margin: 2px 0; color: #334155; }
+  #tip .tr i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  #tip .tr span:last-child { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; padding-left: 10px; }
+  @media (max-width: 560px) {
+    .rows { grid-template-columns: minmax(90px, 1fr) 1fr auto; }
+    .rows .bar-col { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 id="title">Spain · General election 2026</h1>
+    <div class="subtitle" id="subtitle">&nbsp;</div>
+    <div class="status-row"><span class="last-updated" id="lastUpdated">Last updated: –</span></div>
+  </div>
+  <div class="card">
+    <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
+    <div id="chart"><div class="empty">Loading…</div></div>
+  </div>
+  <div class="legend" id="legend"></div>
+  <div class="legend-hint" id="hint"></div>
+  <div class="footer" id="footer">Source: Europe Elects</div>
+</div>
+<div id="tip"></div>
+<script src="assets/map-utils.js?v=20261127b"></script>
+<script src="assets/es-parties.js?v=20261127b"></script>
+<script src="assets/sheet-data.js?v=20261127c"></script>
+<script>
+(function () {
+  'use strict';
+  const { load, num, isPct, party } = window.ES_SHEET;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const NS = 'http://www.w3.org/2000/svg';
+  const SEATS = 350, MAJORITY = 176;
+  const params = new URLSearchParams(location.search);
+  const VIEW = params.get('view') || 'projection';
+  const fmt = (v, d = 1) => (v == null ? '–' : v.toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }));
+  const signed = (v, d = 1) => (v == null ? '' : (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt(Math.abs(v), d));
+  const cls = (v) => (v == null ? '' : v > 0 ? 'up' : v < 0 ? 'down' : 'same');
+  const fill = (p) => (p.color2 ? `linear-gradient(90deg, ${p.color} 50%, ${p.color2} 50%)` : p.color);
+
+  const VIEWS = {
+    projection: { tab: 'projection', title: 'Spain · Congress projection', sub: 'Projected vote share and seats · 350 seats, 176 for a majority', render: renderParties },
+    projection2: { tab: 'projection2', title: 'Spain · Congress projection', sub: 'Projected vote share and seats · 350 seats, 176 for a majority', render: renderParties },
+    results: { tab: 'results', title: 'Spain · Congress results', sub: 'Vote share and seats, change against 2023', render: renderParties },
+    provinces: { tab: 'provinces', title: 'Spain · Seats by province', sub: 'Congress seats in each of the 52 constituencies', render: renderProvinces },
+    turnout: { tab: 'turnout', title: 'Spain · Turnout', sub: 'Turnout at general elections since 2000', render: renderTurnout },
+    'history-votes': { tab: 'historyVotes', title: 'Spain · Vote share since 1989', sub: 'Congress vote share by party at each general election', render: (g) => renderHistory(g, 'pct') },
+    'history-seats': { tab: 'historySeats', title: 'Spain · Seats since 1989', sub: 'Congress seats by party at each general election', render: (g) => renderHistory(g, 'seats') },
+  };
+  const view = VIEWS[VIEW] || VIEWS.projection;
+  $('title').textContent = view.title;
+  $('subtitle').textContent = view.sub;
+  document.title = view.title.replace(' · ', ' – ');
+
+  // ---------------------------------------------------------------- party tables
+  // Projection: Party | Projected Votes | Projected Seats.
+  // Results:    Party | Vote Share | Seats | Change V | Change S | | Result 2023 V | Result 2023 S.
+  function headerRow(g) {
+    const r = g.findIndex((row) => row.some((c) => /^party$/i.test(c)));
+    return r;
+  }
+  function colIndex(head, re, fallback) {
+    const i = head ? head.findIndex((c) => re.test(c)) : -1;
+    return i >= 0 ? i : fallback;
+  }
+  function partyTable(g) {
+    const hr = headerRow(g);
+    const head = hr >= 0 ? g[hr] : null;
+    const pc = head ? head.findIndex((c) => /^party$/i.test(c)) : 0;
+    const res = VIEW === 'results';
+    const ci = {
+      v: colIndex(head, /vote/i, pc + 1),
+      s: colIndex(head, /seat/i, pc + 2),
+      dv: colIndex(head, /change\s*v/i, res ? pc + 3 : -1),
+      ds: colIndex(head, /change\s*s/i, res ? pc + 4 : -1),
+      pv: colIndex(head, /20\d\d.*\bv$/i, res ? pc + 6 : -1),
+      ps: colIndex(head, /20\d\d.*\bs$/i, res ? pc + 7 : -1),
+    };
+    const start = hr >= 0 ? hr + 1 : g.findIndex((row) => row[pc] === 'PP');
+    const rows = [];
+    for (let r = Math.max(start, 0); r < g.length; r++) {
+      const name = g[r][pc];
+      if (!name || /^(year|total)$/i.test(name)) continue;
+      const cell = (i) => (i >= 0 ? g[r][i] : '');
+      rows.push({ name, v: num(cell(ci.v)), vPct: isPct(cell(ci.v)), s: num(cell(ci.s)),
+        dv: num(cell(ci.dv)), ds: num(cell(ci.ds)), pv: num(cell(ci.pv)), ps: num(cell(ci.ps)), pvPct: isPct(cell(ci.pv)) });
+    }
+    // Shares typed as fractions (0.3306) rather than percentages.
+    const scale = (key, pctKey) => {
+      const vals = rows.map((x) => x[key]).filter((x) => x != null);
+      if (vals.length && !rows.some((x) => x[pctKey]) && Math.max(...vals) <= 1) rows.forEach((x) => { if (x[key] != null) x[key] *= 100; });
+    };
+    scale('v', 'vPct'); scale('pv', 'pvPct');
+    rows.forEach((x) => {
+      if (x.dv == null && x.v != null && x.pv != null) x.dv = x.v - x.pv;
+      if (x.ds == null && x.s != null && x.ps != null) x.ds = x.s - x.ps;
+    });
+    return rows;
+  }
+
+  function renderParties(g) {
+    const rows = partyTable(g).filter((x) => x.v != null || x.s != null);
+    if (!rows.length) return empty(VIEW === 'results' ? 'Results appear here as the count comes in.' : 'The projection appears here when polls close (20:00 Madrid).');
+    rows.sort((a, b) => (b.s ?? -1) - (a.s ?? -1) || (b.v ?? -1) - (a.v ?? -1));
+    const res = VIEW === 'results';
+    const maxV = Math.max(5, ...rows.map((x) => Math.max(x.v ?? 0, res ? (x.pv ?? 0) : 0)));
+    const totalSeats = rows.reduce((t, x) => t + (x.s || 0), 0);
+    let html = '';
+    if (totalSeats) {
+      html += '<div class="strip-wrap"><div class="strip">';
+      rows.filter((x) => x.s).forEach((x) => {
+        const p = party(x.name);
+        html += `<span style="width:${(x.s / SEATS) * 100}%;background:${fill(p)}" title="${esc(p.label)}: ${x.s}"></span>`;
+      });
+      html += `<div class="majority" style="left:${(MAJORITY / SEATS) * 100}%"></div></div>`;
+      html += `<div class="strip-labels"><span>${totalSeats} of ${SEATS} seats</span><span>Majority: ${MAJORITY}</span></div></div>`;
+    }
+    html += '<div class="rows">';
+    html += `<div class="h">Party</div><div class="h bar-col">Vote share${res ? ' <span style="color:#64748B">· line = 2023</span>' : ''}</div><div class="h r">%</div><div class="h r">Seats</div>`;
+    rows.forEach((x) => {
+      const p = party(x.name);
+      const tag = p.tag ? `<span class="tag">${esc(p.tag)}</span>` : '';
+      html += `<div class="pname"><span class="sw" style="background:${fill(p)}"></span><span>${esc(p.label)}</span>${tag}</div>`;
+      html += `<div class="bar-col"><div class="bar"><div class="fill" style="width:${((x.v ?? 0) / maxV) * 100}%;background:${fill(p)}"></div>`;
+      if (res && x.pv != null) html += `<div class="prev" style="left:calc(${(x.pv / maxV) * 100}% - 1px)" title="2023: ${fmt(x.pv)}%"></div>`;
+      html += '</div></div>';
+      html += `<div class="val">${x.v == null ? '–' : fmt(x.v) + '%'}${res && x.dv != null ? `<small class="${cls(x.dv)}">${signed(x.dv)}</small>` : ''}</div>`;
+      html += `<div class="seats">${x.s == null ? '–' : x.s}${res && x.ds != null ? `<small class="${cls(x.ds)}">${signed(x.ds, 0)}</small>` : ''}</div>`;
+    });
+    html += '</div>';
+    if (res) html += '<div class="note">Change against the 2023 result of the same party or its predecessor list.</div>';
+    $('chart').innerHTML = html;
+    $('legend').innerHTML = ''; $('hint').textContent = '';
+  }
+
+  // ---------------------------------------------------------------- provinces
+  // Party | Madrid (38 S) | Barcelona (32 S) | …  (one row per party, seats per province)
+  let provFocus = null;
+  function renderProvinces(g) {
+    const hr = Math.max(headerRow(g), 0);
+    const head = g[hr] || [];
+    const provs = head.map((h, i) => ({ i, m: /^(.*?)\s*\(\s*(\d+)\s*S\s*\)$/i.exec(h) })).filter((x) => x.m)
+      .map((x) => ({ i: x.i, name: x.m[1], seats: +x.m[2] }));
+    const parties = g.slice(hr + 1).map((r) => r[0]).filter(Boolean);
+    const byParty = {};
+    let any = false;
+    parties.forEach((name, k) => {
+      const row = g[hr + 1 + k];
+      if (!row) return;
+      byParty[name] = provs.map((pv) => num(row[pv.i]) || 0);
+      if (byParty[name].some((v) => v > 0)) any = true;
+    });
+    if (!provs.length || !any) return empty('Seats by province appear here as they are projected or declared.');
+    const order = parties.filter((n) => byParty[n] && byParty[n].some((v) => v > 0));
+    const totals = Object.fromEntries(order.map((n) => [n, byParty[n].reduce((a, b) => a + b, 0)]));
+    order.sort((a, b) => totals[b] - totals[a]);
+    let html = '<div class="prov">';
+    provs.forEach((pv, j) => {
+      html += `<div class="pn" title="${esc(pv.name)}">${esc(pv.name)}<b>${pv.seats}</b></div><div class="dots">`;
+      let n = 0;
+      order.forEach((name) => {
+        const p = party(name);
+        for (let k = 0; k < byParty[name][j]; k++, n++) {
+          html += `<span class="dot${provFocus && provFocus !== name ? ' dim' : ''}" style="background:${p.color2 ? `linear-gradient(90deg, ${p.color} 50%, ${p.color2} 50%)` : p.color}" title="${esc(pv.name)} · ${esc(p.label)}: ${byParty[name][j]}"></span>`;
+        }
+      });
+      for (; n < pv.seats; n++) html += '<span class="dot free" title="Not allocated yet"></span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    $('chart').innerHTML = html;
+    $('legend').innerHTML = order.map((name) => {
+      const p = party(name);
+      return `<button class="legend-item clickable${provFocus === name ? ' active' : ''}" data-p="${esc(name)}"><span class="legend-swatch" style="background:${fill(p)}"></span>${esc(p.label)}<span class="legend-pct">${totals[name]}</span></button>`;
+    }).join('');
+    $('hint').textContent = 'Tap a party to highlight its seats';
+    $('legend').querySelectorAll('[data-p]').forEach((b) => b.addEventListener('click', () => {
+      provFocus = provFocus === b.dataset.p ? null : b.dataset.p; renderProvinces(g); postHeight();
+    }));
+  }
+
+  // ---------------------------------------------------------------- turnout
+  // Year | Turnout, anywhere on the tab (the projection tab has them in its right-hand columns).
+  function turnoutRows(g) {
+    for (let r = 0; r < g.length; r++) {
+      const yc = g[r].findIndex((c) => /^year$/i.test(c));
+      if (yc < 0 || !/^turnout$/i.test(g[r][yc + 1] || '')) continue;
+      const out = [];
+      for (let k = r + 1; k < g.length; k++) {
+        const y = g[k][yc], t = num(g[k][yc + 1]);
+        if (!y || /^year$/i.test(y) || t == null) continue;
+        out.push({ year: y, t: t <= 1 && !isPct(g[k][yc + 1]) ? t * 100 : t });
+      }
+      if (out.length) return out;
+    }
+    return [];
+  }
+  async function renderTurnout(g) {
+    let rows = turnoutRows(g);
+    if (!rows.length) {   // the turnout tab is empty: use the table beside the projection
+      try { rows = turnoutRows(await load('projection')); } catch (e) { /* keep empty */ }
+    }
+    if (!rows.length) return empty('No turnout figures in the sheet yet.');
+    const W = 900, H = 340, m = { t: 26, r: 10, b: 34, l: 40 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const max = Math.ceil(Math.max(80, ...rows.map((x) => x.t)) / 10) * 10, min = 0;
+    const y = (v) => m.t + ih - ((v - min) / (max - min)) * ih;
+    const bw = iw / rows.length;
+    let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Turnout by election">`;
+    s += '<g class="grid axis">';
+    for (let v = min; v <= max; v += 20) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`;
+    s += '</g>';
+    rows.forEach((x, i) => {
+      const cx = m.l + bw * i + bw / 2, w = Math.min(54, bw * 0.62);
+      const latest = i === rows.length - 1;
+      const top = y(x.t), h = y(min) - top, rr = Math.min(4, h);
+      s += `<path d="M${cx - w / 2},${y(min)} V${top + rr} Q${cx - w / 2},${top} ${cx - w / 2 + rr},${top} H${cx + w / 2 - rr} Q${cx + w / 2},${top} ${cx + w / 2},${top + rr} V${y(min)} Z" fill="${latest ? '#2563EB' : '#93C5FD'}"><title>${esc(x.year)}: ${fmt(x.t, 2)}%</title></path>`;
+      s += `<text class="barlbl" x="${cx}" y="${top - 6}">${fmt(x.t)}%</text>`;
+      s += `<text class="lbl" x="${cx}" y="${H - m.b + 16}" text-anchor="middle">${esc(x.year)}</text>`;
+    });
+    s += `<line class="baseline" x1="${m.l}" x2="${W - m.r}" y1="${y(min)}" y2="${y(min)}"/></svg>`;
+    $('chart').innerHTML = s;
+    $('legend').innerHTML = ''; $('hint').textContent = '';
+  }
+
+  // ---------------------------------------------------------------- history
+  // Year | PSOE/PSOE-NCa | PP | … , one row per election.
+  const hidden = new Set();
+  let shown = null;
+  function renderHistory(g, kind) {
+    const hr = g.findIndex((row) => /^year$/i.test(row[0] || ''));
+    if (hr < 0) return empty('No history table found on this tab.');
+    const head = g[hr];
+    const years = [], rowsIdx = [];
+    for (let r = hr + 1; r < g.length; r++) if (g[r][0] && !/^year$/i.test(g[r][0])) { years.push(g[r][0]); rowsIdx.push(r); }
+    let series = head.slice(1).map((name, k) => ({ name, vals: rowsIdx.map((r) => num(g[r][k + 1])) }))
+      .filter((s) => s.name && s.vals.some((v) => v != null));
+    if (!series.length) return empty('No figures on this tab yet.');
+    const maxOf = (s) => Math.max(...s.vals.filter((v) => v != null));
+    const cut = kind === 'pct' ? 5 : 15;
+    if (!shown) { shown = new Set(series.filter((s) => maxOf(s) >= cut).map((s) => s.name)); }
+    const used = {};
+    series.forEach((s) => {
+      s.p = party(s.name);
+      s.dash = used[s.p.color] ? '6 4' : '';  // same EP-group colour as a line already drawn: dashed
+      if (shown.has(s.name)) used[s.p.color] = true;
+    });
+    const vis = series.filter((s) => shown.has(s.name));
+    const W = 900, H = 400, m = { t: 14, r: 92, b: 34, l: 40 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const top = kind === 'pct' ? Math.ceil(Math.max(10, ...vis.map(maxOf)) / 10) * 10 : Math.ceil(Math.max(20, ...vis.map(maxOf)) / 50) * 50;
+    const step = kind === 'pct' ? 10 : 50;
+    const x = (i) => m.l + (years.length === 1 ? iw / 2 : (i / (years.length - 1)) * iw);
+    const y = (v) => m.t + ih - (v / top) * ih;
+    let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(view.title)}">`;
+    s += '<g class="grid axis">';
+    for (let v = 0; v <= top; v += step) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}${kind === 'pct' ? '%' : ''}</text>`;
+    years.forEach((yr, i) => { s += `<text x="${x(i)}" y="${H - m.b + 18}" text-anchor="middle">${esc(yr)}</text>`; });
+    s += '</g>';
+    if (kind === 'seats') s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(MAJORITY)}" y2="${y(MAJORITY)}" stroke="#0F172A" stroke-dasharray="5 4" opacity=".5"/><text class="lbl" x="${m.l + 4}" y="${y(MAJORITY) - 5}">Majority ${MAJORITY}</text>`;
+    // end labels, nudged apart
+    const ends = vis.map((sr) => {
+      let i = sr.vals.length - 1; while (i >= 0 && sr.vals[i] == null) i--;
+      return { sr, i, yy: y(sr.vals[i]) };
+    }).sort((a, b) => a.yy - b.yy);
+    for (let k = 1; k < ends.length; k++) if (ends[k].yy - ends[k - 1].yy < 13) ends[k].yy = ends[k - 1].yy + 13;
+    vis.forEach((sr) => {
+      let d = '', pen = false;
+      sr.vals.forEach((v, i) => { if (v == null) { pen = false; return; } d += `${pen ? 'L' : 'M'}${x(i)},${y(v)}`; pen = true; });
+      s += `<g class="series" data-n="${esc(sr.name)}" stroke="${sr.p.color}"><path d="${d}" stroke="${sr.p.color}"${sr.dash ? ` stroke-dasharray="${sr.dash}"` : ''}/>`;
+      sr.vals.forEach((v, i) => { if (v != null) s += `<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${sr.p.color}" stroke="#fff" stroke-width="1.5"/>`; });
+      const e = ends.find((q) => q.sr === sr);
+      s += `<text class="endlbl" x="${x(e.i) + 8}" y="${e.yy + 4}" fill="#0F172A">${esc(sr.p.label)}</text></g>`;
+    });
+    s += `<line class="cross" id="cross" x1="0" x2="0" y1="${m.t}" y2="${m.t + ih}" visibility="hidden"/>`;
+    s += `<rect id="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/></svg>`;
+    $('chart').innerHTML = s;
+    // legend (toggle any party)
+    $('legend').innerHTML = series.map((sr) => `<button class="legend-item clickable${shown.has(sr.name) ? ' active' : ''}" data-n="${esc(sr.name)}" aria-pressed="${shown.has(sr.name)}"><span class="legend-swatch" style="background:${shown.has(sr.name) ? sr.p.color : '#E2E8F0'}"></span>${esc(sr.name)}</button>`).join('');
+    $('hint').textContent = `Showing parties that reached ${kind === 'pct' ? '5%' : '15 seats'} at some election · tap a party to add or remove it · same colour = same EP group (dashed)`;
+    $('legend').querySelectorAll('[data-n]').forEach((b) => b.addEventListener('click', () => {
+      const n = b.dataset.n; shown.has(n) ? shown.delete(n) : shown.add(n); renderHistory(g, kind); postHeight();
+    }));
+    // hover: crosshair + values for that election
+    const svg = $('chart').querySelector('svg'), tip = $('tip'), cross = svg.querySelector('#cross');
+    svg.querySelector('#hit').addEventListener('mousemove', (ev) => {
+      const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+      const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+      const i = Math.max(0, Math.min(years.length - 1, Math.round(((loc.x - m.l) / iw) * (years.length - 1))));
+      cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('visibility', 'visible');
+      const items = vis.filter((sr) => sr.vals[i] != null).sort((a, b) => b.vals[i] - a.vals[i]);
+      tip.innerHTML = `<h4>${esc(years[i])}</h4>` + items.map((sr) => `<div class="tr"><i style="background:${sr.p.color}"></i><span>${esc(sr.p.label)}</span><span>${kind === 'pct' ? fmt(sr.vals[i], 2) + '%' : sr.vals[i]}</span></div>`).join('');
+      tip.style.display = 'block';
+      const tw = tip.offsetWidth, th = tip.offsetHeight;
+      tip.style.left = Math.min(ev.clientX + 14, innerWidth - tw - 8) + 'px';
+      tip.style.top = Math.min(ev.clientY + 14, innerHeight - th - 8) + 'px';
+    });
+    svg.querySelector('#hit').addEventListener('mouseleave', () => { tip.style.display = 'none'; cross.setAttribute('visibility', 'hidden'); });
+  }
+
+  // ---------------------------------------------------------------- shared
+  function empty(msg) {
+    $('chart').innerHTML = `<div class="empty">${esc(msg)}</div>`;
+    $('legend').innerHTML = ''; $('hint').textContent = '';
+  }
+  // Tell the page around this one how tall it is (election-night.html, or a Datawrapper-style embed).
+  function postHeight() {
+    const h = Math.ceil(document.documentElement.scrollHeight);
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'ee-height', h }, '*');
+      window.parent.postMessage({ 'datawrapper-height': { ['ee-es-' + VIEW]: h } }, '*');
+    }
+  }
+  new ResizeObserver(postHeight).observe(document.body);
+
+  let lastOk = null;
+  async function refresh() {
+    try {
+      await window.ES_PARTIES.ready;
+      const grid = await load(view.tab);
+      await view.render(grid);
+      lastOk = new Date();
+      $('lastUpdated').textContent = 'Last updated: ' + lastOk.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' }) + ' (Madrid)';
+    } catch (e) {
+      console.error(e);
+      if (!lastOk) empty('The sheet could not be read: ' + e.message);
+    }
+    postHeight();
+  }
+  refresh();
+  // Projection and results change through the night; history doesn't.
+  if (/^(projection2?|results|provinces|turnout)$/.test(VIEW)) setInterval(refresh, 60000);
+})();
+</script>
+</body>
+</html>
