@@ -10,6 +10,32 @@
 <style>
   #tooltip { min-width: 300px; }
   #tooltip .bar-label { width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* municipality search */
+  .muni-search { position: relative; flex: 1 1 220px; max-width: 320px; }
+  .muni-search[hidden] { display: none; }
+  .muni-search input { width: 100%; font: 500 15px 'Advent Pro', system-ui, sans-serif; color: #1A1D23; background: #fff;
+    border: 1px solid #D5D3CC; border-radius: 8px; padding: 7px 12px 7px 32px; outline: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238B8F98' stroke-width='2'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l4 4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: 10px 50%; }
+  .muni-search input:focus { border-color: #1B2A4A; box-shadow: 0 0 0 2px rgba(27,42,74,.12); }
+  .muni-search ul { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); list-style: none; background: #fff;
+    border: 1px solid #E4E2DB; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.12); max-height: 300px; overflow: auto; padding: 4px; }
+  .muni-search ul[hidden] { display: none; }
+  .muni-search li { padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 15px; display: flex; justify-content: space-between; gap: 10px; }
+  .muni-search li span { color: #8B8F98; font-size: 13px; white-space: nowrap; }
+  .muni-search li[aria-selected="true"], .muni-search li:hover { background: #F2F1EC; }
+  .muni-search li.none { color: #8B8F98; cursor: default; background: none; }
+  /* a party selected: its highest and lowest result marked on the map */
+  .extreme { position: absolute; z-index: 5; pointer-events: none; transform: translate(-50%, calc(-100% - 9px));
+    background: #fff; border: 1px solid #1B2A4A; border-radius: 6px; padding: 3px 8px; font-size: 13px; line-height: 1.25;
+    color: #1A1D23; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+  .extreme.below { transform: translate(-50%, 9px); }
+  .extreme b { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .extreme small { display: block; font-size: 11px; color: #8B8F98; letter-spacing: .04em; text-transform: uppercase; }
+  .extreme-dot { position: absolute; z-index: 5; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
+    background: #1B2A4A; border: 2px solid #fff; pointer-events: none; box-shadow: 0 0 0 1px #1B2A4A; }
+  .extreme[hidden], .extreme-dot[hidden] { display: none; }
+  .county.muni.found { stroke: #1A1D23; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
 </style>
 </head>
 <body>
@@ -26,6 +52,11 @@
   <div class="tab-row">
     <div class="level-tabs" id="yearTabs" role="tablist" aria-label="Election"></div>
     <div class="level-tabs" id="levelTabs" role="tablist" aria-label="Level"></div>
+    <div class="muni-search" id="muniSearch" hidden>
+      <input type="search" id="muniQ" placeholder="Find a municipality" autocomplete="off" aria-label="Find a municipality"
+             role="combobox" aria-autocomplete="list" aria-controls="muniList" aria-expanded="false">
+      <ul id="muniList" role="listbox" hidden></ul>
+    </div>
   </div>
   <div id="map-container" style="overflow:hidden">
     <div class="map-logo"><img src="logo.png?v=2" alt="Europe Elects"></div>
@@ -83,21 +114,20 @@
     autoRefresh(refresh, 60000);
   }
 
-  // `tabs`: rebuild the level tabs (on start and when the year changes). They are rebuilt
-  // too when municipalities appear: on election night the live file has them from the first
-  // municipal round, a few minutes into the count.
+  // `tabs`: rebuild the level tabs (on start and when the year changes). Municipalities
+  // exist only in the 2023 file; the live file has regions and provinces.
   async function refresh(tabs) {
     await window.ES_PARTIES.ready;  // Europarty and EP group from the party database (labels)
     const y = year;
     const d = await loadYear(y, DATA_URL);
     if (y !== year) return;  // the year changed while this was loading
-    const hadMunis = !!(data && data.municipalities);
     data = d;
-    if (tabs === true || hadMunis !== !!data.municipalities) {
+    if (tabs === true) {
       level = levelTabs(document.getElementById('levelTabs'),
                         ['regions', 'provinces'].concat(data.municipalities ? ['municipalities'] : []),
                         lv => { level = lv; render(); });
     }
+    setupSearch();
     data.parties.forEach(k => { const i = info(k); PARTIES[k] = { color: i.color, color2: i.color2, name: i.label, groupLabel: i.groupLabel }; });
     await render();
   }
@@ -142,7 +172,8 @@
         if (w) fill = fillOf(w.party);
       }
       const p = document.createElementNS(NS, 'path');
-      p.setAttribute('d', s.d); p.setAttribute('class', 'county' + (muni ? ' muni' : '')); p.setAttribute('fill', fill);
+      p.setAttribute('d', s.d); p.setAttribute('class', 'county' + (muni ? ' muni' : '') + (muni && s.id === found ? ' found' : '')); p.setAttribute('fill', fill);
+      p.dataset.id = s.id;
       if (op !== null) p.setAttribute('fill-opacity', op);
       p.addEventListener('mouseenter', e => showTooltip(e, s, row));
       p.addEventListener('mousemove', e => moveTooltip(e, 300));
@@ -168,12 +199,146 @@
       : `No ${LEVELS[level].one} results yet. They appear here as the ministry publishes them.`;
 
     window.EE.enableZoomPan(svg, { controls: { zoomIn: 'zoomIn', zoomOut: 'zoomOut', zoomReset: 'zoomReset', zoomLevel: 'zoomLevel' }, maxK: muni ? 40 : 12 });
+    markExtremes(rows);
+  }
+
+  // ---- a party selected: mark the area with its highest result, and the lowest (unless that is 0.0%).
+  // The labels are HTML over the map, so they keep their size when zooming, and follow the zoom and pan.
+  let marks = [];
+  function markExtremes(rows) {
+    const box = document.getElementById('map-container');
+    box.querySelectorAll('.extreme, .extreme-dot').forEach((x) => x.remove());
+    marks = [];
+    if (!focus) return;
+    let hi = null, lo = null;
+    Object.entries(rows).forEach(([id, r]) => {
+      const v = r[focus];
+      if (typeof v !== 'number') return;
+      if (!hi || v > hi.v) hi = { id, v, name: r.name };
+      if (!lo || v < lo.v) lo = { id, v, name: r.name };
+    });
+    if (!hi) return;
+    const P = PARTIES[focus];
+    const sub = (id) => level === 'municipalities' && data.provinces && data.provinces[id.slice(0, 2)] ? ` (${data.provinces[id.slice(0, 2)].name})` : '';
+    const add = (m, what) => {
+      const path = document.querySelector(`#map path.county[data-id="${m.id}"]`);
+      if (!path) return;
+      const dot = document.createElement('div'); dot.className = 'extreme-dot';
+      const lab = document.createElement('div'); lab.className = 'extreme';
+      lab.innerHTML = `<small>${what} · ${P.name}</small>${m.name}${sub(m.id)} <b>${m.v.toFixed(1)}%</b>`;
+      box.append(dot, lab);
+      marks.push({ path, dot, lab });
+    };
+    add(hi, 'Highest');
+    if (lo && lo.id !== hi.id && lo.v.toFixed(1) !== '0.0') add(lo, 'Lowest');
+    placeMarks();
+  }
+  function placeMarks() {
+    const box = document.getElementById('map-container').getBoundingClientRect();
+    const pos = marks.map((m) => { const r = m.path.getBoundingClientRect(); return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top }; });
+    marks.forEach((m, i) => {
+      const { x, y } = pos[i];
+      const out = x < 0 || y < 0 || x > box.width || y > box.height;
+      m.dot.hidden = m.lab.hidden = out;
+      m.dot.style.left = m.lab.style.left = x + 'px';
+      m.dot.style.top = m.lab.style.top = y + 'px';
+      // label below the point near the top edge, or when the two labels would overlap
+      const other = pos[1 - i];
+      m.lab.classList.toggle('below', y < 70 || (i === 1 && other && Math.abs(other.x - x) < 200 && Math.abs(other.y - y) < 60));
+      const w = m.lab.offsetWidth;   // keep the label inside the map
+      m.lab.style.left = Math.min(box.width - w / 2 - 4, Math.max(w / 2 + 4, x)) + 'px';
+    });
+  }
+  // follow zoom / pan (the viewport's transform) and size changes
+  new MutationObserver(() => marks.length && placeMarks()).observe(document.getElementById('map'), { attributes: true, subtree: true, attributeFilter: ['transform'] });
+  new ResizeObserver(() => marks.length && placeMarks()).observe(document.getElementById('map-container'));
+
+  // ---- municipality search: type a name, pick it, and the map switches to municipalities, zooms in and
+  // shows its result. Only where the data has municipalities (the 2023 file; the live 2026 file has none).
+  let found = null, list = [], hits = [], sel = -1;
+  const fold = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9ñ ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  // "A Coruña", "Les Borges…", "L'Hospitalet…": also found without the article
+  const bare = (t) => t.replace(/^(a|o|as|os|el|la|los|las|les|l|els|es|sa|ses|s) /, '');
+  function setupSearch() {
+    const box = document.getElementById('muniSearch'), q = document.getElementById('muniQ'), ul = document.getElementById('muniList');
+    const munis = data.municipalities || {};
+    box.hidden = !Object.keys(munis).length;
+    list = Object.entries(munis).map(([id, r]) => {
+      const prov = (data.provinces || {})[id.slice(0, 2)];
+      // "Coruña, A" / "Palmas de Gran Canaria, Las": also searchable as "A Coruña", "Las Palmas…"
+      const alt = r.name.replace(/^(.*), (\S+)$/, '$2 $1');
+      return { id, name: r.name, prov: prov ? prov.name : '', key: fold(r.name), alt: bare(fold(alt)) };
+    });
+    if (box.__ready) return;
+    box.__ready = true;
+    const close = () => { ul.hidden = true; q.setAttribute('aria-expanded', 'false'); sel = -1; };
+    const draw = () => {
+      const t = fold(q.value);
+      if (!t) { found = null; document.querySelectorAll('#map .county.found').forEach((x) => x.classList.remove('found')); return close(); }
+      const exact = [], starts = [], within = [];
+      for (const m of list) {
+        if (m.key === t || m.alt === t || bare(m.key) === t) exact.push(m);
+        else if (m.key.startsWith(t) || m.alt.startsWith(t)) starts.push(m);
+        else if (m.key.includes(t) || m.alt.includes(t)) within.push(m);
+      }
+      hits = exact.concat(starts.sort((a, b) => a.key.length - b.key.length), within).slice(0, 12);
+      sel = hits.length ? 0 : -1;
+      ul.innerHTML = hits.length
+        ? hits.map((m, i) => `<li role="option" id="mo${i}" aria-selected="${i === sel}" data-i="${i}">${m.name}<span>${m.prov}</span></li>`).join('')
+        : '<li class="none">No municipality found</li>';
+      ul.hidden = false; q.setAttribute('aria-expanded', 'true');
+    };
+    const mark = () => ul.querySelectorAll('li[role=option]').forEach((li, i) => {
+      li.setAttribute('aria-selected', i === sel); if (i === sel) { li.scrollIntoView({ block: 'nearest' }); q.setAttribute('aria-activedescendant', li.id); }
+    });
+    q.addEventListener('input', draw);
+    q.addEventListener('focus', () => { if (q.value) draw(); });
+    q.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' && hits.length) { sel = (sel + 1) % hits.length; mark(); e.preventDefault(); }
+      else if (e.key === 'ArrowUp' && hits.length) { sel = (sel - 1 + hits.length) % hits.length; mark(); e.preventDefault(); }
+      else if (e.key === 'Enter' && sel >= 0) { pick(hits[sel]); e.preventDefault(); }
+      else if (e.key === 'Escape') close();
+    });
+    ul.addEventListener('mousedown', (e) => { const li = e.target.closest('li[data-i]'); if (li) { e.preventDefault(); pick(hits[+li.dataset.i]); } });
+    q.addEventListener('blur', () => setTimeout(close, 120));
+    function pick(m) {
+      q.value = m.name; close(); q.blur();
+      found = m.id;
+      if (level !== 'municipalities') {
+        const tab = [...document.querySelectorAll('#levelTabs .level-tab')].find((b) => b.textContent === LEVELS.municipalities.tab);
+        if (tab) { tab.click(); setTimeout(() => goTo(m.id), 400); return; }
+      }
+      document.querySelectorAll('#map .county.found').forEach((x) => x.classList.remove('found'));
+      goTo(m.id);
+    }
+  }
+  // Zoom the map onto one municipality, outline it and show its result.
+  function goTo(id, tries = 0) {
+    const svg = document.getElementById('map');
+    const p = svg.querySelector(`path.county[data-id="${id}"]`);
+    if (!p) { if (tries < 20) setTimeout(() => goTo(id, tries + 1), 150); return; }
+    p.classList.add('found');
+    const st = svg.__zoomPanState, g = svg.__viewport, bb = p.getBBox();
+    if (st && g) {
+      const vb = svg.viewBox.baseVal, W = vb.width || 1000, H = vb.height || 640;
+      const k = Math.max(1, Math.min(st.maxK, 0.22 * Math.min(W / Math.max(bb.width, 1), H / Math.max(bb.height, 1)), 24));
+      st.k = k;
+      st.tx = Math.min(0, Math.max(W - W * k, W / 2 - (bb.x + bb.width / 2) * k));
+      st.ty = Math.min(0, Math.max(H - H * k, H / 2 - (bb.y + bb.height / 2) * k));
+      g.setAttribute('transform', `translate(${st.tx},${st.ty}) scale(${st.k})`);
+      if (svg.__updateZoomLevel) svg.__updateZoomLevel();
+    }
+    p.parentNode.appendChild(p);   // on top, so the outline isn't hidden by neighbours
+    const shape = { id, name: (data.municipalities[id] || {}).name || '' };
+    requestAnimationFrame(() => {
+      const r = p.getBoundingClientRect();
+      showTooltip({ clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 }, shape, data.municipalities[id]);
+    });
   }
 
   function showTooltip(e, s, row) {
     const tt = document.getElementById('tooltip');
-    // Municipalities: the map's own spelling (the ministry's file has them in capitals).
-    let html = `<h3>${level === 'municipalities' || !row ? s.name : row.name}</h3>`;
+    let html = `<h3>${row ? row.name : s.name}</h3>`;
     if (row) {
       const t = row.turnout;
       const meta = [typeof t === 'number' ? `Turnout ${t.toFixed(1)}%` : null,
