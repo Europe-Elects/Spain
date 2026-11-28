@@ -82,16 +82,25 @@
     'CC': 'CCa-1ºCAN', 'UPN-PP': 'UPN-PP', 'AA': 'ADELANTE ANDALUCÍA', 'UPC': 'NC-BC, PODEMOS, IU, SUMAR',
     'Compromís-FV': 'COMPROMIS-EUPV-PODEM-ERPV', 'D21+': 'D21', 'EXISTE': 'TERUEL EXISTE',
   };
-  // Names es-parties.js has no entry for: label and EP groups here.
+  // Names es-parties.js has no entry for: Europe Elects ID (colours, tags and members come from the
+  // party database) and a fallback EP group.
   const EXTRA = {
     'Ara Més-FA': { label: 'Ara Més', id: 'ALA285', groups: ['Greens/EFA', 'LEFT'] },
     'Others':     { label: 'Others', groups: [], color: '#D5D3CC' },
   };
-  // History columns ("PSOE/PSOE-NCa", "Podemos/UP", …): EP group of the party's current form.
-  const HISTORY_GROUPS = [
-    [/^PSOE/, 'S&D'], [/^PP$/, 'EPP'], [/^IU|^Podemos|^EH Bildu|^HB|^ECP|^En Marea/, 'LEFT'],
-    [/^Sumar|^ERC|^BNG|^CHA|^EA$|^I-CV|^Compromís|^MP|^Más País/, 'Greens/EFA'],
-    [/^CDS|^Cs$|^UPyD|^EAJ-PNV|^PNV/, 'RE'], [/^VOX/, 'PfE'], [/^JxCat|^CiU|^Junts/, 'NI'],
+  // History columns ("PSOE/PSOE-NCa", "Podemos/UP", …): the Europe Elects ID of the party's (or list's)
+  // current or last form, so its Europarty colour and EP-group ring come from the party database.
+  const HISTORY_IDS = [
+    [/^PSOE/, 'ES477727', 'S&D'], [/^PP$/, 'ES570927', 'EPP'], [/^IU$/, 'ES269206', 'LEFT'], [/^Podemos/, 'ES976941', 'LEFT'],
+    [/^Sumar/, 'ALA434', 'Greens/EFA'], [/^CDS/, 'ES999955', 'RE'], [/^Cs$/, 'ES283310', 'RE'], [/^UPyD/, 'ES999954', 'RE'],
+    [/^VOX/, 'ES867108', 'PfE'], [/^ERC/, 'ES678120', 'Greens/EFA'], [/^JxCat|^CiU|^Junts/, 'ES731801', 'NI'],
+    [/^EAJ-PNV|^PNV/, 'ES103956', 'RE'], [/^EH Bildu|^Amaiur/, 'ES120670', 'LEFT'], [/^BNG/, 'ES014003', 'Greens/EFA'],
+    [/^CCa/, 'ES319562', '*'], [/^CHA/, 'ES163146', 'Greens/EFA'], [/^HB$/, 'ES999953', '*'], [/^PA\b/, 'ES999952', 'Greens/EFA'],
+    [/^UV$/, 'ES999951', '*'], [/^EA$/, '', 'Greens/EFA'], [/^EE$/, 'ES999950', '*'], [/^PAR$/, 'ES045384', '*'],
+    [/^I-CV/, 'ES999949', 'Greens/EFA'], [/^Geroa Bai|^NaBai/, 'ALA468', 'RE'], [/^PRC$/, 'ES036579', '*'],
+    [/^Compromís/, 'ES999966', 'Greens/EFA'], [/^FC|^FAC|^Foro/, 'ES297664', '*'], [/^ECP/, 'ALA470', 'LEFT'],
+    [/^En Marea/, 'ALA471', '*'], [/^UPN|^NA\+/, 'ES096274', '*'], [/^MP|^Más País/, 'ES999991', '*'],
+    [/^CUP/, 'ES736926', '*'], [/^¡?TE!?|^EXISTE/, 'ES277143', '*'],
   ];
 
   function party(name) {
@@ -99,17 +108,16 @@
     const key = SHEET_KEYS[name];
     if (key && ES) return ES.info(key);
     const e = EXTRA[name];
-    const C = (ES && ES.GROUP_COLORS) || {};
-    if (e) {
-      return { label: e.label, id: e.id || null, tag: e.groups.join('|').replace('Greens/EFA', 'G/EFA'),
-        groupLabel: e.groups.length ? `(${e.groups.join('|').replace('Greens/EFA', 'G/EFA')})` : '',
-        groups: e.groups, color: e.color || C[e.groups[0]] || '#999999', color2: e.groups[1] ? C[e.groups[1]] : null };
-    }
-    const hit = HISTORY_GROUPS.find(([re]) => re.test(name));
-    const g = hit ? hit[1] : '*';
+    if (e && e.color) return { label: e.label, id: null, tag: '', groupLabel: '', bracket: '', groups: [], color: e.color, color2: null, ring: null };
+    if (e && ES) return ES.byId(e.id, e.label, e.groups);
+    const hit = HISTORY_IDS.find(([re]) => re.test(name));
     const short = name.split('/')[0];
-    return { label: short, tag: '', groupLabel: '', groups: [g], color: C[g] || '#999999', color2: null };
+    if (ES) return ES.byId(hit ? hit[1] : '', short, [hit ? hit[2] : '*']);
+    return { label: short, tag: '', groupLabel: '', bracket: '', groups: ['*'], color: '#8A9099', color2: null, ring: null };
   }
 
-  window.ES_SHEET = { load, num, isPct, party, TABS };
+  // The two election-day polls (projection tabs): names shown on the page. Fill in the pollsters.
+  const POLL_NAMES = { projection: 'Election-day poll 1', projection2: 'Election-day poll 2' };
+
+  window.ES_SHEET = { load, num, isPct, party, TABS, POLL_NAMES };
 })();
