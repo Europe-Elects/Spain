@@ -6,7 +6,7 @@
 <title>Spain – Seats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128b">
+<link rel="stylesheet" href="assets/map.css?v=20261128c">
 <style>
   .house-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #ECEAE4; border-radius: 8px; }
   .house-tab {
@@ -90,11 +90,11 @@
     <span>Each dot is a seat · tap a party to show where it won seats</span>
   </div>
   <div class="legend" id="legend"></div>
-  <div class="legend-hint" id="legendHint">Colour = party with the most seats in the constituency · Europe Elects colours by European Parliament group</div>
+  <div class="legend-hint" id="legendHint">Colour = party with the most seats in the constituency · fill = Europarty, ring = EP group · [ ] = parties on a joint list</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261128b"></script>
-<script src="assets/es-parties.js?v=20261128b"></script>
+<script src="assets/map-utils.js?v=20261128c"></script>
+<script src="assets/es-parties.js?v=20261128c"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
@@ -146,10 +146,15 @@
     ch.constituencies.forEach(c => c.seats.forEach(s => { map[s.national_party] = info(s.national_party).color; }));
     return map;
   }
-  // Swatch / bar background: two EP groups are shown as two colours.
+  // Swatch / bar background: a list in two Europarties is shown in both colours.
   function swatch(k) {
     const i = info(k);
     return i.color2 ? `linear-gradient(135deg, ${i.color} 0 50%, ${i.color2} 50% 100%)` : i.color;
+  }
+  // Legend swatch: Europarty fill (two Europarties: split), EP group as a ring.
+  function swStyle(k) {
+    const i = info(k);
+    return `background:${swatch(k)};border-radius:50%;` + (i.ring ? `box-shadow:0 0 0 2px #fff,0 0 0 3.5px ${i.ring};margin:0 3px 0 2px` : '');
   }
 
   async function init() {
@@ -324,6 +329,8 @@
         d.setAttribute('cy', cy + (row - (rows - 1) / 2) * gap);
         d.setAttribute('r', r); d.setAttribute('class', 'seat-dot');
         d.setAttribute('fill', party ? col[party] : '#D5D3CC');
+        const ring = party && info(party).ring;   // EP group as a ring around the Europarty colour
+        if (ring) { d.style.stroke = ring; d.style.strokeWidth = (r * 0.36).toFixed(2); }
         if (focus && party !== focus) d.setAttribute('opacity', 0.18);
         svg.appendChild(d);
       });
@@ -375,7 +382,7 @@
     const hint = document.getElementById('legendHint');
     hint.textContent = focus
       ? `Showing ${label(focus)}: shade = its share of each constituency's seats · tap again to go back`
-      : 'Colour = party with the most seats in the constituency · Europe Elects colours by European Parliament group';
+      : 'Colour = party with the most seats in the constituency · fill = Europarty, ring = EP group · [ ] = parties on a joint list';
     render();
   }
 
@@ -389,7 +396,8 @@
       btn.setAttribute('aria-pressed', focus === p.party ? 'true' : 'false');
       btn.title = p.name;
       const g = info(p.party).groupLabel;
-      btn.innerHTML = `<div class="legend-swatch" style="background:${swatch(p.party)}"></div>${label(p.party)}`
+      btn.innerHTML = `<div class="legend-swatch" style="${swStyle(p.party)}"></div>${label(p.party)}`
+        + (info(p.party).bracket ? `<span class="legend-group" title="Parties on this list">${info(p.party).bracket}</span>` : '')
         + (g ? `<span class="legend-group">${g}</span>` : '') + `<span class="legend-seats">${p.seats}</span>`;
       btn.onclick = () => setFocus(p.party);
       lg.appendChild(btn);
