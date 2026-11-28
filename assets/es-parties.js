@@ -122,7 +122,8 @@
         if (pid || ab) members.push({ abbr: ab, id: pid.replace(/\.v\d+$/i, '') });
       }
       AFF[id] = { europarty: o['Europarty Affiliation'] || '', epGroup: o['European Parliament Group'] || '',
-        abbr: o['Abbreviation'] || '', name: o['Name (English)'] || '', native: o['Name (Native)'] || '', members };
+        abbr: o['Abbreviation'] || '', name: o['Name (English)'] || '', native: o['Name (Native)'] || '', members,
+        orientation: o['Ideological Orientation'] || '', since: o['Political Activity Started'] || '' };
     });
   }
 
@@ -179,5 +180,13 @@
     return describe({ id, label: label || (AFF[id] && AFF[id].abbr) || id, groups: groups || ['*'] });
   }
 
-  window.ES_PARTIES = { info, byId, members, GROUP_COLORS, EUROPARTY_COLORS, ready: readyOrTimeout };
+  // Everything the party database says about a party or list, for the hover profile (party-card.js).
+  function profile(id) {
+    const d = id && AFF[id];
+    if (!d) return null;
+    return { abbr: d.abbr, name: d.name, native: d.native, orientation: d.orientation, since: d.since,
+      europarties: parts(d.europarty), groups: parts(d.epGroup).map(groupKey).filter(Boolean), members: members(id) };
+  }
+
+  window.ES_PARTIES = { info, byId, members, profile, GROUP_COLORS, EUROPARTY_COLORS, ready: readyOrTimeout };
 })();
