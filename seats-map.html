@@ -6,7 +6,7 @@
 <title>Spain – Seats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128d">
+<link rel="stylesheet" href="assets/map.css?v=20261128f">
 <style>
   .house-tabs { display: inline-flex; gap: 4px; padding: 3px; background: #ECEAE4; border-radius: 8px; }
   .house-tab {
@@ -93,8 +93,9 @@
   <div class="legend-hint" id="legendHint">Colour = party with the most seats in the constituency · fill = Europarty, ring = EP group · [ ] = parties on a joint list</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261128d"></script>
-<script src="assets/es-parties.js?v=20261128d"></script>
+<script src="assets/map-utils.js?v=20261128f"></script>
+<script src="assets/es-parties.js?v=20261128f"></script>
+<script src="assets/party-card.js?v=20261128f"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
@@ -226,7 +227,7 @@
       const w = p.seats / total * 100;
       seg.className = 'seg' + (isLightFill(col[p.party]) ? ' dark-text' : '') + (focus && focus !== p.party ? ' dim' : '');
       seg.style.width = w + '%'; seg.style.background = swatch(p.party);
-      seg.title = `${label(p.party)}: ${p.seats}`;
+      if (window.ES_CARD) window.ES_CARD.attach(seg, () => ({ info: info(p.party), stats: [['Seats', String(p.seats)]] }));   // party profile on hover
       if (w > 3.2) seg.textContent = p.seats;
       seg.onclick = () => setFocus(p.party);
       bar.appendChild(seg);
@@ -394,12 +395,12 @@
       btn.type = 'button';
       btn.className = 'legend-item clickable' + (focus === p.party ? ' active' : '');
       btn.setAttribute('aria-pressed', focus === p.party ? 'true' : 'false');
-      btn.title = p.name;
       const g = info(p.party).groupLabel;
       btn.innerHTML = `<div class="legend-swatch" style="${swStyle(p.party)}"></div>${label(p.party)}`
         + (info(p.party).bracket ? `<span class="legend-group" title="Parties on this list">${info(p.party).bracket}</span>` : '')
         + (g ? `<span class="legend-group">${g}</span>` : '') + `<span class="legend-seats">${p.seats}</span>`;
       btn.onclick = () => setFocus(p.party);
+      if (window.ES_CARD) window.ES_CARD.attach(btn, () => ({ info: info(p.party), stats: [['Seats', String(p.seats)]] }));
       lg.appendChild(btn);
     });
   }

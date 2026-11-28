@@ -31,6 +31,7 @@
   @media (max-width: 560px) { html.framed .status { flex-wrap: wrap; } html.framed .status .upd { margin-left: 16px; width: 100%; } }
   .status { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--muted); }
   .status b { color: var(--ink); }
+  .status .upd { margin-left: 14px; color: var(--muted); font-size: 14px; }
   .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; flex-shrink: 0; }
   .status.live i { background: #22C55E; animation: pulse 2s infinite; }
   @keyframes pulse { 50% { opacity: .35; } }
@@ -79,36 +80,41 @@
     <span class="status" id="status"><i></i><span>Polls close at 20:00 Madrid time</span><span class="upd">Polls, results and maps update every minute</span></span>
   </div>
 
-  <section class="panel span-6 poll" id="pollPanel1">
+  <section class="panel span-6 poll" id="pollPanel1" hidden>
     <div class="panel-head"><h2 id="poll1">Election-day poll 1</h2><span class="note">Lower house · poll, not results</span>
       <button class="fold" type="button" aria-expanded="true" hidden>Hide</button></div>
     <div class="body"><iframe data-src="sheet-charts.html?view=projection&embed=1" title="Election-day poll 1" style="height:520px"></iframe></div>
   </section>
-  <section class="panel span-6 poll" id="pollPanel2">
+  <section class="panel span-6 poll" id="pollPanel2" hidden>
     <div class="panel-head"><h2 id="poll2">Election-day poll 2</h2><span class="note">Lower house · poll, not results</span>
       <button class="fold" type="button" aria-expanded="true" hidden>Hide</button></div>
     <div class="body"><iframe data-src="sheet-charts.html?view=projection2&embed=1" title="Election-day poll 2" style="height:520px"></iframe></div>
   </section>
 
   <section class="panel span-7">
-    <div class="panel-head"><h2>Lower house results</h2><span class="note">Change against 2023 · tap [ ] to see the parties on a joint list</span></div>
-    <div class="body"><iframe data-src="sheet-charts.html?view=results&embed=1" title="Lower house results" style="height:560px"></iframe></div>
+    <div class="panel-head"><h2>Maps</h2>
+      <div class="seg" data-frame="maps">
+        <button data-src="results-map.html?embed=1&level=municipalities" aria-pressed="true">Vote</button>
+        <button data-src="seats-map.html?embed=1" aria-pressed="false">Seats</button>
+        <button data-src="turnout-map.html?embed=1&level=municipalities" aria-pressed="false">Turnout</button>
+        <button data-src="swing-map.html?embed=1" aria-pressed="false">Swing</button>
+      </div></div>
+    <iframe id="maps" title="Map" style="height:860px"></iframe>
   </section>
 
   <section class="panel span-5">
     <div class="panel-head"><h2>Lower house seats</h2><span class="note">350 seats · 176 for a majority</span></div>
-    <iframe data-src="hemicycle.html?embed=1" title="Seats in the lower house (Congress)" style="height:740px"></iframe>
+    <iframe id="hemi" title="Seats in the lower house (Congress)" style="height:860px"></iframe>
   </section>
 
   <section class="panel span-12">
-    <div class="panel-head"><h2>Maps</h2>
-      <div class="seg" data-frame="maps">
-        <button data-src="seats-map.html?embed=1" aria-pressed="true">Seats</button>
-        <button data-src="results-map.html?embed=1" aria-pressed="false">Vote</button>
-        <button data-src="turnout-map.html?embed=1" aria-pressed="false">Turnout</button>
-        <button data-src="swing-map.html?embed=1" aria-pressed="false">Swing</button>
-      </div></div>
-    <iframe id="maps" title="Map" style="height:860px"></iframe>
+    <div class="panel-head"><h2>Polling average</h2><span class="note">National parliament election · Europe Elects country page</span></div>
+    <iframe data-src="https://europe-elects.github.io/country-pages/?country=ES&view=polling" data-ext="1" title="Spain polling average" scrolling="no" style="height:640px"></iframe>
+  </section>
+
+  <section class="panel span-12">
+    <div class="panel-head"><h2>Lower house results</h2><span class="note">Change against 2023 · tap [ ] to see the parties on a joint list</span></div>
+    <div class="body"><iframe data-src="sheet-charts.html?view=results&embed=1" title="Lower house results" style="height:560px"></iframe></div>
   </section>
 
   <section class="panel span-6">
@@ -135,14 +141,14 @@
       <li><b>Andrei Miclea</b><span>CTO</span></li>
       <li><b>Tobias Gerhard Schminke</b><span>Project Lead</span></li>
       <li><b>Teo Garcia Prado</b><span>Data Analyst, Spain</span></li>
-      <li><b>Matías Pino Cabeza</b><span>Data Analyst, Spain</span></li>
+      <!-- <li><b>Matías Pino Cabeza</b><span>Data Analyst, Spain</span></li> (hidden for now) -->
     </ul>
     <p>Europe Elects · election-day polls and results from the Europe Elects election-night sheet · maps and seats from the Spanish Ministry of the Interior · fill = Europarty, ring = EP group, [ ] = parties on a joint list</p>
   </footer>
 </div>
 
-<script src="assets/es-parties.js?v=20261128d"></script>
-<script src="assets/sheet-data.js?v=20261128d"></script>
+<script src="assets/es-parties.js?v=20261128f"></script>
+<script src="assets/sheet-data.js?v=20261128f"></script>
 <script>
 (function () {
   'use strict';
@@ -152,29 +158,53 @@
   const fmt = (v, d = 1) => (v == null ? '–' : v.toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }));
   const signed = (v, d = 1) => (v == null ? '' : (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt(Math.abs(v), d));
   const pass = new URLSearchParams(location.search); pass.delete('embed');
+  ['counting', 'polls'].forEach((k) => pass.delete(k));
   const withPass = (src) => (pass.toString() ? src + '&' + pass.toString() : src);   // e.g. ?year=2023 for every panel
 
   // ---- frames: load as they come near the screen; sheet charts report their height
   const lazy = new IntersectionObserver((ents) => ents.forEach((e) => {
-    if (e.isIntersecting && !e.target.getAttribute('src')) { e.target.src = withPass(e.target.dataset.src); lazy.unobserve(e.target); }
+    if (e.isIntersecting && !e.target.getAttribute('src')) { e.target.src = e.target.dataset.ext ? e.target.dataset.src : withPass(e.target.dataset.src); lazy.unobserve(e.target); }
   }), { rootMargin: '600px' });
   document.querySelectorAll('iframe[data-src]').forEach((f) => lazy.observe(f));
-  document.querySelectorAll('.seg').forEach((seg) => {
-    const frame = $(seg.dataset.frame);
-    const pick = (b) => {
-      seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
-      frame.src = withPass(b.dataset.src);
-      if (seg.dataset.frame === 'congress') $('congressTitle').textContent = `Lower house (Congress) · ${b.textContent.toLowerCase()}`;
-    };
-    seg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) pick(b); });
-    pick(seg.querySelector('[aria-pressed="true"]'));
+  // Map and hemicycle: 2023 until the first 2026 results are in the live file, then 2026
+  // (checked every minute). ?year= on the dashboard's address fixes it either way.
+  const LIVE_URL = 'https://data.europeelects.eu/maps/spain_2026_maps.json';
+  const fixedYear = pass.get('year');
+  let year = fixedYear || '2023';
+  const withYear = (src) => { const u = withPass(src); return /[?&]year=/.test(u) ? u : u + '&year=' + year; };
+  const mapSeg = document.querySelector('.seg[data-frame="maps"]');
+  function loadMapFrames() {
+    $('maps').src = withYear(mapSeg.querySelector('[aria-pressed="true"]').dataset.src);
+    $('hemi').src = withYear('hemicycle.html?embed=1');
+  }
+  mapSeg.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    mapSeg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    $('maps').src = withYear(b.dataset.src);
   });
+  loadMapFrames();
+  async function checkYear() {
+    if (fixedYear || year === '2026') return;
+    try {
+      const r = await fetch(LIVE_URL + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return;
+      const d = await r.json();
+      const arrived = (d.counted_pct > 0) || (d.national && Object.values(d.national).some((v) => +v > 0));
+      if (arrived) { year = '2026'; loadMapFrames(); }
+    } catch (e) { /* not published yet */ }
+  }
+  checkYear();
+  setInterval(checkYear, 60000);
   window.addEventListener('message', (e) => {
-    if (!e.data || e.data.type !== 'ee-height') return;
+    if (!e.data) return;
+    // our charts send {type:'ee-height'}; the country page (polling average) the Datawrapper message
+    const dw = e.data['datawrapper-height'];
+    const h = e.data.type === 'ee-height' ? e.data.h : (dw && typeof dw === 'object' ? +Object.values(dw)[0] : null);
+    if (!h) return;
     const f = [...document.querySelectorAll('iframe')].find((x) => x.contentWindow === e.source);
     if (!f) return;
-    if (e.data.h < 60) return;   // a folded panel's frame reports nothing useful
-    f.style.height = Math.min(e.data.h, +f.dataset.maxh || Infinity) + 'px';
+    if (h < 60) return;   // a folded panel's frame reports nothing useful
+    f.style.height = Math.min(h, +f.dataset.maxh || Infinity) + 'px';
     postHeight();
   });
 
@@ -218,6 +248,9 @@
     st.children[1].innerHTML = state.results ? `<b>Counting</b> · updated ${t} Madrid time`
       : state.polls ? `<b>Election-day polls published</b> · counting starts shortly · ${t} Madrid time`
       : 'Polls close at 20:00 Madrid time';
+    // The two polls stay hidden until they are published (?polls=1 shows them anyway, for a preview).
+    const showPolls = state.polls || new URLSearchParams(location.search).get('polls') === '1';
+    ['pollPanel1', 'pollPanel2'].forEach((id) => { $(id).hidden = !showPolls; });
     foldPolls(force === '1' || (force !== '0' && state.results));
   }
   status();

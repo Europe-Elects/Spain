@@ -6,7 +6,7 @@
 <title>Spain – Lower House Seats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128d">
+<link rel="stylesheet" href="assets/map.css?v=20261128f">
 <style>
   .demo-pill { font-size: 13px; padding: 3px 8px; background: #E3EBF7; color: #1E4C99; border-radius: 4px; font-weight: 600; }
   #hemi-wrap { position: relative; background: #fff; border: 1px solid #E4E2DB; border-radius: 10px; padding: 14px 10px 6px; }
@@ -14,6 +14,8 @@
   #hemi { display: block; width: 100%; height: auto; max-height: 520px; }
   .seat { stroke: #fff; stroke-width: .8; transition: opacity .15s; paint-order: fill; }
   .seat.dim { opacity: .15; }
+  .seat-mark { fill: #fff; font-family: 'Advent Pro', system-ui, sans-serif; font-weight: 700; text-anchor: middle; pointer-events: none; }
+  .seat-mark.dim { opacity: .15; }
   .majority-line { stroke: #1A1D23; stroke-width: 1.5; stroke-dasharray: 5 4; }
   .hemi-total { font: 700 45px 'Advent Pro', sans-serif; fill: #1A1D23; text-anchor: middle; }
   .hemi-sub { font: 500 14px 'Advent Pro', sans-serif; fill: #565B66; text-anchor: middle; }
@@ -40,12 +42,12 @@
     <svg id="hemi" viewBox="0 0 1000 540" role="img" aria-label="Seats in Congress, the lower house of the national parliament"></svg>
   </div>
   <div class="legend" id="legend"></div>
-  <div class="legend-hint" id="legendHint">Tap a party to highlight its seats · change against the previous election</div>
+  <div class="legend-hint" id="legendHint">Tap a party to highlight its seats · change against the previous election · G = in government, S = supports the government (confidence and supply)</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261128d"></script>
-<script src="assets/es-parties.js?v=20261128d"></script>
-<script src="assets/party-card.js?v=20261128d"></script>
+<script src="assets/map-utils.js?v=20261128f"></script>
+<script src="assets/es-parties.js?v=20261128f"></script>
+<script src="assets/party-card.js?v=20261128f"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
@@ -169,12 +171,17 @@
       c.setAttribute('fill', fill(owners[i]));
       const ring = owners[i] && info(owners[i]).ring;   // EP group as a ring around the Europarty colour
       if (ring) { c.style.stroke = ring; c.style.strokeWidth = (dot * 0.34).toFixed(1); }
-      if (owners[i]) {
-        const t = document.createElementNS(NS, 'title');
-        t.textContent = info(owners[i]).label;
-        c.appendChild(t);
-      }
       svg.appendChild(c);
+      // G = party in government, S = supports it (confidence and supply), on the outgoing chamber
+      const g = year === '2023' && owners[i] && window.ES_PARTIES.gov && window.ES_PARTIES.gov(owners[i]);
+      if (g) {
+        const t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', s.x.toFixed(1)); t.setAttribute('y', (s.y + dot * 0.38).toFixed(1));
+        t.setAttribute('class', 'seat-mark' + (focus && owners[i] !== focus ? ' dim' : ''));
+        t.setAttribute('font-size', (dot * 1.1).toFixed(1));
+        t.textContent = g;
+        svg.appendChild(t);
+      }
     });
     const line = document.createElementNS(NS, 'line');
     Object.entries({ x1: CX, y1: CY - R0 + 30, x2: CX, y2: CY - R - 18, class: 'majority-line' })
