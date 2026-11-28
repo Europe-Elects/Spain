@@ -199,3 +199,7 @@ html.embed .container { padding: 8px 10px 6px; max-width: none; }
 
 /* Inside the election-night dashboard: no "Chart made by … · Source: …" line under each chart. */
 html.embed .footer { display: none; }
+
+/* Ideological label in front of a party name ("Centre-right PP"), from the party database. */
+.ideo { font-weight: 400; color: #8B8F98; }
+.legend-item.active .ideo { color: #565B66; }

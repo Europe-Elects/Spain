@@ -164,6 +164,8 @@
     const short = mem.slice(0, 4).map((m) => m.abbr);
     return {
       label: p.label,
+      // ideological label, from the party database only ("Ideological Orientation"); '' without an entry
+      ideology: db ? db.orientation || '' : '',
       id: p.id || null,
       tag,
       groupLabel: tag ? `(${tag})` : '',
@@ -202,5 +204,9 @@
   };
   const gov = (k) => GOV[k] || '';
 
-  window.ES_PARTIES = { info, byId, members, profile, gov, GROUP_COLORS, EUROPARTY_COLORS, ready: readyOrTimeout };
+  // "Centre-right PP": the ideological label in front of a party name, as HTML (styled by .ideo in map.css).
+  const escH = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const ideo = (i) => (i && i.ideology ? `<span class="ideo">${escH(i.ideology)}</span> ` : '');
+
+  window.ES_PARTIES = { info, byId, ideo, members, profile, gov, GROUP_COLORS, EUROPARTY_COLORS, ready: readyOrTimeout };
 })();
