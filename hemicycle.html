@@ -6,7 +6,7 @@
 <title>Spain – Lower House Seats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128c">
+<link rel="stylesheet" href="assets/map.css?v=20261128d">
 <style>
   .demo-pill { font-size: 13px; padding: 3px 8px; background: #E3EBF7; color: #1E4C99; border-radius: 4px; font-weight: 600; }
   #hemi-wrap { position: relative; background: #fff; border: 1px solid #E4E2DB; border-radius: 10px; padding: 14px 10px 6px; }
@@ -43,8 +43,9 @@
   <div class="legend-hint" id="legendHint">Tap a party to highlight its seats · change against the previous election</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261128c"></script>
-<script src="assets/es-parties.js?v=20261128c"></script>
+<script src="assets/map-utils.js?v=20261128d"></script>
+<script src="assets/es-parties.js?v=20261128d"></script>
+<script src="assets/party-card.js?v=20261128d"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
@@ -137,6 +138,15 @@
     const { seats, dot } = layout(ch.seats_total);
     const svg = document.getElementById('hemi');
     svg.innerHTML = '';
+    // Hover (or tap) a seat: the party's profile card with its seats.
+    if (window.ES_CARD && !svg.dataset.card) {
+      svg.dataset.card = '1';
+      window.ES_CARD.attach(svg, (ev) => {
+        const k = ev.target && ev.target.dataset && ev.target.dataset.k; if (!k) return null;
+        const n = svg.querySelectorAll(`circle[data-k="${CSS.escape(k)}"]`).length;
+        return { info: info(k), stats: [['Seats', String(n)]] };
+      });
+    }
     // Two-group parties (Sumar) get a split dot.
     const defs = document.createElementNS(NS, 'defs');
     svg.appendChild(defs);
@@ -155,6 +165,7 @@
       const c = document.createElementNS(NS, 'circle');
       c.setAttribute('cx', s.x.toFixed(1)); c.setAttribute('cy', s.y.toFixed(1)); c.setAttribute('r', dot.toFixed(1));
       c.setAttribute('class', 'seat' + (focus && owners[i] !== focus ? ' dim' : ''));
+      if (owners[i]) c.dataset.k = owners[i];
       c.setAttribute('fill', fill(owners[i]));
       const ring = owners[i] && info(owners[i]).ring;   // EP group as a ring around the Europarty colour
       if (ring) { c.style.stroke = ring; c.style.strokeWidth = (dot * 0.34).toFixed(1); }
