@@ -6,7 +6,7 @@
 <title>Spain – Election Night Charts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128c">
+<link rel="stylesheet" href="assets/map.css?v=20261128d">
 <style>
   /* map.css sizes pages to the frame (maps); these charts are as tall as their content. */
   html, body { height: auto; }
@@ -108,9 +108,10 @@
   <div class="footer" id="footer">Source: Europe Elects</div>
 </div>
 <div id="tip"></div>
-<script src="assets/map-utils.js?v=20261128c"></script>
-<script src="assets/es-parties.js?v=20261128c"></script>
-<script src="assets/sheet-data.js?v=20261128c"></script>
+<script src="assets/map-utils.js?v=20261128d"></script>
+<script src="assets/es-parties.js?v=20261128d"></script>
+<script src="assets/party-card.js?v=20261128d"></script>
+<script src="assets/sheet-data.js?v=20261128d"></script>
 <script>
 (function () {
   'use strict';
@@ -203,7 +204,7 @@
       html += '<div class="strip-wrap"><div class="strip">';
       rows.filter((x) => x.s).forEach((x) => {
         const p = party(x.name);
-        html += `<span style="width:${(x.s / SEATS) * 100}%;background:${fill(p)}" title="${esc(p.label)}: ${x.s}"></span>`;
+        html += `<span data-k="${esc(x.name)}" style="width:${(x.s / SEATS) * 100}%;background:${fill(p)}"></span>`;
       });
       html += `<div class="majority" style="left:${(MAJORITY / SEATS) * 100}%"></div></div>`;
       html += `<div class="strip-labels"><span>${totalSeats} of ${SEATS} seats</span><span>Majority: ${MAJORITY}</span></div></div>`;
@@ -217,8 +218,8 @@
       const mem = window.ES_PARTIES.members ? window.ES_PARTIES.members(p.id) : [];
       const open = mem.length && openLists.has(x.name);
       const tog = mem.length ? `<button class="list-tog" data-list="${esc(x.name)}" aria-expanded="${!!open}" title="${open ? 'Hide' : 'Show'} the ${mem.length} parties on this list"><span class="chev">${open ? '▾' : '▸'}</span>${esc(p.bracket || `[${mem.length} parties]`)}</button>` : '';
-      html += `<div class="pname"><span class="sw" style="${ringed(p)}"></span><span>${esc(p.label)}</span>${tag}${tog}</div>`;
-      html += `<div class="bar-col"><div class="bar"><div class="fill" style="width:${((x.v ?? 0) / maxV) * 100}%;background:${fill(p)}"></div>`;
+      html += `<div class="pname" data-k="${esc(x.name)}"><span class="sw" style="${ringed(p)}"></span><span>${esc(p.label)}</span>${tag}${tog}</div>`;
+      html += `<div class="bar-col" data-k="${esc(x.name)}"><div class="bar"><div class="fill" style="width:${((x.v ?? 0) / maxV) * 100}%;background:${fill(p)}"></div>`;
       if (res && x.pv != null) html += `<div class="prev" style="left:calc(${(x.pv / maxV) * 100}% - 1px)" title="2023: ${fmt(x.pv)}%"></div>`;
       html += '</div></div>';
       html += `<div class="val">${x.v == null ? '–' : fmt(x.v) + '%'}${res && x.dv != null ? `<small class="${cls(x.dv)}">${signed(x.dv)}</small>` : ''}</div>`;
@@ -230,6 +231,21 @@
     html += '</div>';
     if (res) html += '<div class="note">Change against the 2023 result of the same party or its predecessor list.</div>';
     $('chart').innerHTML = html;
+    // Hover (or tap) a party's name, bar or seat segment: its profile card.
+    const byName = Object.fromEntries(rows.map((x) => [x.name, x]));
+    if (window.ES_CARD && !$('chart').dataset.card) {
+      $('chart').dataset.card = '1';
+      window.ES_CARD.attach($('chart'), (ev) => {
+        const t = ev.target.closest && ev.target.closest('[data-k]');
+        if (!t || ev.target.closest('.list-tog')) return null;
+        const x = (window.__rows || {})[t.dataset.k]; if (!x) return null;
+        const res2 = VIEW === 'results', stats = [];
+        if (x.v != null) stats.push(['Vote', fmt(x.v) + '%' + (res2 && x.dv != null ? ' ' + signed(x.dv) : '')]);
+        if (x.s != null) stats.push([/^projection/.test(VIEW) ? 'Seats (est.)' : 'Seats', String(x.s) + (res2 && x.ds != null ? ' ' + signed(x.ds, 0) : '')]);
+        return { info: party(x.name), stats };
+      });
+    }
+    window.__rows = byName;
     $('chart').querySelectorAll('.list-tog').forEach((b) => b.addEventListener('click', () => {
       const n = b.dataset.list; openLists.has(n) ? openLists.delete(n) : openLists.add(n);
       renderParties(g); postHeight();
@@ -268,7 +284,7 @@
       order.forEach((name) => {
         const p = party(name);
         for (let k = 0; k < byParty[name][j]; k++, n++) {
-          html += `<span class="dot${provFocus && provFocus !== name ? ' dim' : ''}" style="background:${fill(p)};${p.ring ? `box-shadow:0 0 0 1px #fff,0 0 0 2.5px ${p.ring}` : ''}" title="${esc(pv.name)} · ${esc(p.label)}: ${byParty[name][j]}"></span>`;
+          html += `<span data-k="${esc(name)}" data-pv="${j}" class="dot${provFocus && provFocus !== name ? ' dim' : ''}" style="background:${fill(p)};${p.ring ? `box-shadow:0 0 0 1px #fff,0 0 0 2.5px ${p.ring}` : ''}"></span>`;
         }
       });
       for (; n < pv.seats; n++) html += '<span class="dot free" title="Not allocated yet"></span>';
@@ -281,6 +297,16 @@
       return `<button class="legend-item clickable${provFocus === name ? ' active' : ''}" data-p="${esc(name)}"><span class="legend-swatch" style="${ringed(p)}"></span>${esc(p.label)}<span class="legend-pct">${totals[name]}</span></button>`;
     }).join('');
     $('hint').textContent = 'Tap a party to highlight its seats';
+    if (window.ES_CARD && !$('chart').dataset.cardProv) {
+      $('chart').dataset.cardProv = '1';
+      window.ES_CARD.attach($('chart'), (ev) => {
+        const t = ev.target.closest && ev.target.closest('.dot[data-k]'); if (!t) return null;
+        const d = window.__prov; if (!d) return null;
+        const name = t.dataset.k, j = +t.dataset.pv;
+        return { info: party(name), stats: [[d.provs[j].name, `${d.byParty[name][j]} of ${d.provs[j].seats}`], ['All constituencies', String(d.totals[name])]] };
+      });
+    }
+    window.__prov = { provs, byParty, totals };
     $('legend').querySelectorAll('[data-p]').forEach((b) => b.addEventListener('click', () => {
       provFocus = provFocus === b.dataset.p ? null : b.dataset.p; renderProvinces(g); postHeight();
     }));
