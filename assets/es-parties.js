@@ -40,16 +40,16 @@
     'PSOE-SUMAR-EUIB-ARA EIVISSA':     { label: 'PSOE–Sumar (Eivissa)', groups: ['S&D'] },
     'ASG':           { label: 'ASG',      groups: ['*'] },
     'A.H.I.':        { label: 'AHI',      groups: ['*'] },
-    'OTHERS':        { label: 'Others',   groups: [], color: '#CBD5E1' },
+    'OTHERS':        { label: 'Others',   groups: [], color: '#D5D3CC' },
     // 2026: the ministry's abbreviations of the national groupings (getCandidaturas, media
     // API). Groups set the colours; the label tag comes from the party database by id.
     'FA':            { label: 'FA',        id: 'ALA277', groups: ['Greens/EFA', 'LEFT'] },
-    'PODEMOS':       { label: 'Podemos',   groups: ['LEFT'] },
+    'PODEMOS':       { label: 'Podemos',   id: 'ES976941', groups: ['LEFT'] },
     'JxCat':         { label: 'Junts',     id: 'ES731801', groups: ['NI'] },
     'EH BILDU':      { label: 'EH Bildu',  id: 'ES120670', groups: ['LEFT'] },
     'BNG':           { label: 'BNG',       id: 'ES014003', groups: ['Greens/EFA'] },
     'CCa-1ºCAN':     { label: 'CC',        id: 'ALA118', groups: ['*'] },
-    'UPN-PP':        { label: 'UPN–PP',    groups: ['*'] },
+    'UPN-PP':        { label: 'UPN–PP',    id: 'ALA291', groups: ['*'] },
     'NC-BC, PODEMOS, IU, SUMAR': { label: 'UPC', id: 'ALA279', groups: ['LEFT'] },
     'COMPROMIS-EUPV-PODEM-ERPV': { label: 'Compromís', id: 'ALA278', groups: ['Greens/EFA'] },
     'TERUEL EXISTE': { label: 'Teruel Existe', id: 'ALA280', groups: ['*'] },
@@ -72,7 +72,7 @@
 
   // ---- Europe Elects party database (as published by the country pages) ----
   const DB_BASE = 'https://europe-elects.github.io/country-pages/sheets/';
-  const AFF = {};  // Entity ID -> { europarty, epGroup }
+  const AFF = {};  // Entity ID -> { europarty, epGroup, abbr, name, native, members: [{abbr, id}] }
 
   const isNone = (v) => !v || /^(unaffiliated|\*|none|-|–|n\/a|no)$/i.test(String(v).trim());
   const epName = (x) => String(x || '').replace(/Patriots\.eu/g, 'PfE');
@@ -108,7 +108,14 @@
     const best = {};
     rows.forEach((o) => { const id = o['Europe Elects Entity ID']; if (id && (!best[id] || better(o, best[id]))) best[id] = o; });
     Object.entries(best).forEach(([id, o]) => {
-      AFF[id] = { europarty: o['Europarty Affiliation'] || '', epGroup: o['European Parliament Group'] || '' };
+      // Lists and alliances name their member parties in "Party N" / "Party ID N" (ID with a version: ES269206.v1).
+      const members = [];
+      for (let n = 1; n <= 40; n++) {
+        const pid = (o['Party ID ' + n] || '').trim(), ab = (o['Party ' + n] || '').trim();
+        if (pid || ab) members.push({ abbr: ab, id: pid.replace(/\.v\d+$/i, '') });
+      }
+      AFF[id] = { europarty: o['Europarty Affiliation'] || '', epGroup: o['European Parliament Group'] || '',
+        abbr: o['Abbreviation'] || '', name: o['Name (English)'] || '', native: o['Name (Native)'] || '', members };
     });
   }
 
@@ -118,6 +125,21 @@
   // Don't hold the maps back for long if the party database is slow: draw with the fallback after 4 s.
   const readyOrTimeout = Promise.race([ready, new Promise((res) => setTimeout(res, 4000))]);
 
+  // Member parties of a multi-party list (Europe Elects ID of the list) → [{abbr, name, native, tag, color}].
+  const GROUP_KEY = { 'GREENS/EFA': 'Greens/EFA', 'G/EFA': 'Greens/EFA', 'LEFT': 'LEFT', 'S&D': 'S&D', 'EPP': 'EPP', 'RE': 'RE',
+    'RENEW': 'RE', 'PFE': 'PfE', 'PATRIOTS': 'PfE', 'ECR': 'ECR', 'ESN': 'ESN', 'NI': 'NI' };
+  function members(id) {
+    const db = id && AFF[id];
+    if (!db || db.members.length < 2) return [];
+    return db.members.map((m) => {
+      const d = AFF[m.id] || {};
+      const g = String(d.epGroup || '').split('|')[0].trim().toUpperCase();
+      const key = isNone(d.epGroup) ? '*' : (GROUP_KEY[g] || '*');
+      return { abbr: m.abbr || d.abbr || m.id, name: d.name || '', native: d.native || '', id: m.id,
+        tag: tagOf(d.europarty, d.epGroup), color: GROUP_COLORS[key] || GROUP_COLORS['*'] };
+    });
+  }
+
   function info(abbr) {
     const p = PARTIES[abbr] || { label: abbr, groups: ['*'] };
     const groups = p.groups;
@@ -126,6 +148,7 @@
       : groupName(groups.filter((g) => g !== '*').join('|'));  // fallback: the EP group typed above
     return {
       label: p.label,
+      id: p.id || null,
       tag,
       groupLabel: tag ? `(${tag})` : '',
       groups,
@@ -134,5 +157,5 @@
     };
   }
 
-  window.ES_PARTIES = { info, GROUP_COLORS, ready: readyOrTimeout };
+  window.ES_PARTIES = { info, members, GROUP_COLORS, ready: readyOrTimeout };
 })();
