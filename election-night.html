@@ -26,18 +26,6 @@
   .status.live i { background: #22C55E; animation: pulse 2s infinite; }
   @keyframes pulse { 50% { opacity: .35; } }
 
-  /* stat tiles */
-  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-  .tile { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--blue); border-radius: 6px; padding: 12px 16px; min-width: 0; }
-  .tile .l { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue); }
-  .tile .v { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; min-width: 0; }
-  .tile .v b { font-size: 34px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; margin-left: auto; }
-  .tile .v b:only-child { margin-left: 0; }
-  .tile .v span { font-size: 21px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tile .v .sw { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; align-self: center; }
-  .tile .s { margin-top: 4px; font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .up { color: var(--up); font-weight: 700; } .down { color: var(--down); font-weight: 700; }
-
   /* panels */
   .panel { background: #fff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; min-width: 0; display: flex; flex-direction: column; }
   .panel-head { background: var(--navy); color: #fff; padding: 9px 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
@@ -48,20 +36,30 @@
   .seg button:hover { color: #fff; }
   .seg button[aria-pressed="true"] { background: #fff; color: var(--navy); }
   .seg button:focus-visible { outline: 2px solid #F2B705; outline-offset: 1px; }
+  /* polls once the count has started: moved down and folded */
+  .fold { border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; font: 700 14px 'Advent Pro', system-ui, sans-serif;
+          padding: 3px 10px; border-radius: 4px; cursor: pointer; }
+  .fold:hover { background: rgba(255,255,255,.12); }
+  .fold:focus-visible { outline: 2px solid #F2B705; outline-offset: 1px; }
+  .panel.folded .body { display: none; }
+  .panel.poll { align-self: start; }
+  .panel.folded .panel-head { background: #3A4A6B; }
   .panel iframe { display: block; width: 100%; border: 0; background: #fff; }
   .panel .body { padding: 10px 12px 4px; }
-  .foot { text-align: center; font-size: 14px; color: var(--muted); }
+  .credits { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--navy); border-radius: 6px; padding: 14px 18px 12px; }
+  .credits h2 { font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
+  .credits ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 28px; }
+  .credits li { display: flex; flex-direction: column; }
+  .credits li b { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .credits li span { font-size: 15px; color: var(--muted); }
+  .credits p { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line2); font-size: 14px; color: var(--muted); }
 
   @media (max-width: 1000px) {
     .span-7, .span-5, .span-6 { grid-column: span 12; }
-    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 560px) {
     .dash { padding: 10px 10px 18px; gap: 10px; }
     h1 { font-size: 18px; padding: 7px 12px; letter-spacing: .06em; } h1 small { font-size: 13px; }
-    .tiles { gap: 10px; }
-    .tile { padding: 10px 12px; }
-    .tile .v b { font-size: 28px; } .tile .v span { font-size: 17px; }
   }
 </style>
 </head>
@@ -69,18 +67,23 @@
 <div class="dash">
   <div class="span-12 top">
     <h1>Spain · National parliament election<small>29 November 2026 · lower house (Congress) and upper house (Senate)</small></h1>
-    <span class="status" id="status"><i></i><span>Waiting for the first projection</span></span>
+    <span class="status" id="status"><i></i><span>Polls close at 20:00 Madrid time</span></span>
   </div>
 
-  <div class="span-12 tiles" id="tiles"></div>
+  <section class="panel span-6 poll" id="pollPanel1">
+    <div class="panel-head"><h2 id="poll1">Election-day poll 1</h2><span class="note">Lower house · poll, not results</span>
+      <button class="fold" type="button" aria-expanded="true" hidden>Hide</button></div>
+    <div class="body"><iframe data-src="sheet-charts.html?view=projection&embed=1" title="Election-day poll 1" style="height:520px"></iframe></div>
+  </section>
+  <section class="panel span-6 poll" id="pollPanel2">
+    <div class="panel-head"><h2 id="poll2">Election-day poll 2</h2><span class="note">Lower house · poll, not results</span>
+      <button class="fold" type="button" aria-expanded="true" hidden>Hide</button></div>
+    <div class="body"><iframe data-src="sheet-charts.html?view=projection2&embed=1" title="Election-day poll 2" style="height:520px"></iframe></div>
+  </section>
 
   <section class="panel span-7">
-    <div class="panel-head"><h2 id="congressTitle">Lower house (Congress)</h2>
-      <div class="seg" data-frame="congress">
-        <button data-src="sheet-charts.html?view=projection&embed=1" aria-pressed="true">Projection</button>
-        <button data-src="sheet-charts.html?view=results&embed=1" aria-pressed="false">Results</button>
-      </div></div>
-    <div class="body"><iframe id="congress" title="Lower house projection" style="height:560px"></iframe></div>
+    <div class="panel-head"><h2>Lower house results</h2><span class="note">Change against 2023 · tap [ ] to see the parties on a joint list</span></div>
+    <div class="body"><iframe data-src="sheet-charts.html?view=results&embed=1" title="Lower house results" style="height:560px"></iframe></div>
   </section>
 
   <section class="panel span-5">
@@ -117,11 +120,20 @@
     <div class="body"><iframe data-src="sheet-charts.html?view=provinces&embed=1" data-maxh="640" title="Lower house seats by constituency" style="height:380px"></iframe></div>
   </section>
 
-  <div class="span-12 foot">Europe Elects · projection from the Europe Elects election-night sheet · results from the Spanish Ministry of the Interior</div>
+  <footer class="span-12 credits">
+    <h2>Contributors</h2>
+    <ul>
+      <li><b>Andrei Miclea</b><span>CTO</span></li>
+      <li><b>Tobias Gerhard Schminke</b><span>Project Lead</span></li>
+      <li><b>Teo Garcia Prado</b><span>Data Analyst, Spain</span></li>
+      <li><b>Matías Pino Cabeza</b><span>Data Analyst, Spain</span></li>
+    </ul>
+    <p>Europe Elects · election-day polls and results from the Europe Elects election-night sheet · maps and seats from the Spanish Ministry of the Interior · fill = Europarty, ring = EP group, [ ] = parties on a joint list</p>
+  </footer>
 </div>
 
-<script src="assets/es-parties.js?v=20261128b"></script>
-<script src="assets/sheet-data.js?v=20261128b"></script>
+<script src="assets/es-parties.js?v=20261128c"></script>
+<script src="assets/sheet-data.js?v=20261128c"></script>
 <script>
 (function () {
   'use strict';
@@ -151,69 +163,55 @@
     if (!e.data || e.data.type !== 'ee-height') return;
     const f = [...document.querySelectorAll('iframe')].find((x) => x.contentWindow === e.source);
     if (!f) return;
+    if (e.data.h < 60) return;   // a folded panel's frame reports nothing useful
     f.style.height = Math.min(e.data.h, +f.dataset.maxh || Infinity) + 'px';
     postHeight();
   });
 
-  // ---- stat tiles: the three largest lists and turnout, from the election-night sheet
-  const { load, num, isPct, party } = window.ES_SHEET;
-  function table(g) {
-    const hr = g.findIndex((row) => row.some((c) => /^party$/i.test(c)));
-    if (hr < 0) return [];
-    const head = g[hr], pc = head.findIndex((c) => /^party$/i.test(c));
-    const col = (re, fb) => { const i = head.findIndex((c) => re.test(c)); return i >= 0 ? i : fb; };
-    const v = col(/vote/i, pc + 1), s = col(/seat/i, pc + 2), pv = col(/20\d\d.*\bv$/i, -1), ps = col(/20\d\d.*\bs$/i, -1);
-    return g.slice(hr + 1).filter((r) => r[pc] && !/^(year|total)$/i.test(r[pc])).map((r) => ({
-      name: r[pc], v: num(r[v]), s: num(r[s]), pv: pv >= 0 ? num(r[pv]) : null, ps: ps >= 0 ? num(r[ps]) : null, vPct: isPct(r[v]),
-    }));
-  }
-  function turnout(g) {
-    for (let r = 0; r < g.length; r++) {
-      const yc = g[r].findIndex((c) => /^year$/i.test(c));
-      if (yc < 0 || !/^turnout$/i.test(g[r][yc + 1] || '')) continue;
-      const rows = g.slice(r + 1).map((x) => ({ y: x[yc], t: num(x[yc + 1]) })).filter((x) => x.y && x.t != null && !/^year$/i.test(x.y));
-      if (rows.length) return rows;
-    }
-    return [];
-  }
-  const tile = (label, main, sub) => `<div class="tile"><div class="l">${label}</div><div class="v">${main}</div><div class="s">${sub}</div></div>`;
-  async function tiles() {
-    let proj = [], res = [], tt = [];
-    try { await window.ES_PARTIES.ready; } catch (e) { /* fallback colours */ }
-    try { const g = await load('projection'); proj = table(g); tt = turnout(g); } catch (e) { /* not readable yet */ }
-    try { res = table(await load('results')); } catch (e) { /* idem */ }
-    try { const t2 = turnout(await load('turnout')); if (t2.length) tt = t2; } catch (e) { /* idem */ }
-    const prev = Object.fromEntries(res.map((r) => [r.name, r]));
-    const hasRes = res.some((r) => r.s != null);
-    const rows = (hasRes ? res : proj).filter((r) => r.s != null || r.v != null);
-    rows.forEach((r) => { if (!r.vPct && r.v != null && r.v <= 1) r.v *= 100; });
-    rows.sort((a, b) => (b.s ?? -1) - (a.s ?? -1) || (b.v ?? -1) - (a.v ?? -1));
-    const st = $('status');
-    st.classList.toggle('live', rows.length > 0);
-    st.lastElementChild.innerHTML = rows.length
-      ? `<b>${hasRes ? 'Results' : 'Projection'}</b> · updated ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} Madrid time`
-      : 'Waiting for the first projection · polls close 20:00 Madrid time';
-    let html = '';
-    ['Largest list · lower house', 'Second', 'Third'].forEach((lab, i) => {
-      const r = rows[i];
-      if (!r) { html += tile(lab, '<b>–</b>', 'After polls close'); return; }
-      const p = party(r.name), pr = prev[r.name] || {};
-      const ds = r.s != null && pr.ps != null ? r.s - pr.ps : null;
-      const dv = r.v != null && pr.pv != null ? r.v - pr.pv : null;
-      const cl = (d) => (d > 0 ? 'up' : d < 0 ? 'down' : '');
-      html += tile(lab,
-        `<span class="sw" style="background:${p.color2 ? `linear-gradient(90deg,${p.color} 50%,${p.color2} 50%)` : p.color}"></span><span>${esc(p.label)}</span><b>${r.s ?? '–'}</b>`,
-        `${r.v == null ? '' : fmt(r.v) + '%'}${dv != null ? ` <span class="${cl(dv)}">${signed(dv)}</span>` : ''} · ${r.s ?? '–'} seats${ds != null ? ` <span class="${cl(ds)}">${signed(ds, 0)}</span> vs 2023` : ''}`);
+  // ---- poll names, and the status line: waiting / polls published / results
+  const { load, num, POLL_NAMES } = window.ES_SHEET;
+  if (POLL_NAMES) { $('poll1').textContent = POLL_NAMES.projection; $('poll2').textContent = POLL_NAMES.projection2; }
+  const hasNumbers = (g) => g.some((r) => r.slice(1, 3).some((c) => num(c) != null) && /^[A-Za-zÀ-ÿ]/.test(r[0] || '') && !/^(party|year)$/i.test(r[0]));
+  // Once results come in, the two polls move below the history charts, folded (a click opens them).
+  // ?counting=1 / ?counting=0 forces either layout (preview, or to keep the polls on top).
+  const force = new URLSearchParams(location.search).get('counting');
+  let counting = false;
+  function foldPolls(on) {
+    if (on === counting) return;
+    counting = on;
+    const credits = document.querySelector('.credits'), first = document.querySelector('.dash > section');
+    ['pollPanel1', 'pollPanel2'].forEach((id) => {
+      const sec = $(id), btn = sec.querySelector('.fold'), note = sec.querySelector('.note');
+      if (on) {
+        credits.before(sec); sec.classList.add('folded'); btn.hidden = false;
+        btn.textContent = 'Show'; btn.setAttribute('aria-expanded', 'false');
+        note.textContent = 'Published at 20:00 · poll, not results';
+      } else {
+        first.before(sec); sec.classList.remove('folded'); btn.hidden = true;
+        note.textContent = 'Lower house · poll, not results';
+      }
     });
-    const now = tt.find((x) => /2026/.test(x.y)), last = tt.filter((x) => !/2026/.test(x.y)).pop();
-    const tv = (x) => (x.t <= 1 ? x.t * 100 : x.t);
-    html += tile('Turnout', `<b>${now ? fmt(tv(now)) + '%' : '–'}</b>`,
-      now && last ? `<span class="${tv(now) >= tv(last) ? 'up' : 'down'}">${signed(tv(now) - tv(last))}</span> vs ${esc(last.y)}` : (last ? `${esc(last.y)}: ${fmt(tv(last))}%` : ''));
-    $('tiles').innerHTML = html;
     postHeight();
   }
-  tiles();
-  setInterval(tiles, 60000);
+  document.querySelectorAll('.fold').forEach((btn) => btn.addEventListener('click', () => {
+    const sec = btn.closest('.panel'), open = sec.classList.toggle('folded') === false;
+    btn.textContent = open ? 'Hide' : 'Show'; btn.setAttribute('aria-expanded', open);
+    postHeight();
+  }));
+
+  async function status() {
+    const state = { polls: false, results: false };
+    try { state.polls = hasNumbers(await load('projection')) || hasNumbers(await load('projection2')); } catch (e) { /* not readable yet */ }
+    try { state.results = hasNumbers(await load('results')); } catch (e) { /* idem */ }
+    const st = $('status'), t = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+    st.classList.toggle('live', state.polls || state.results);
+    st.lastElementChild.innerHTML = state.results ? `<b>Counting</b> · updated ${t} Madrid time`
+      : state.polls ? `<b>Election-day polls published</b> · counting starts shortly · ${t} Madrid time`
+      : 'Polls close at 20:00 Madrid time';
+    foldPolls(force === '1' || (force !== '0' && state.results));
+  }
+  status();
+  setInterval(status, 60000);
 
   // ---- this page's height, for the WordPress frame
   function postHeight() {
