@@ -5,24 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spain – Turnout by Area</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261127b">
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css?v=20261128b">
 <style>
   #tooltip { min-width: 260px; }
-  .tt-table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
-  .tt-table th { font-weight: 500; color: #94A3B8; text-align: right; padding: 2px 0 4px 8px; font-size: 11px; }
+  .tt-table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .tt-table th { font-weight: 500; color: #8B8F98; text-align: right; padding: 2px 0 4px 8px; font-size: 13px; }
   .tt-table th:first-child, .tt-table td:first-child { text-align: left; padding-left: 0; }
-  .tt-table td { text-align: right; padding: 3px 0 3px 8px; color: #334155; border-top: 1px solid #F1F5F9; }
-  .tt-table tr.active td { font-weight: 700; color: #0F172A; }
-  .nat { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: #475569; margin: 0 0 10px; font-variant-numeric: tabular-nums; }
-  .nat b { color: #0F172A; font-size: 14px; }
-  .nat .chg { font-size: 11px; font-weight: 600; margin-left: 4px; }
+  .tt-table td { text-align: right; padding: 3px 0 3px 8px; color: #3A3F4A; border-top: 1px solid #ECEAE4; }
+  .tt-table tr.active td { font-weight: 700; color: #1A1D23; }
+  .nat { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: #565B66; margin: 0 0 10px; font-variant-numeric: tabular-nums; }
+  .nat b { color: #1A1D23; font-size: 16px; }
+  .nat .chg { font-size: 13px; font-weight: 600; margin-left: 4px; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <h1 id="title">Spain · Turnout</h1>
+    <h1 id="title">Spain · National parliament election</h1>
     <div class="subtitle" id="subtitle">&nbsp;</div>
     <div class="status-row">
       <span class="last-updated" id="lastUpdated">Last updated: –</span>
@@ -54,7 +54,7 @@
   <div class="legend-hint" id="legendHint">&nbsp;</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261127b"></script>
+<script src="assets/map-utils.js?v=20261128b"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
@@ -70,7 +70,7 @@
   const TIMES = [{ key: 't14', tab: '14:00', long: 'at 14:00' },
                  { key: 't18', tab: '18:00', long: 'at 18:00' },
                  { key: 't20', tab: 'Close of polls', long: 'at the close of polls' }];
-  const LOSS = { r: 194, g: 65, b: 12 }, GAIN = { r: 67, g: 56, b: 202 }, MID = { r: 248, g: 250, b: 252 };
+  const LOSS = { r: 168, g: 68, b: 26 }, GAIN = { r: 30, g: 76, b: 153 }, MID = { r: 247, g: 246, b: 242 };
 
   let year, level, data = null, time = null, mode = 'level', timeChosen = false;
 
@@ -144,10 +144,10 @@
           { key: 'change', tab: `Change vs ${prevLabel()}`, disabled: !hasPrev(), title: hasPrev() ? '' : `No ${prevLabel()} figures in the data file` }],
          mode, k => { mode = k; render(); });
 
-    document.getElementById('title').textContent = `Spain ${year} · Turnout by ${L.one}`;
+    document.getElementById('title').textContent = `Spain ${year} · National parliament election`;
     document.getElementById('subtitle').textContent = mode === 'change'
-      ? `Change in turnout ${T.long} against ${prevLabel()}, in percentage points · ${L.count}`
-      : `Turnout ${T.long} across ${L.count} · resident voters (the vote from abroad is counted later)`;
+      ? `Turnout by ${L.one} · change in turnout ${T.long} against ${prevLabel()}, in percentage points · ${L.count}`
+      : `Turnout by ${L.one} · turnout ${T.long} across ${L.count} · resident voters (the vote from abroad is counted later)`;
     document.getElementById('demoPill').hidden = !demo;
     const lu = document.getElementById('lastUpdated');
     lu.textContent = demo ? 'Official final result, 23 July 2023'
@@ -167,7 +167,7 @@
       const v = val(data.national, t.key);
       if (v === null) return `<span>${t.tab} <b>–</b></span>`;
       const d = change(data.national, t.key);
-      const c = d === null ? '' : `<span class="chg" style="color:${d >= 0 ? '#4338CA' : '#C2410C'}">${signed(d)}</span>`;
+      const c = d === null ? '' : `<span class="chg" style="color:${d >= 0 ? '#1E4C99' : '#A8441A'}">${signed(d)}</span>`;
       return `<span>${t.tab} <b>${v.toFixed(1)}%</b>${c}</span>`;
     }).join('');
   }
@@ -247,7 +247,7 @@
         const v = val(row, t.key), p = val(row, 'prev_' + t.key), d = change(row, t.key);
         html += `<tr class="${t.key === time ? 'active' : ''}"><td>${t.tab}</td><td>${v === null ? '–' : v.toFixed(1) + '%'}</td>`
           + (withPrev ? `<td>${p === null ? '–' : p.toFixed(1) + '%'}</td>`
-             + `<td style="color:${d === null ? '#94A3B8' : d >= 0 ? '#4338CA' : '#C2410C'}">${d === null ? '–' : signed(d) + ' pp'}</td>` : '')
+             + `<td style="color:${d === null ? '#8B8F98' : d >= 0 ? '#1E4C99' : '#A8441A'}">${d === null ? '–' : signed(d) + ' pp'}</td>` : '')
           + '</tr>';
       });
       html += '</table>';
