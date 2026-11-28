@@ -196,3 +196,6 @@ button.legend-item { line-height: 1.4; }
 html.embed h1, html.embed .subtitle { display: none; }
 html.embed body { background: #fff; }
 html.embed .container { padding: 8px 10px 6px; max-width: none; }
+
+/* Inside the election-night dashboard: no "Chart made by … · Source: …" line under each chart. */
+html.embed .footer { display: none; }
