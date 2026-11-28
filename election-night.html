@@ -134,12 +134,17 @@
 
   <section class="panel span-12">
     <div class="panel-head"><h2>Polling average</h2><span class="note">National parliament election · Europe Elects country page</span></div>
-    <iframe data-src="https://europe-elects.github.io/country-pages/?country=ES&view=polling" data-ext="1" title="Spain polling average" scrolling="no" style="height:640px"></iframe>
+    <iframe data-src="https://europe-elects.github.io/country-pages/?country=ES&view=polling&head=0" data-ext="1" title="Spain polling average" scrolling="no" style="height:640px"></iframe>
   </section>
 
   <section class="panel span-12">
     <div class="panel-head"><h2>Lower house results</h2><span class="note">Change against 2023 · tap [ ] to see the parties on a joint list</span></div>
     <div class="body"><iframe data-src="sheet-charts.html?view=results&embed=1" title="Lower house results" style="height:560px"></iframe></div>
+  </section>
+
+  <section class="panel span-12">
+    <div class="panel-head"><h2>Upper house seats</h2><span class="note">Senate · 208 directly elected seats · by constituency</span></div>
+    <iframe id="senate" title="Seats in the upper house (Senate)" style="height:860px"></iframe>
   </section>
 
   <section class="panel span-6">
@@ -201,6 +206,7 @@
   function loadMapFrames() {
     $('maps').src = withYear(mapSeg.querySelector('[aria-pressed="true"]').dataset.src);
     $('hemi').src = withYear('hemicycle.html?embed=1');
+    $('senate').src = withYear('seats-map.html?embed=1&house=senate');
   }
   mapSeg.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
@@ -292,6 +298,7 @@
     return f.getAttribute('src') || (f.dataset.ext ? f.dataset.src : withPass(f.dataset.src));
   }
   document.querySelectorAll('.dash > section.panel').forEach((sec) => {
+    if (sec.querySelector('iframe[data-ext]')) return;   // the polling average (country page) has no expand button
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'expand';
     b.innerHTML = ICON_OPEN + ICON_SHUT + '<span class="lbl">Expand</span>';
