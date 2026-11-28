@@ -6,13 +6,13 @@
 <title>Spain – Lower House Seats</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128b">
+<link rel="stylesheet" href="assets/map.css?v=20261128c">
 <style>
   .demo-pill { font-size: 13px; padding: 3px 8px; background: #E3EBF7; color: #1E4C99; border-radius: 4px; font-weight: 600; }
   #hemi-wrap { position: relative; background: #fff; border: 1px solid #E4E2DB; border-radius: 10px; padding: 14px 10px 6px; }
   #hemi-wrap .map-logo { position: absolute; top: 10px; left: 10px; }
   #hemi { display: block; width: 100%; height: auto; max-height: 520px; }
-  .seat { stroke: #fff; stroke-width: .8; transition: opacity .15s; }
+  .seat { stroke: #fff; stroke-width: .8; transition: opacity .15s; paint-order: fill; }
   .seat.dim { opacity: .15; }
   .majority-line { stroke: #1A1D23; stroke-width: 1.5; stroke-dasharray: 5 4; }
   .hemi-total { font: 700 45px 'Advent Pro', sans-serif; fill: #1A1D23; text-anchor: middle; }
@@ -43,8 +43,8 @@
   <div class="legend-hint" id="legendHint">Tap a party to highlight its seats · change against the previous election</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261128b"></script>
-<script src="assets/es-parties.js?v=20261128b"></script>
+<script src="assets/map-utils.js?v=20261128c"></script>
+<script src="assets/es-parties.js?v=20261128c"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
@@ -100,6 +100,11 @@
     const i = info(k);
     return i.color2 ? `linear-gradient(135deg, ${i.color} 0 50%, ${i.color2} 50% 100%)` : i.color;
   }
+  // Legend swatch: Europarty fill (two Europarties: split), EP group as a ring.
+  function swStyle(k) {
+    const i = info(k);
+    return `background:${swatch(k)};border-radius:50%;` + (i.ring ? `box-shadow:0 0 0 2px #fff,0 0 0 3.5px ${i.ring};margin:0 3px 0 2px` : '');
+  }
 
   async function refresh() {
     await window.ES_PARTIES.ready;  // Europarty and EP group from the party database (labels)
@@ -151,6 +156,8 @@
       c.setAttribute('cx', s.x.toFixed(1)); c.setAttribute('cy', s.y.toFixed(1)); c.setAttribute('r', dot.toFixed(1));
       c.setAttribute('class', 'seat' + (focus && owners[i] !== focus ? ' dim' : ''));
       c.setAttribute('fill', fill(owners[i]));
+      const ring = owners[i] && info(owners[i]).ring;   // EP group as a ring around the Europarty colour
+      if (ring) { c.style.stroke = ring; c.style.strokeWidth = (dot * 0.34).toFixed(1); }
       if (owners[i]) {
         const t = document.createElementNS(NS, 'title');
         t.textContent = info(owners[i]).label;
@@ -186,7 +193,8 @@
       const ch_ = p.seat_change;
       const change = ch_ === null || ch_ === undefined ? ''
         : `<span class="legend-change ${ch_ > 0 ? 'up' : ch_ < 0 ? 'down' : 'same'}">${ch_ > 0 ? '+' : ch_ < 0 ? '−' : '±'}${Math.abs(ch_)}</span>`;
-      b.innerHTML = `<div class="legend-swatch" style="background:${swatch(p.party)}"></div>${info(p.party).label}`
+      b.innerHTML = `<div class="legend-swatch" style="${swStyle(p.party)}"></div>${info(p.party).label}`
+        + (info(p.party).bracket ? `<span class="legend-group" title="Parties on this list">${info(p.party).bracket}</span>` : '')
         + (g ? `<span class="legend-group">${g}</span>` : '') + `<span class="legend-seats">${p.seats}</span>` + change;
       b.onclick = () => { focus = focus === p.party ? null : p.party; render(); };
       lg.appendChild(b);
