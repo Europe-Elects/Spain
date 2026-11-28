@@ -5,67 +5,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spain – Election Night Charts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261127b">
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css?v=20261128b">
 <style>
   /* map.css sizes pages to the frame (maps); these charts are as tall as their content. */
   html, body { height: auto; }
   body { overflow: visible; display: block; }
   .container { flex: none; }
-  .card { position: relative; background: #fff; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 14px 12px; }
+  .card { position: relative; background: #fff; border: 1px solid #E4E2DB; border-radius: 10px; padding: 14px 14px 12px; }
   .card .map-logo { position: static; margin-bottom: 8px; }
-  .empty { padding: 36px 12px; text-align: center; color: #64748B; font-size: 13px; }
-  .note { font-size: 11px; color: #94A3B8; margin-top: 6px; }
+  .empty { padding: 36px 12px; text-align: center; color: #565B66; font-size: 15px; }
+  .note { font-size: 13px; color: #8B8F98; margin-top: 6px; }
 
   /* seat strip */
   .strip-wrap { margin: 2px 0 14px; }
-  .strip { position: relative; display: flex; height: 22px; border-radius: 4px; overflow: hidden; background: #F1F5F9; }
+  .strip { position: relative; display: flex; height: 22px; border-radius: 4px; overflow: hidden; background: #ECEAE4; }
   .strip > span { height: 100%; border-right: 2px solid #fff; }
   .strip > span:last-child { border-right: 0; }
-  .majority { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 2px dashed #0F172A; }
-  .strip-labels { display: flex; justify-content: space-between; font-size: 11px; color: #64748B; margin-top: 4px; }
+  .majority { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 2px dashed #1A1D23; }
+  .strip-labels { display: flex; justify-content: space-between; font-size: 13px; color: #565B66; margin-top: 4px; }
 
   /* party rows */
-  .rows { display: grid; grid-template-columns: minmax(120px, 210px) 1fr auto auto; gap: 7px 10px; align-items: center; }
-  .rows .h { font-size: 11px; color: #94A3B8; font-weight: 500; }
+  .rows { display: grid; grid-template-columns: minmax(170px, 320px) 1fr auto auto; gap: 7px 10px; align-items: center; }
+  .rows .h { font-size: 13px; color: #8B8F98; font-weight: 500; }
   .rows .h.r { text-align: right; }
-  .pname { font-size: 13px; font-weight: 600; color: #0F172A; display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .pname > span:nth-child(2) { white-space: nowrap; }
+  .pname { font-size: 15px; font-weight: 600; color: #1A1D23; display: flex; align-items: center; gap: 6px; min-width: 0; }
   .pname .sw { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
-  .pname .tag { font-size: 10px; font-weight: 500; color: #94A3B8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bar { position: relative; height: 14px; background: #F1F5F9; border-radius: 0 4px 4px 0; }
+  .pname .tag { font-size: 12px; font-weight: 500; color: #8B8F98; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { position: relative; height: 14px; background: #ECEAE4; border-radius: 0 4px 4px 0; }
   .bar .fill { height: 100%; border-radius: 0 4px 4px 0; }
-  .bar .prev { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #0F172A; opacity: .55; border-radius: 1px; }
-  .val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; color: #0F172A; white-space: nowrap; }
-  .val small { font-size: 11px; font-weight: 600; margin-left: 4px; }
-  .seats { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 52px; color: #0F172A; white-space: nowrap; }
-  .seats small { font-size: 11px; font-weight: 600; margin-left: 3px; }
-  .up { color: #15803D; } .down { color: #B91C1C; } .same { color: #94A3B8; }
+  .bar .prev { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #1A1D23; opacity: .55; border-radius: 1px; }
+  .val { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; color: #1A1D23; white-space: nowrap; }
+  .val small { font-size: 13px; font-weight: 600; margin-left: 4px; }
+  .seats { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; min-width: 52px; color: #1A1D23; white-space: nowrap; }
+  .seats small { font-size: 13px; font-weight: 600; margin-left: 3px; }
+  .up { color: #1E4C99; } .down { color: #A8441A; } .same { color: #8B8F98; }
+
+  /* member parties of a list */
+  .list-tog { margin-left: 4px; border: 1px solid #D5D3CC; background: #fff; border-radius: 999px; padding: 0 8px 0 6px; font: 600 13px 'Advent Pro', system-ui, sans-serif; color: #2A5DB0; cursor: pointer; white-space: nowrap; line-height: 20px; }
+  .list-tog:hover { border-color: #2A5DB0; }
+  .list-tog:focus-visible { outline: 2px solid #2A5DB0; outline-offset: 1px; }
+  .list-tog .chev { display: inline-block; width: 12px; }
+  .members { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 6px; margin: -2px 0 4px 18px; padding: 6px 8px; background: #F7F6F2; border-left: 3px solid #E4E2DB; border-radius: 0 4px 4px 0; }
+  .mem { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; color: #3A3F4A; background: #fff; border: 1px solid #ECEAE4; border-radius: 4px; padding: 1px 7px; }
+  .mem i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  .mem em { font-style: normal; font-size: 12px; color: #8B8F98; }
 
   /* provinces */
   .prov { display: grid; grid-template-columns: minmax(110px, 160px) 1fr; gap: 6px 10px; align-items: center; }
-  .prov .pn { font-size: 12px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .prov .pn b { color: #94A3B8; font-weight: 500; margin-left: 4px; font-size: 11px; }
+  .prov .pn { font-size: 14px; color: #3A3F4A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prov .pn b { color: #8B8F98; font-weight: 500; margin-left: 4px; font-size: 13px; }
   .dots { display: flex; flex-wrap: wrap; gap: 3px; }
   .dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 1px #fff; cursor: default; }
-  .dot.free { background: #fff; box-shadow: inset 0 0 0 1.5px #CBD5E1; }
+  .dot.free { background: #fff; box-shadow: inset 0 0 0 1.5px #D5D3CC; }
   .dot.dim { opacity: .15; }
 
   /* svg charts */
   svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
-  .axis text, .lbl { font: 500 11px 'Inter', sans-serif; fill: #64748B; }
-  .grid line { stroke: #E2E8F0; }
-  .baseline { stroke: #94A3B8; }
-  .barlbl { font: 600 11px 'Inter', sans-serif; fill: #0F172A; text-anchor: middle; }
-  .endlbl { font: 600 11px 'Inter', sans-serif; }
+  .axis text, .lbl { font: 500 12px 'Advent Pro', sans-serif; fill: #565B66; }
+  .grid line { stroke: #E4E2DB; }
+  .baseline { stroke: #8B8F98; }
+  .barlbl { font: 600 12px 'Advent Pro', sans-serif; fill: #1A1D23; text-anchor: middle; }
+  .endlbl { font: 600 13px 'Advent Pro', sans-serif; }
   .series path { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
   .series.dim path, .series.dim circle, .series.dim text { opacity: .12; }
-  .cross { stroke: #94A3B8; stroke-width: 1; }
-  #tip { position: fixed; display: none; pointer-events: none; z-index: 10; background: #fff; border: 1px solid #E2E8F0;
-    border-radius: 8px; box-shadow: 0 4px 14px rgba(15,23,42,.12); padding: 8px 10px; font-size: 12px; min-width: 150px; }
-  #tip h4 { font-size: 12px; margin-bottom: 6px; color: #0F172A; }
-  #tip .tr { display: flex; align-items: center; gap: 6px; margin: 2px 0; color: #334155; }
+  .cross { stroke: #8B8F98; stroke-width: 1; }
+  #tip { position: fixed; display: none; pointer-events: none; z-index: 10; background: #fff; border: 1px solid #E4E2DB;
+    border-radius: 8px; box-shadow: 0 4px 14px rgba(15,23,42,.12); padding: 8px 10px; font-size: 14px; min-width: 150px; }
+  #tip h4 { font-size: 14px; margin-bottom: 6px; color: #1A1D23; }
+  #tip .tr { display: flex; align-items: center; gap: 6px; margin: 2px 0; color: #3A3F4A; }
   #tip .tr i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
   #tip .tr span:last-child { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; padding-left: 10px; }
+  /* inside the dashboard: no title (the panel has one), no outer padding */
+  html.embed h1, html.embed .subtitle { display: none; }
+  html.embed .container { padding: 0; max-width: none; }
+  html.embed body { background: #fff; }
+  html.embed .header { margin-bottom: 6px; }
+  html.embed .card { border: 0; padding: 0; }
+  html.embed .card .map-logo { display: none; }
+  html.embed .footer { display: none; }
   @media (max-width: 560px) {
     .rows { grid-template-columns: minmax(90px, 1fr) 1fr auto; }
     .rows .bar-col { display: none; }
@@ -75,7 +94,7 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1 id="title">Spain · General election 2026</h1>
+    <h1 id="title">Spain · National parliament election (lower house)</h1>
     <div class="subtitle" id="subtitle">&nbsp;</div>
     <div class="status-row"><span class="last-updated" id="lastUpdated">Last updated: –</span></div>
   </div>
@@ -88,9 +107,9 @@
   <div class="footer" id="footer">Source: Europe Elects</div>
 </div>
 <div id="tip"></div>
-<script src="assets/map-utils.js?v=20261127b"></script>
-<script src="assets/es-parties.js?v=20261127b"></script>
-<script src="assets/sheet-data.js?v=20261127c"></script>
+<script src="assets/map-utils.js?v=20261128b"></script>
+<script src="assets/es-parties.js?v=20261128b"></script>
+<script src="assets/sheet-data.js?v=20261128b"></script>
 <script>
 (function () {
   'use strict';
@@ -101,24 +120,25 @@
   const SEATS = 350, MAJORITY = 176;
   const params = new URLSearchParams(location.search);
   const VIEW = params.get('view') || 'projection';
+  if (params.get('embed')) document.documentElement.classList.add('embed');
   const fmt = (v, d = 1) => (v == null ? '–' : v.toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }));
   const signed = (v, d = 1) => (v == null ? '' : (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt(Math.abs(v), d));
   const cls = (v) => (v == null ? '' : v > 0 ? 'up' : v < 0 ? 'down' : 'same');
   const fill = (p) => (p.color2 ? `linear-gradient(90deg, ${p.color} 50%, ${p.color2} 50%)` : p.color);
 
   const VIEWS = {
-    projection: { tab: 'projection', title: 'Spain · Congress projection', sub: 'Projected vote share and seats · 350 seats, 176 for a majority', render: renderParties },
-    projection2: { tab: 'projection2', title: 'Spain · Congress projection', sub: 'Projected vote share and seats · 350 seats, 176 for a majority', render: renderParties },
-    results: { tab: 'results', title: 'Spain · Congress results', sub: 'Vote share and seats, change against 2023', render: renderParties },
-    provinces: { tab: 'provinces', title: 'Spain · Seats by province', sub: 'Congress seats in each of the 52 constituencies', render: renderProvinces },
-    turnout: { tab: 'turnout', title: 'Spain · Turnout', sub: 'Turnout at general elections since 2000', render: renderTurnout },
-    'history-votes': { tab: 'historyVotes', title: 'Spain · Vote share since 1989', sub: 'Congress vote share by party at each general election', render: (g) => renderHistory(g, 'pct') },
-    'history-seats': { tab: 'historySeats', title: 'Spain · Seats since 1989', sub: 'Congress seats by party at each general election', render: (g) => renderHistory(g, 'seats') },
+    projection: { tab: 'projection', title: 'Spain · National parliament election (lower house)', sub: 'Congress projection · vote share and seats · 350 seats, 176 for a majority', render: renderParties },
+    projection2: { tab: 'projection2', title: 'Spain · National parliament election (lower house)', sub: 'Congress projection · vote share and seats · 350 seats, 176 for a majority', render: renderParties },
+    results: { tab: 'results', title: 'Spain · National parliament election (lower house)', sub: 'Congress results · vote share and seats, change against 2023', render: renderParties },
+    provinces: { tab: 'provinces', title: 'Spain · National parliament election (lower house)', sub: 'Congress seats by constituency · 50 provinces and the cities of Ceuta and Melilla', render: renderProvinces },
+    turnout: { tab: 'turnout', title: 'Spain · National parliament elections', sub: 'Turnout at each national parliament election, at its real date', render: renderTurnout },
+    'history-votes': { tab: 'historyVotes', title: 'Spain · National parliament elections (lower house)', sub: 'Congress vote share by party since 1989', render: (g) => renderHistory(g, 'pct') },
+    'history-seats': { tab: 'historySeats', title: 'Spain · National parliament elections (lower house)', sub: 'Congress seats by party since 1989 · 350 seats', render: (g) => renderHistory(g, 'seats') },
   };
   const view = VIEWS[VIEW] || VIEWS.projection;
   $('title').textContent = view.title;
   $('subtitle').textContent = view.sub;
-  document.title = view.title.replace(' · ', ' – ');
+  document.title = view.title.replace(' · ', ' – ') + ' – ' + view.sub.split(' · ')[0];
 
   // ---------------------------------------------------------------- party tables
   // Projection: Party | Projected Votes | Projected Seats.
@@ -166,6 +186,7 @@
     return rows;
   }
 
+  const openLists = new Set();
   function renderParties(g) {
     const rows = partyTable(g).filter((x) => x.v != null || x.s != null);
     if (!rows.length) return empty(VIEW === 'results' ? 'Results appear here as the count comes in.' : 'The projection appears here when polls close (20:00 Madrid).');
@@ -184,21 +205,33 @@
       html += `<div class="strip-labels"><span>${totalSeats} of ${SEATS} seats</span><span>Majority: ${MAJORITY}</span></div></div>`;
     }
     html += '<div class="rows">';
-    html += `<div class="h">Party</div><div class="h bar-col">Vote share${res ? ' <span style="color:#64748B">· line = 2023</span>' : ''}</div><div class="h r">%</div><div class="h r">Seats</div>`;
+    html += `<div class="h">Party</div><div class="h bar-col">Vote share${res ? ' <span style="color:#565B66">· line = 2023</span>' : ''}</div><div class="h r">%</div><div class="h r">Seats</div>`;
     rows.forEach((x) => {
       const p = party(x.name);
       const tag = p.tag ? `<span class="tag">${esc(p.tag)}</span>` : '';
-      html += `<div class="pname"><span class="sw" style="background:${fill(p)}"></span><span>${esc(p.label)}</span>${tag}</div>`;
+      // Multi-party lists can be opened to show their member parties (from the Europe Elects party database).
+      const mem = window.ES_PARTIES.members ? window.ES_PARTIES.members(p.id) : [];
+      const open = mem.length && openLists.has(x.name);
+      const tog = mem.length ? `<button class="list-tog" data-list="${esc(x.name)}" aria-expanded="${!!open}" title="${open ? 'Hide' : 'Show'} the ${mem.length} parties on this list"><span class="chev">${open ? '▾' : '▸'}</span>${mem.length} parties</button>` : '';
+      html += `<div class="pname"><span class="sw" style="background:${fill(p)}"></span><span>${esc(p.label)}</span>${tag}${tog}</div>`;
       html += `<div class="bar-col"><div class="bar"><div class="fill" style="width:${((x.v ?? 0) / maxV) * 100}%;background:${fill(p)}"></div>`;
       if (res && x.pv != null) html += `<div class="prev" style="left:calc(${(x.pv / maxV) * 100}% - 1px)" title="2023: ${fmt(x.pv)}%"></div>`;
       html += '</div></div>';
       html += `<div class="val">${x.v == null ? '–' : fmt(x.v) + '%'}${res && x.dv != null ? `<small class="${cls(x.dv)}">${signed(x.dv)}</small>` : ''}</div>`;
       html += `<div class="seats">${x.s == null ? '–' : x.s}${res && x.ds != null ? `<small class="${cls(x.ds)}">${signed(x.ds, 0)}</small>` : ''}</div>`;
+      if (open) {
+        html += '<div class="members">' + mem.map((m) => `<span class="mem" title="${esc(m.name || m.abbr)}${m.native && m.native !== m.name ? ' · ' + esc(m.native) : ''}"><i style="background:${m.color}"></i><b>${esc(m.abbr)}</b>${m.name ? ` ${esc(m.name)}` : ''}${m.tag ? ` <em>${esc(m.tag)}</em>` : ''}</span>`).join('') + '</div>';
+      }
     });
     html += '</div>';
     if (res) html += '<div class="note">Change against the 2023 result of the same party or its predecessor list.</div>';
     $('chart').innerHTML = html;
-    $('legend').innerHTML = ''; $('hint').textContent = '';
+    $('chart').querySelectorAll('.list-tog').forEach((b) => b.addEventListener('click', () => {
+      const n = b.dataset.list; openLists.has(n) ? openLists.delete(n) : openLists.add(n);
+      renderParties(g); postHeight();
+    }));
+    const lists = rows.filter((x) => { const p = party(x.name); return window.ES_PARTIES.members && window.ES_PARTIES.members(p.id).length; }).length;
+    $('legend').innerHTML = ''; $('hint').textContent = lists ? 'Tap “parties” next to a list to see the parties running on it' : '';
   }
 
   // ---------------------------------------------------------------- provinces
@@ -218,7 +251,7 @@
       byParty[name] = provs.map((pv) => num(row[pv.i]) || 0);
       if (byParty[name].some((v) => v > 0)) any = true;
     });
-    if (!provs.length || !any) return empty('Seats by province appear here as they are projected or declared.');
+    if (!provs.length || !any) return empty('Seats by constituency appear here as they are projected or declared.');
     const order = parties.filter((n) => byParty[n] && byParty[n].some((v) => v > 0));
     const totals = Object.fromEntries(order.map((n) => [n, byParty[n].reduce((a, b) => a + b, 0)]));
     order.sort((a, b) => totals[b] - totals[a]);
@@ -263,107 +296,159 @@
     }
     return [];
   }
+  // Election days, so charts space elections by real time ("2019 (I)" and "2019 (II)" are 6 months apart).
+  const ELECTION_DATES = {
+    '1977': '1977-06-15', '1979': '1979-03-01', '1982': '1982-10-28', '1986': '1986-06-22', '1989': '1989-10-29',
+    '1993': '1993-06-06', '1996': '1996-03-03', '2000': '2000-03-12', '2004': '2004-03-14', '2008': '2008-03-09',
+    '2011': '2011-11-20', '2015': '2015-12-20', '2016': '2016-06-26', '2019 (I)': '2019-04-28', '2019 (II)': '2019-11-10',
+    '2023': '2023-07-23', '2026': '2026-11-29',
+  };
+  const YEAR_MS = 365.25 * 864e5;
+  function dateOf(label) {
+    const k = String(label).trim().replace(/\s+/g, ' ');
+    if (ELECTION_DATES[k]) return new Date(ELECTION_DATES[k] + 'T12:00:00Z');
+    const m = /(\d{4})/.exec(k);
+    return m ? new Date(`${m[1]}-07-01T12:00:00Z`) : null;
+  }
+  // A time axis over the elections given, with ticks every five years.
+  function timeAxis(dates, x0, x1, pad) {
+    const lo = Math.min(...dates) - pad * YEAR_MS, hi = Math.max(...dates) + pad * YEAR_MS;
+    const x = (d) => x0 + ((d - lo) / (hi - lo)) * (x1 - x0);
+    const ticks = [];
+    for (let yr = Math.ceil(new Date(lo).getUTCFullYear() / 5) * 5; yr <= new Date(hi).getUTCFullYear(); yr += 5) {
+      const d = Date.UTC(yr, 0, 1); if (d >= lo && d <= hi) ticks.push({ yr, x: x(d) });
+    }
+    return { x, ticks, pxPerYear: ((x1 - x0) * YEAR_MS) / (hi - lo) };
+  }
+  function showTip(ev, html) {
+    const tip = $('tip');
+    tip.innerHTML = html; tip.style.display = 'block';
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    tip.style.left = Math.min(ev.clientX + 14, innerWidth - tw - 8) + 'px';
+    tip.style.top = Math.min(ev.clientY + 14, innerHeight - th - 8) + 'px';
+  }
+  const hideTip = () => { $('tip').style.display = 'none'; };
+
   async function renderTurnout(g) {
     let rows = turnoutRows(g);
     if (!rows.length) {   // the turnout tab is empty: use the table beside the projection
       try { rows = turnoutRows(await load('projection')); } catch (e) { /* keep empty */ }
     }
+    rows = rows.map((r) => ({ ...r, d: dateOf(r.year) })).filter((r) => r.d).sort((a, b) => a.d - b.d);
     if (!rows.length) return empty('No turnout figures in the sheet yet.');
-    const W = 900, H = 340, m = { t: 26, r: 10, b: 34, l: 40 };
-    const iw = W - m.l - m.r, ih = H - m.t - m.b;
-    const max = Math.ceil(Math.max(80, ...rows.map((x) => x.t)) / 10) * 10, min = 0;
-    const y = (v) => m.t + ih - ((v - min) / (max - min)) * ih;
-    const bw = iw / rows.length;
+    const W = 900, H = 320, m = { t: 24, r: 24, b: 30, l: 44 };
+    const ih = H - m.t - m.b;
+    const ax = timeAxis(rows.map((r) => +r.d), m.l, W - m.r, 0.8);
+    const lo = Math.floor((Math.min(...rows.map((r) => r.t)) - 5) / 10) * 10, hi = Math.ceil((Math.max(...rows.map((r) => r.t)) + 3) / 10) * 10;
+    const y = (v) => m.t + ih - ((v - lo) / (hi - lo)) * ih;
     let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Turnout by election">`;
     s += '<g class="grid axis">';
-    for (let v = min; v <= max; v += 20) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`;
+    for (let v = lo; v <= hi; v += 5) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`;
+    ax.ticks.forEach((t) => { s += `<text x="${t.x}" y="${H - m.b + 18}" text-anchor="middle">${t.yr}</text>`; });
     s += '</g>';
-    rows.forEach((x, i) => {
-      const cx = m.l + bw * i + bw / 2, w = Math.min(54, bw * 0.62);
-      const latest = i === rows.length - 1;
-      const top = y(x.t), h = y(min) - top, rr = Math.min(4, h);
-      s += `<path d="M${cx - w / 2},${y(min)} V${top + rr} Q${cx - w / 2},${top} ${cx - w / 2 + rr},${top} H${cx + w / 2 - rr} Q${cx + w / 2},${top} ${cx + w / 2},${top + rr} V${y(min)} Z" fill="${latest ? '#2563EB' : '#93C5FD'}"><title>${esc(x.year)}: ${fmt(x.t, 2)}%</title></path>`;
-      s += `<text class="barlbl" x="${cx}" y="${top - 6}">${fmt(x.t)}%</text>`;
-      s += `<text class="lbl" x="${cx}" y="${H - m.b + 16}" text-anchor="middle">${esc(x.year)}</text>`;
+    s += `<path d="${rows.map((r, i) => `${i ? 'L' : 'M'}${ax.x(+r.d)},${y(r.t)}`).join('')}" fill="none" stroke="#2A5DB0" stroke-width="2" stroke-linejoin="round"/>`;
+    rows.forEach((r, i) => {
+      const cx = ax.x(+r.d), cy = y(r.t), latest = i === rows.length - 1;
+      // labels of elections a few months apart go above and below the line
+      const close = (j) => rows[j] && Math.abs(rows[j].d - r.d) < 1.2 * YEAR_MS;
+      const below = close(i - 1) && !close(i - 2) ? (rows[i - 1].t >= r.t) : false;
+      s += `<circle cx="${cx}" cy="${cy}" r="${latest ? 5.5 : 4}" fill="${latest ? '#1B2A4A' : '#2A5DB0'}" stroke="#fff" stroke-width="2"/>`;
+      s += `<text class="barlbl" x="${cx}" y="${below ? cy + 18 : cy - 10}">${fmt(r.t)}%</text>`;
+      s += `<rect class="hit" x="${cx - 12}" y="${m.t}" width="24" height="${ih}" fill="transparent" data-i="${i}"/>`;
     });
-    s += `<line class="baseline" x1="${m.l}" x2="${W - m.r}" y1="${y(min)}" y2="${y(min)}"/></svg>`;
+    s += '</svg>';
     $('chart').innerHTML = s;
-    $('legend').innerHTML = ''; $('hint').textContent = '';
+    $('chart').querySelectorAll('rect.hit').forEach((h) => {
+      const r = rows[+h.dataset.i];
+      h.addEventListener('mousemove', (ev) => showTip(ev, `<h4>${esc(r.year)}</h4><div class="tr"><span>Turnout</span><span>${fmt(r.t, 2)}%</span></div>`));
+      h.addEventListener('mouseleave', hideTip);
+    });
+    $('legend').innerHTML = ''; $('hint').textContent = 'Elections placed at their real dates';
   }
 
   // ---------------------------------------------------------------- history
-  // Year | PSOE/PSOE-NCa | PP | … , one row per election.
-  const hidden = new Set();
-  let shown = null;
+  // Year | PSOE/PSOE-NCa | PP | … , one row per election: stacked bars at the real election dates.
+  // Stack order follows the EP groups from left to right, so the bars read like a parliament.
+  const SPECTRUM = ['LEFT', 'Greens/EFA', 'S&D', 'RE', 'NI', '*', 'EPP', 'ECR', 'PfE', 'ESN'];
+  let focus = null;
   function renderHistory(g, kind) {
     const hr = g.findIndex((row) => /^year$/i.test(row[0] || ''));
     if (hr < 0) return empty('No history table found on this tab.');
     const head = g[hr];
-    const years = [], rowsIdx = [];
-    for (let r = hr + 1; r < g.length; r++) if (g[r][0] && !/^year$/i.test(g[r][0])) { years.push(g[r][0]); rowsIdx.push(r); }
-    let series = head.slice(1).map((name, k) => ({ name, vals: rowsIdx.map((r) => num(g[r][k + 1])) }))
-      .filter((s) => s.name && s.vals.some((v) => v != null));
-    if (!series.length) return empty('No figures on this tab yet.');
+    const els = [];
+    for (let r = hr + 1; r < g.length; r++) {
+      const lab = g[r][0];
+      if (!lab || /^year$/i.test(lab) || !dateOf(lab)) continue;
+      const vals = head.slice(1).map((_, k) => num(g[r][k + 1]));
+      if (vals.some((v) => v != null)) els.push({ lab, d: dateOf(lab), r, vals });
+    }
+    els.sort((a, b) => a.d - b.d);
+    let series = head.slice(1).map((name, k) => ({ name, k, p: party(name), vals: els.map((e) => e.vals[k]) }))
+      .filter((s) => s.name && s.vals.some((v) => v != null && v > 0));
+    if (!series.length || !els.length) return empty('No figures on this tab yet.');
     const maxOf = (s) => Math.max(...s.vals.filter((v) => v != null));
-    const cut = kind === 'pct' ? 5 : 15;
-    if (!shown) { shown = new Set(series.filter((s) => maxOf(s) >= cut).map((s) => s.name)); }
-    const used = {};
-    series.forEach((s) => {
-      s.p = party(s.name);
-      s.dash = used[s.p.color] ? '6 4' : '';  // same EP-group colour as a line already drawn: dashed
-      if (shown.has(s.name)) used[s.p.color] = true;
-    });
-    const vis = series.filter((s) => shown.has(s.name));
-    const W = 900, H = 400, m = { t: 14, r: 92, b: 34, l: 40 };
-    const iw = W - m.l - m.r, ih = H - m.t - m.b;
-    const top = kind === 'pct' ? Math.ceil(Math.max(10, ...vis.map(maxOf)) / 10) * 10 : Math.ceil(Math.max(20, ...vis.map(maxOf)) / 50) * 50;
-    const step = kind === 'pct' ? 10 : 50;
-    const x = (i) => m.l + (years.length === 1 ? iw / 2 : (i / (years.length - 1)) * iw);
+    const big = (s) => maxOf(s) >= (kind === 'pct' ? 5 : 15);
+    const rank = (s) => { const i = SPECTRUM.indexOf(s.p.groups[0]); return i < 0 ? SPECTRUM.indexOf('*') : i; };
+    series.sort((a, b) => rank(a) - rank(b) || maxOf(b) - maxOf(a));
+    const total = kind === 'pct' ? 100 : SEATS;
+    // If a row adds up to more than the total (a list counted both on its own and inside an alliance), draw it
+    // anyway rather than off the chart, and say so.
+    const sums = els.map((e, i) => series.reduce((t, sr) => t + (sr.vals[i] > 0 ? sr.vals[i] : 0), 0));
+    const over = els.filter((e, i) => sums[i] > total + 0.5).map((e) => e.lab);
+    const top = Math.max(total, ...sums);
+
+    const W = 900, H = 400, m = { t: 14, r: 16, b: 30, l: 44 };
+    const ih = H - m.t - m.b;
+    const ax = timeAxis(els.map((e) => +e.d), m.l, W - m.r, 0.9);
+    let minGap = Infinity;
+    for (let i = 1; i < els.length; i++) minGap = Math.min(minGap, (els[i].d - els[i - 1].d) / YEAR_MS);
+    const bw = Math.max(6, Math.min(30, (isFinite(minGap) ? minGap : 4) * ax.pxPerYear * 0.82));
     const y = (v) => m.t + ih - (v / top) * ih;
     let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(view.title)}">`;
     s += '<g class="grid axis">';
-    for (let v = 0; v <= top; v += step) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}${kind === 'pct' ? '%' : ''}</text>`;
-    years.forEach((yr, i) => { s += `<text x="${x(i)}" y="${H - m.b + 18}" text-anchor="middle">${esc(yr)}</text>`; });
+    const step = kind === 'pct' ? 25 : 50;
+    for (let v = 0; v <= total; v += step) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}${kind === 'pct' ? '%' : ''}</text>`;
+    if (kind === 'seats' && total % step) s += `<text x="${m.l - 6}" y="${y(total) + 4}" text-anchor="end">${total}</text>`;
+    ax.ticks.forEach((t) => { s += `<text x="${t.x}" y="${H - m.b + 18}" text-anchor="middle">${t.yr}</text>`; });
     s += '</g>';
-    if (kind === 'seats') s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(MAJORITY)}" y2="${y(MAJORITY)}" stroke="#0F172A" stroke-dasharray="5 4" opacity=".5"/><text class="lbl" x="${m.l + 4}" y="${y(MAJORITY) - 5}">Majority ${MAJORITY}</text>`;
-    // end labels, nudged apart
-    const ends = vis.map((sr) => {
-      let i = sr.vals.length - 1; while (i >= 0 && sr.vals[i] == null) i--;
-      return { sr, i, yy: y(sr.vals[i]) };
-    }).sort((a, b) => a.yy - b.yy);
-    for (let k = 1; k < ends.length; k++) if (ends[k].yy - ends[k - 1].yy < 13) ends[k].yy = ends[k - 1].yy + 13;
-    vis.forEach((sr) => {
-      let d = '', pen = false;
-      sr.vals.forEach((v, i) => { if (v == null) { pen = false; return; } d += `${pen ? 'L' : 'M'}${x(i)},${y(v)}`; pen = true; });
-      s += `<g class="series" data-n="${esc(sr.name)}" stroke="${sr.p.color}"><path d="${d}" stroke="${sr.p.color}"${sr.dash ? ` stroke-dasharray="${sr.dash}"` : ''}/>`;
-      sr.vals.forEach((v, i) => { if (v != null) s += `<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${sr.p.color}" stroke="#fff" stroke-width="1.5"/>`; });
-      const e = ends.find((q) => q.sr === sr);
-      s += `<text class="endlbl" x="${x(e.i) + 8}" y="${e.yy + 4}" fill="#0F172A">${esc(sr.p.label)}</text></g>`;
+    els.forEach((e, i) => {
+      const cx = ax.x(+e.d);
+      let acc = 0;
+      series.forEach((sr) => {
+        const v = sr.vals[i];
+        if (v == null || v <= 0) return;
+        const y0 = y(acc), y1 = y(acc + v); acc += v;
+        const dim = focus && focus !== sr.name ? ' opacity=".18"' : '';
+        s += `<rect x="${cx - bw / 2}" y="${y1}" width="${bw}" height="${Math.max(0, y0 - y1)}" fill="${sr.p.color}" stroke="#fff" stroke-width="0.75"${dim}/>`;
+      });
+      if (acc < total - 0.05) {   // votes for smaller lists not in the table
+        s += `<rect x="${cx - bw / 2}" y="${y(total)}" width="${bw}" height="${y(acc) - y(total)}" fill="#ECEAE4" stroke="#fff" stroke-width="0.75"${focus ? ' opacity=".18"' : ''}/>`;
+      }
+      s += `<rect class="hit" x="${cx - Math.max(bw, 14) / 2}" y="${m.t}" width="${Math.max(bw, 14)}" height="${ih}" fill="transparent" data-i="${i}"/>`;
     });
-    s += `<line class="cross" id="cross" x1="0" x2="0" y1="${m.t}" y2="${m.t + ih}" visibility="hidden"/>`;
-    s += `<rect id="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/></svg>`;
+    if (kind === 'seats') s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(MAJORITY)}" y2="${y(MAJORITY)}" stroke="#1A1D23" stroke-dasharray="5 4" stroke-width="1.5"/><text class="lbl" x="${W - m.r}" y="${y(MAJORITY) - 6}" text-anchor="end" style="paint-order:stroke;stroke:#fff;stroke-width:3px">Majority ${MAJORITY}</text>`;
+    s += `<line class="baseline" x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}"/></svg>`;
     $('chart').innerHTML = s;
-    // legend (toggle any party)
-    $('legend').innerHTML = series.map((sr) => `<button class="legend-item clickable${shown.has(sr.name) ? ' active' : ''}" data-n="${esc(sr.name)}" aria-pressed="${shown.has(sr.name)}"><span class="legend-swatch" style="background:${shown.has(sr.name) ? sr.p.color : '#E2E8F0'}"></span>${esc(sr.name)}</button>`).join('');
-    $('hint').textContent = `Showing parties that reached ${kind === 'pct' ? '5%' : '15 seats'} at some election · tap a party to add or remove it · same colour = same EP group (dashed)`;
-    $('legend').querySelectorAll('[data-n]').forEach((b) => b.addEventListener('click', () => {
-      const n = b.dataset.n; shown.has(n) ? shown.delete(n) : shown.add(n); renderHistory(g, kind); postHeight();
-    }));
-    // hover: crosshair + values for that election
-    const svg = $('chart').querySelector('svg'), tip = $('tip'), cross = svg.querySelector('#cross');
-    svg.querySelector('#hit').addEventListener('mousemove', (ev) => {
-      const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
-      const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
-      const i = Math.max(0, Math.min(years.length - 1, Math.round(((loc.x - m.l) / iw) * (years.length - 1))));
-      cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('visibility', 'visible');
-      const items = vis.filter((sr) => sr.vals[i] != null).sort((a, b) => b.vals[i] - a.vals[i]);
-      tip.innerHTML = `<h4>${esc(years[i])}</h4>` + items.map((sr) => `<div class="tr"><i style="background:${sr.p.color}"></i><span>${esc(sr.p.label)}</span><span>${kind === 'pct' ? fmt(sr.vals[i], 2) + '%' : sr.vals[i]}</span></div>`).join('');
-      tip.style.display = 'block';
-      const tw = tip.offsetWidth, th = tip.offsetHeight;
-      tip.style.left = Math.min(ev.clientX + 14, innerWidth - tw - 8) + 'px';
-      tip.style.top = Math.min(ev.clientY + 14, innerHeight - th - 8) + 'px';
+    $('chart').querySelectorAll('rect.hit').forEach((h) => {
+      const i = +h.dataset.i, e = els[i];
+      h.addEventListener('mousemove', (ev) => {
+        const items = series.filter((sr) => sr.vals[i] != null && sr.vals[i] > 0).sort((a, b) => b.vals[i] - a.vals[i]);
+        const shownItems = items.slice(0, 12), rest = items.slice(12).reduce((t, sr) => t + sr.vals[i], 0);
+        const sum = items.reduce((t, sr) => t + sr.vals[i], 0);
+        const other = (kind === 'pct' ? 100 - sum : 0) + rest;
+        showTip(ev, `<h4>${esc(e.lab)}</h4>` + shownItems.map((sr) => `<div class="tr"><i style="background:${sr.p.color}"></i><span>${esc(sr.name)}</span><span>${kind === 'pct' ? fmt(sr.vals[i], 1) + '%' : sr.vals[i]}</span></div>`).join('')
+          + (other > 0.05 ? `<div class="tr"><i style="background:#ECEAE4"></i><span>Others</span><span>${kind === 'pct' ? fmt(other, 1) + '%' : other}</span></div>` : ''));
+      });
+      h.addEventListener('mouseleave', hideTip);
     });
-    svg.querySelector('#hit').addEventListener('mouseleave', () => { tip.style.display = 'none'; cross.setAttribute('visibility', 'hidden'); });
+    const leg = series.filter(big);
+    $('legend').innerHTML = leg.map((sr) => `<button class="legend-item clickable${focus === sr.name ? ' active' : ''}" data-n="${esc(sr.name)}" aria-pressed="${focus === sr.name}"><span class="legend-swatch" style="background:${sr.p.color}"></span>${esc(sr.name.split('/')[0])}</button>`).join('')
+      + `<span class="legend-item"><span class="legend-swatch" style="background:#ECEAE4"></span>${kind === 'pct' ? 'Others' : 'Smaller parties in EP-group colours'}</span>`;
+    $('hint').textContent = 'Elections placed at their real dates · bars stacked by EP group, left to right · tap a party to pick it out · hover a bar for every party'
+      + (over.length ? ` · check the sheet: ${over.join(', ')} add${over.length > 1 ? '' : 's'} up to more than ${kind === 'pct' ? '100%' : total + ' seats'}` : '');
+    $('legend').querySelectorAll('[data-n]').forEach((b) => b.addEventListener('click', () => {
+      focus = focus === b.dataset.n ? null : b.dataset.n; renderHistory(g, kind); postHeight();
+    }));
   }
 
   // ---------------------------------------------------------------- shared
@@ -373,7 +458,8 @@
   }
   // Tell the page around this one how tall it is (election-night.html, or a Datawrapper-style embed).
   function postHeight() {
-    const h = Math.ceil(document.documentElement.scrollHeight);
+    // the content's own height (the document is never shorter than the frame, so it can't be used to shrink it)
+    const h = Math.ceil(document.body.getBoundingClientRect().height);
     if (window.parent !== window) {
       window.parent.postMessage({ type: 'ee-height', h }, '*');
       window.parent.postMessage({ 'datawrapper-height': { ['ee-es-' + VIEW]: h } }, '*');
