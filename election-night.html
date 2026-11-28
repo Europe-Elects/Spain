@@ -55,6 +55,29 @@
   .panel.poll { align-self: start; }
   .panel.folded .panel-head { background: #3A4A6B; }
   .panel iframe { display: block; width: 100%; border: 0; background: #fff; }
+  /* expand: a panel pops out to fill the screen (Esc or the button closes it) */
+  .panel-head > :nth-child(2) { margin-left: auto; }
+  .expand { display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff;
+    font: 700 14px 'Advent Pro', system-ui, sans-serif; letter-spacing: .04em; padding: 3px 9px; border-radius: 3px; cursor: pointer; }
+  .expand:hover { background: rgba(255,255,255,.12); }
+  .expand:focus-visible { outline: 2px solid #F2B705; outline-offset: 1px; }
+  .expand svg { width: 14px; height: 14px; }
+  .expand .shut { display: none; }
+  .panel.expanded .expand .open { display: none; }
+  .panel.expanded .expand .shut { display: inline; }
+  .panel.expanded { position: fixed; inset: 0; z-index: 1000; border-radius: 0; border: 0; width: 100vw; height: 100vh; }
+  .panel:fullscreen { width: 100vw; height: 100vh; border-radius: 0; border: 0; }
+  .panel.expanded .panel-head { padding: 12px 20px; }
+  .panel.expanded .panel-head h2 { font-size: 20px; }
+  .panel.expanded > iframe, .panel.expanded > .body { flex: 1 1 auto; min-height: 0; }
+  .panel.expanded > .body { display: flex; flex-direction: column; padding: 14px 20px 8px; }
+  .panel.expanded iframe { flex: 1 1 auto; height: auto !important; max-height: none; }
+  .panel.expanded.folded .body { display: flex; }
+  html.has-expanded, html.has-expanded body { overflow: hidden; }
+  .expand { padding: 4px 6px; }
+  .expand .lbl { display: none; }   /* icon only in the dashboard; "Close" written out when expanded */
+  .panel.expanded .expand { padding: 3px 9px; }
+  .panel.expanded .expand .lbl { display: inline; }
   .panel .body { padding: 10px 12px 4px; }
   .credits { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--navy); border-radius: 6px; padding: 14px 18px 12px; }
   .credits h2 { font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
@@ -66,8 +89,7 @@
 
   /* the hidden attribute must win over .panel { display: flex } */
   [hidden] { display: none !important; }
-  /* side by side down to small tablets; stacked on phones and narrow frames */
-  @media (max-width: 760px) {
+  @media (max-width: 1000px) {
     .span-7, .span-5, .span-6 { grid-column: span 12; }
   }
   @media (max-width: 560px) {
@@ -249,6 +271,52 @@
     btn.textContent = open ? 'Hide' : 'Show'; btn.setAttribute('aria-expanded', open);
     postHeight();
   }));
+
+  // ---- expand: every panel gets a button that pops it out to fill the screen. Inside the WordPress
+  // frame this needs allowfullscreen on the <iframe>; without it the chart opens in a new tab instead.
+  const ICON_OPEN = '<svg class="open" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5"/></svg>';
+  const ICON_SHUT = '<svg class="shut" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 1v5H1M15 6h-5V1M10 15v-5h5M1 10h5v5"/></svg>';
+  const canFull = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+  let open = null;
+  function setOpen(sec, on) {
+    sec.classList.toggle('expanded', on);
+    document.documentElement.classList.toggle('has-expanded', on);
+    const b = sec.querySelector('.expand');
+    b.querySelector('.lbl').textContent = on ? 'Close' : 'Expand';
+    b.setAttribute('aria-label', (on ? 'Close ' : 'Expand ') + sec.querySelector('h2').textContent);
+    open = on ? sec : null;
+    if (!on) postHeight();
+  }
+  function frameUrl(sec) {
+    const f = sec.querySelector('iframe');
+    return f.getAttribute('src') || (f.dataset.ext ? f.dataset.src : withPass(f.dataset.src));
+  }
+  document.querySelectorAll('.dash > section.panel').forEach((sec) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'expand';
+    b.innerHTML = ICON_OPEN + ICON_SHUT + '<span class="lbl">Expand</span>';
+    b.setAttribute('aria-label', 'Expand ' + sec.querySelector('h2').textContent); b.title = 'Expand to full screen';
+    sec.querySelector('.panel-head').append(b);
+    b.addEventListener('click', async () => {
+      if (open === sec) {   // close
+        if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        else setOpen(sec, false);
+        return;
+      }
+      const f = sec.querySelector('iframe');
+      if (!f.getAttribute('src') && f.dataset.src) { f.src = f.dataset.ext ? f.dataset.src : withPass(f.dataset.src); lazy.unobserve(f); }
+      if (canFull) {
+        try { setOpen(sec, true); await (sec.requestFullscreen || sec.webkitRequestFullscreen).call(sec); return; }
+        catch (e) { setOpen(sec, false); }
+      }
+      if (window.parent === window) { setOpen(sec, true); return; }   // own page: fill the window
+      window.open(frameUrl(sec), '_blank', 'noopener');               // framed without fullscreen permission
+    });
+  });
+  const onFs = () => { if (open && !(document.fullscreenElement || document.webkitFullscreenElement)) setOpen(open, false); };
+  document.addEventListener('fullscreenchange', onFs);
+  document.addEventListener('webkitfullscreenchange', onFs);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && open) setOpen(open, false); });
 
   async function status() {
     const state = { polls: false, results: false };
