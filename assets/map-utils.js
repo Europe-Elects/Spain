@@ -4,7 +4,10 @@
 (function () {
   'use strict';
 
-  const NO_DATA_COLOR = '#E2E8F0';
+  // ?embed=1 (the election-night dashboard): the dashboard panel shows the title, so the page hides its own.
+  if (new URLSearchParams(location.search).get('embed')) document.documentElement.classList.add('embed');
+
+  const NO_DATA_COLOR = '#E4E2DB';
   const META_KEYS = new Set(['name', 'name_en', 'turnout', 'turnout_pct', 'seats', 'progress']);
 
   /* ---------- colour ---------- */
@@ -36,9 +39,9 @@
     if (pct === null || pct === undefined || pct <= 0) return NO_DATA_COLOR;
     const span = Math.max(0.01, maxPct - minPct);
     const t = Math.max(0, Math.min(1, (pct - minPct) / span));
-    // slate-50 → indigo-600 (election-ready neutral gradient)
-    const from = { r: 248, g: 250, b: 252 };
-    const to = { r: 67, g: 56, b: 202 };
+    // Europe Elects background → Europe Elects blue
+    const from = { r: 247, g: 246, b: 242 };
+    const to = { r: 30, g: 76, b: 153 };
     const r = Math.round(from.r + (to.r - from.r) * t);
     const g = Math.round(from.g + (to.g - from.g) * t);
     const bl = Math.round(from.b + (to.b - from.b) * t);
