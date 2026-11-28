@@ -83,15 +83,17 @@
     autoRefresh(refresh, 60000);
   }
 
-  // `tabs`: rebuild the level tabs (on start and when the year changes). Municipalities
-  // exist only in the 2023 file; the live file has regions and provinces.
+  // `tabs`: rebuild the level tabs (on start and when the year changes). They are rebuilt
+  // too when municipalities appear: on election night the live file has them from the first
+  // municipal round, a few minutes into the count.
   async function refresh(tabs) {
     await window.ES_PARTIES.ready;  // Europarty and EP group from the party database (labels)
     const y = year;
     const d = await loadYear(y, DATA_URL);
     if (y !== year) return;  // the year changed while this was loading
+    const hadMunis = !!(data && data.municipalities);
     data = d;
-    if (tabs === true) {
+    if (tabs === true || hadMunis !== !!data.municipalities) {
       level = levelTabs(document.getElementById('levelTabs'),
                         ['regions', 'provinces'].concat(data.municipalities ? ['municipalities'] : []),
                         lv => { level = lv; render(); });
@@ -170,7 +172,8 @@
 
   function showTooltip(e, s, row) {
     const tt = document.getElementById('tooltip');
-    let html = `<h3>${row ? row.name : s.name}</h3>`;
+    // Municipalities: the map's own spelling (the ministry's file has them in capitals).
+    let html = `<h3>${level === 'municipalities' || !row ? s.name : row.name}</h3>`;
     if (row) {
       const t = row.turnout;
       const meta = [typeof t === 'number' ? `Turnout ${t.toFixed(1)}%` : null,
