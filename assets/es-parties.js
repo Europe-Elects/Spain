@@ -16,6 +16,13 @@
 (function () {
   'use strict';
 
+  // Fill colour = Europarty (the Europe Elects palette of the country pages); ring = EP group.
+  const EUROPARTY_COLORS = { 'PES': '#FF0000', 'EPP': '#3399FF', 'EDP': '#fa8c00', 'ECPP': '#a16585', 'ELA': '#fb1d79',
+    'Volt': '#502379', 'ECL': '#7c0000', 'ESN': '#70463A', 'EGP': '#009900', 'PEL': '#990000', 'ALDE': '#FFD700',
+    'ECR': '#0000FF', 'PPEU': '#9c36b8', 'EFA': '#008080', 'Patriots.eu': '#000000', 'Animal Politics EU': '#009076' };
+  const NONE = '#8A9099';   // no Europarty (as on the country pages)
+  // Without a party-database entry: the Europarty of the EP group typed below.
+  const GROUP_TO_EUROPARTY = { 'S&D': 'PES', 'EPP': 'EPP', 'ECR': 'ECR', 'RE': 'ALDE', 'Greens/EFA': 'EGP', 'PfE': 'Patriots.eu', 'LEFT': 'PEL', 'ESN': 'ESN' };
   const GROUP_COLORS = {
     'EPP': '#3399FF', 'S&D': '#FF0000', 'PfE': '#000000', 'ECR': '#0000FF', 'ESN': '#70463A',
     'RE': '#FFD700', 'Greens/EFA': '#009900', 'LEFT': '#990000', 'NI': '#777777', '*': '#999999',
@@ -36,10 +43,10 @@
     'CCa':           { label: 'CC',       id: 'ES319562', groups: ['*'] },
     'U.P.N.':        { label: 'UPN',      id: 'ES096274', groups: ['*'] },
     // Senate-only lists.
-    'IZQUIERDAS POR LA INDEPENDENCIA': { label: 'ERC–EH Bildu', groups: ['Greens/EFA', 'LEFT'] },
-    'PSOE-SUMAR-EUIB-ARA EIVISSA':     { label: 'PSOE–Sumar (Eivissa)', groups: ['S&D'] },
-    'ASG':           { label: 'ASG',      groups: ['*'] },
-    'A.H.I.':        { label: 'AHI',      groups: ['*'] },
+    'IZQUIERDAS POR LA INDEPENDENCIA': { label: 'ERC–EH Bildu', id: 'ALA457', groups: ['Greens/EFA', 'LEFT'] },
+    'PSOE-SUMAR-EUIB-ARA EIVISSA':     { label: 'PSOE–Sumar (Eivissa)', id: 'ALA460', groups: ['S&D'] },
+    'ASG':           { label: 'ASG',      id: 'ES661305', groups: ['*'] },
+    'A.H.I.':        { label: 'AHI',      id: 'ES040051', groups: ['*'] },
     'OTHERS':        { label: 'Others',   groups: [], color: '#D5D3CC' },
     // 2026: the ministry's abbreviations of the national groupings (getCandidaturas, media
     // API). Groups set the colours; the label tag comes from the party database by id.
@@ -54,10 +61,10 @@
     'COMPROMIS-EUPV-PODEM-ERPV': { label: 'Compromís', id: 'ALA278', groups: ['Greens/EFA'] },
     'TERUEL EXISTE': { label: 'Teruel Existe', id: 'ALA280', groups: ['*'] },
     'D21':           { label: 'D21+',      id: 'ALA281', groups: ['*'] },
-    'SALF':          { label: 'SALF',      groups: ['NI'] },
-    'ADELANTE ANDALUCÍA': { label: 'Adelante Andalucía', groups: ['*'] },
-    'PACMA':         { label: 'PACMA',     groups: ['*'] },
-    'GBAI':          { label: 'Geroa Bai', groups: ['*'] },
+    'SALF':          { label: 'SALF',      id: 'ES899539', groups: ['NI'] },
+    'ADELANTE ANDALUCÍA': { label: 'Adelante Andalucía', id: 'ES474545', groups: ['*'] },
+    'PACMA':         { label: 'PACMA',     id: 'ES999981', groups: ['*'] },
+    'GBAI':          { label: 'Geroa Bai', id: 'ALA468', groups: ['RE'] },
     // 2026 Senate-only groupings.
     'SDP (PSOE, IU, MS, MM, COMPROMIS, CHA, BATZARRE)': { label: 'Senado de Progreso', id: 'ALA282', groups: ['S&D'] },
     'ERC-EH BILDU':  { label: 'ERC–EH Bildu', id: 'ALA283', groups: ['Greens/EFA', 'LEFT'] },
@@ -133,29 +140,44 @@
     if (!db || db.members.length < 2) return [];
     return db.members.map((m) => {
       const d = AFF[m.id] || {};
-      const g = String(d.epGroup || '').split('|')[0].trim().toUpperCase();
-      const key = isNone(d.epGroup) ? '*' : (GROUP_KEY[g] || '*');
+      const eps = parts(d.europarty), grps = parts(d.epGroup).map(groupKey).filter(Boolean);
       return { abbr: m.abbr || d.abbr || m.id, name: d.name || '', native: d.native || '', id: m.id,
-        tag: tagOf(d.europarty, d.epGroup), color: GROUP_COLORS[key] || GROUP_COLORS['*'] };
+        tag: tagOf(d.europarty, d.epGroup), color: EUROPARTY_COLORS[eps[0]] || NONE, ring: grps.length ? GROUP_COLORS[grps[0]] : null };
     });
   }
 
-  function info(abbr) {
-    const p = PARTIES[abbr] || { label: abbr, groups: ['*'] };
-    const groups = p.groups;
+  // Europarty / EP group of a database entry, split into parts ("EGP|PEL" → ['EGP', 'PEL']).
+  const parts = (v) => (isNone(v) ? [] : String(v).split('|').map((x) => x.trim()).filter((x) => x && !isNone(x)));
+  const groupKey = (g) => GROUP_KEY[String(g).toUpperCase()] || null;
+
+  function describe(p) {
     const db = p.id && AFF[p.id];
-    const tag = db ? tagOf(db.europarty, db.epGroup)
-      : groupName(groups.filter((g) => g !== '*').join('|'));  // fallback: the EP group typed above
+    const eps = db ? parts(db.europarty) : (p.groups || []).map((g) => GROUP_TO_EUROPARTY[g]).filter(Boolean);
+    const grps = db ? parts(db.epGroup).map(groupKey).filter(Boolean) : (p.groups || []).filter((g) => g !== '*');
+    const tag = db ? tagOf(db.europarty, db.epGroup) : groupName(grps.join('|'));
+    const mem = members(p.id);
+    const short = mem.slice(0, 4).map((m) => m.abbr);
     return {
       label: p.label,
       id: p.id || null,
       tag,
       groupLabel: tag ? `(${tag})` : '',
-      groups,
-      color: p.color || GROUP_COLORS[groups[0]] || GROUP_COLORS['*'],
-      color2: groups.length > 1 ? GROUP_COLORS[groups[1]] : null,
+      // a list of several parties: its members in brackets, e.g. "[IU · SMR · MM · CatComú …]"
+      bracket: mem.length > 1 ? `[${short.join(' · ')}${mem.length > short.length ? ' …' : ''}]` : '',
+      groups: grps.length ? grps : ['*'],
+      europarties: eps,
+      color: p.color || EUROPARTY_COLORS[eps[0]] || NONE,
+      color2: !p.color && eps.length > 1 ? (EUROPARTY_COLORS[eps[1]] || null) : null,
+      ring: grps.length ? GROUP_COLORS[grps[0]] : null,
     };
   }
+  function info(abbr) {
+    return describe(PARTIES[abbr] || { label: abbr, groups: ['*'] });
+  }
+  // A party or list by Europe Elects ID alone (history tables, alliance members).
+  function byId(id, label, groups) {
+    return describe({ id, label: label || (AFF[id] && AFF[id].abbr) || id, groups: groups || ['*'] });
+  }
 
-  window.ES_PARTIES = { info, members, GROUP_COLORS, ready: readyOrTimeout };
+  window.ES_PARTIES = { info, byId, members, GROUP_COLORS, EUROPARTY_COLORS, ready: readyOrTimeout };
 })();
