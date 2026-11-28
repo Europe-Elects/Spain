@@ -84,8 +84,8 @@
   };
   // Names es-parties.js has no entry for: label and EP groups here.
   const EXTRA = {
-    'Ara Més-FA': { label: 'Ara Més', groups: ['Greens/EFA', 'LEFT'] },
-    'Others':     { label: 'Others', groups: [], color: '#CBD5E1' },
+    'Ara Més-FA': { label: 'Ara Més', id: 'ALA285', groups: ['Greens/EFA', 'LEFT'] },
+    'Others':     { label: 'Others', groups: [], color: '#D5D3CC' },
   };
   // History columns ("PSOE/PSOE-NCa", "Podemos/UP", …): EP group of the party's current form.
   const HISTORY_GROUPS = [
@@ -101,7 +101,7 @@
     const e = EXTRA[name];
     const C = (ES && ES.GROUP_COLORS) || {};
     if (e) {
-      return { label: e.label, tag: e.groups.join('|').replace('Greens/EFA', 'G/EFA'),
+      return { label: e.label, id: e.id || null, tag: e.groups.join('|').replace('Greens/EFA', 'G/EFA'),
         groupLabel: e.groups.length ? `(${e.groups.join('|').replace('Greens/EFA', 'G/EFA')})` : '',
         groups: e.groups, color: e.color || C[e.groups[0]] || '#999999', color2: e.groups[1] ? C[e.groups[1]] : null };
     }
