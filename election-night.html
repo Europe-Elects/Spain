@@ -211,7 +211,15 @@
   // ---- poll names, and the status line: waiting / polls published / results
   const { load, num, POLL_NAMES } = window.ES_SHEET;
   if (POLL_NAMES) { $('poll1').textContent = POLL_NAMES.projection; $('poll2').textContent = POLL_NAMES.projection2; }
-  const hasNumbers = (g) => g.some((r) => r.slice(1, 3).some((c) => num(c) != null) && /^[A-Za-zÀ-ÿ]/.test(r[0] || '') && !/^(party|year)$/i.test(r[0]));
+  // A poll or result counts as published when its table (the row with "Party", and a "vote" column)
+  // has figures for at least three parties. Anything else on the tab (e.g. the turnout table) doesn't count.
+  const hasNumbers = (g) => {
+    const hr = g.findIndex((r) => r.some((c) => /^party$/i.test(c)));
+    if (hr < 0) return false;
+    const pc = g[hr].findIndex((c) => /^party$/i.test(c));
+    let vc = g[hr].findIndex((c) => /vote/i.test(c)); if (vc < 0) vc = pc + 1;
+    return g.slice(hr + 1).filter((r) => r[pc] && num(r[vc]) != null).length >= 3;
+  };
   // Once results come in, the two polls move below the history charts, folded (a click opens them).
   // ?counting=1 / ?counting=0 forces either layout (preview, or to keep the polls on top).
   const force = new URLSearchParams(location.search).get('counting');
