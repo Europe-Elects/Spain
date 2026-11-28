@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spain – Swing by Area</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261127b">
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css?v=20261128b">
 <style>
   #tooltip { min-width: 330px; }
   #tooltip .bar-label { width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -16,7 +16,7 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1 id="title">Spain · Swing</h1>
+    <h1 id="title">Spain · National parliament election (lower house)</h1>
     <div class="subtitle" id="subtitle">&nbsp;</div>
     <div class="status-row">
       <span class="last-updated" id="lastUpdated">Last updated: –</span>
@@ -47,8 +47,8 @@
   <div class="legend-hint" id="legendHint">&nbsp;</div>
   <div class="footer" id="footer">· Chart made by Andrei Miclea · Source: Ministerio del Interior</div>
 </div>
-<script src="assets/map-utils.js?v=20261127b"></script>
-<script src="assets/es-parties.js?v=20261127b"></script>
+<script src="assets/map-utils.js?v=20261128b"></script>
+<script src="assets/es-parties.js?v=20261128b"></script>
 <script src="assets/es-map.js?v=20261127b"></script>
 <script>
 (function () {
@@ -64,7 +64,7 @@
   // added up), so swing = row[party] - row.prev[party].
   const DATA_URL = 'spain_2023_results_demo.json';
   const MAX_PP = 10;  // full colour at a 10-point swing
-  const MID = { r: 248, g: 250, b: 252 }, LOSS = { r: 100, g: 116, b: 139 };
+  const MID = { r: 247, g: 246, b: 242 }, LOSS = { r: 86, g: 91, b: 102 };
 
   let year, level, data = null, focus = null;
   const PARTIES = {};
@@ -109,8 +109,8 @@
   async function render() {
     const demo = isDemo(data);
     const L = LEVELS[level];
-    document.getElementById('title').textContent = `Spain ${year} · Swing vs ${data.empty ? '2023' : prevLabel()} by ${L.one}`;
-    document.getElementById('subtitle').textContent = `Change in each party's Congress vote share, in percentage points · ${L.count}`;
+    document.getElementById('title').textContent = `Spain ${year} · National parliament election (lower house)`;
+    document.getElementById('subtitle').textContent = `Swing vs ${data.empty ? '2023' : prevLabel()} by ${L.one} · change in each party's Congress vote share, in percentage points · ${L.count}`;
     const pill = document.getElementById('demoPill');
     pill.hidden = !demo; pill.textContent = `Demo · ${year} vs ${prevLabel()}`;
     const lu = document.getElementById('lastUpdated');
@@ -147,7 +147,7 @@
           const P = PARTIES[best.party], t = Math.min(1, best.d / MAX_PP);
           if (P.color2) { fill = `url(#split-${cssId(best.party)})`; op = Math.max(.15, t); }
           else fill = mix(MID, hexToRgb(P.color), t);
-        } else if (row && row.prev) fill = '#F8FAFC';
+        } else if (row && row.prev) fill = '#F7F6F2';
       }
       if (d !== null) any = true;
       return { s, row, fill, op, d, labelParty };
@@ -185,7 +185,7 @@
     if (focus) {
       document.getElementById('gradLo').textContent = `−${MAX_PP} pp`;
       document.getElementById('gradHi').textContent = `+${MAX_PP} pp`;
-      document.getElementById('gradBar').style.background = `linear-gradient(to right, ${mix(MID, LOSS, 1)}, #F8FAFC, ${PARTIES[focus].color})`;
+      document.getElementById('gradBar').style.background = `linear-gradient(to right, ${mix(MID, LOSS, 1)}, #F7F6F2, ${PARTIES[focus].color})`;
     }
     document.getElementById('legendHint').textContent = focus
       ? `Showing ${PARTIES[focus].name}: grey = lost vote share, colour = gained · tap again to go back`
@@ -200,7 +200,7 @@
     if (row && row.prev) {
       if (typeof row.counted_pct === 'number' && row.counted_pct < 100) html += `<div class="tt-meta">${row.counted_pct.toFixed(1)}% counted</div>`;
       const year = data.year || (isDemo(data) ? '2023' : '2026');
-      html += `<div class="bar-row" style="color:#94A3B8;font-size:11px"><div class="bar-label"></div>
+      html += `<div class="bar-row" style="color:#8B8F98;font-size:13px"><div class="bar-label"></div>
         <div class="bar-pct">${prevLabel()}</div><div class="bar-pct">${year}</div><div class="bar-pct">Swing</div></div>`;
       keys().map(k => ({ k, d: swing(row, k) }))
         .filter(r => typeof row[r.k] === 'number' || typeof row.prev[r.k] === 'number')
@@ -210,7 +210,7 @@
             <div class="bar-label" style="color:${P.color}">${P.name}</div>
             <div class="bar-pct">${typeof prev === 'number' ? prev.toFixed(1) + '%' : '–'}</div>
             <div class="bar-pct">${typeof cur === 'number' ? cur.toFixed(1) + '%' : '–'}</div>
-            <div class="bar-pct" style="font-weight:600;color:${d === null ? '#94A3B8' : d > 0 ? '#1D4ED8' : d < 0 ? '#64748B' : '#334155'}">${d === null ? '–' : signed(d)}</div></div>`;
+            <div class="bar-pct" style="font-weight:600;color:${d === null ? '#8B8F98' : d > 0 ? '#1E4C99' : d < 0 ? '#565B66' : '#3A3F4A'}">${d === null ? '–' : signed(d)}</div></div>`;
         });
     } else html += '<div class="no-data">No data</div>';
     tt.innerHTML = html; tt.style.display = 'block'; moveTooltip(e, 330);
