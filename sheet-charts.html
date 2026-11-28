@@ -6,7 +6,7 @@
 <title>Spain – Election Night Charts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/map.css?v=20261128b">
+<link rel="stylesheet" href="assets/map.css?v=20261128c">
 <style>
   /* map.css sizes pages to the frame (maps); these charts are as tall as their content. */
   html, body { height: auto; }
@@ -43,7 +43,8 @@
   .up { color: #1E4C99; } .down { color: #A8441A; } .same { color: #8B8F98; }
 
   /* member parties of a list */
-  .list-tog { margin-left: 4px; border: 1px solid #D5D3CC; background: #fff; border-radius: 999px; padding: 0 8px 0 6px; font: 600 13px 'Advent Pro', system-ui, sans-serif; color: #2A5DB0; cursor: pointer; white-space: nowrap; line-height: 20px; }
+  .pname { overflow: hidden; }
+  .list-tog { min-width: 0; max-width: 60%; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; margin-left: 4px; border: 1px solid #D5D3CC; background: #fff; border-radius: 999px; padding: 0 8px 0 6px; font: 600 13px 'Advent Pro', system-ui, sans-serif; color: #2A5DB0; cursor: pointer; white-space: nowrap; line-height: 20px; }
   .list-tog:hover { border-color: #2A5DB0; }
   .list-tog:focus-visible { outline: 2px solid #2A5DB0; outline-offset: 1px; }
   .list-tog .chev { display: inline-block; width: 12px; }
@@ -107,9 +108,9 @@
   <div class="footer" id="footer">Source: Europe Elects</div>
 </div>
 <div id="tip"></div>
-<script src="assets/map-utils.js?v=20261128b"></script>
-<script src="assets/es-parties.js?v=20261128b"></script>
-<script src="assets/sheet-data.js?v=20261128b"></script>
+<script src="assets/map-utils.js?v=20261128c"></script>
+<script src="assets/es-parties.js?v=20261128c"></script>
+<script src="assets/sheet-data.js?v=20261128c"></script>
 <script>
 (function () {
   'use strict';
@@ -125,10 +126,13 @@
   const signed = (v, d = 1) => (v == null ? '' : (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt(Math.abs(v), d));
   const cls = (v) => (v == null ? '' : v > 0 ? 'up' : v < 0 ? 'down' : 'same');
   const fill = (p) => (p.color2 ? `linear-gradient(90deg, ${p.color} 50%, ${p.color2} 50%)` : p.color);
+  // Party marker: Europarty fill, EP group as a ring.
+  const ringed = (p) => `background:${fill(p)};border-radius:50%;` + (p.ring ? `box-shadow:0 0 0 2px #fff,0 0 0 3.5px ${p.ring};margin:0 3px 0 2px;` : '');
+  const POLLS = window.ES_SHEET.POLL_NAMES || {};
 
   const VIEWS = {
-    projection: { tab: 'projection', title: 'Spain · National parliament election (lower house)', sub: 'Congress projection · vote share and seats · 350 seats, 176 for a majority', render: renderParties },
-    projection2: { tab: 'projection2', title: 'Spain · National parliament election (lower house)', sub: 'Congress projection · vote share and seats · 350 seats, 176 for a majority', render: renderParties },
+    projection: { tab: 'projection', title: 'Spain · National parliament election (lower house)', sub: `${POLLS.projection || 'Election-day poll 1'} · vote share and seat estimate · 350 seats, 176 for a majority`, render: renderParties },
+    projection2: { tab: 'projection2', title: 'Spain · National parliament election (lower house)', sub: `${POLLS.projection2 || 'Election-day poll 2'} · vote share and seat estimate · 350 seats, 176 for a majority`, render: renderParties },
     results: { tab: 'results', title: 'Spain · National parliament election (lower house)', sub: 'Congress results · vote share and seats, change against 2023', render: renderParties },
     provinces: { tab: 'provinces', title: 'Spain · National parliament election (lower house)', sub: 'Congress seats by constituency · 50 provinces and the cities of Ceuta and Melilla', render: renderProvinces },
     turnout: { tab: 'turnout', title: 'Spain · National parliament elections', sub: 'Turnout at each national parliament election, at its real date', render: renderTurnout },
@@ -189,7 +193,7 @@
   const openLists = new Set();
   function renderParties(g) {
     const rows = partyTable(g).filter((x) => x.v != null || x.s != null);
-    if (!rows.length) return empty(VIEW === 'results' ? 'Results appear here as the count comes in.' : 'The projection appears here when polls close (20:00 Madrid).');
+    if (!rows.length) return empty(VIEW === 'results' ? 'Results appear here as the count comes in.' : 'The election-day poll is published when polls close (20:00 Madrid time).');
     rows.sort((a, b) => (b.s ?? -1) - (a.s ?? -1) || (b.v ?? -1) - (a.v ?? -1));
     const res = VIEW === 'results';
     const maxV = Math.max(5, ...rows.map((x) => Math.max(x.v ?? 0, res ? (x.pv ?? 0) : 0)));
@@ -205,22 +209,22 @@
       html += `<div class="strip-labels"><span>${totalSeats} of ${SEATS} seats</span><span>Majority: ${MAJORITY}</span></div></div>`;
     }
     html += '<div class="rows">';
-    html += `<div class="h">Party</div><div class="h bar-col">Vote share${res ? ' <span style="color:#565B66">· line = 2023</span>' : ''}</div><div class="h r">%</div><div class="h r">Seats</div>`;
+    html += `<div class="h">Party</div><div class="h bar-col">Vote share${res ? ' <span style="color:#565B66">· line = 2023</span>' : ''}</div><div class="h r">%</div><div class="h r">${/^projection/.test(VIEW) ? 'Seats (est.)' : 'Seats'}</div>`;
     rows.forEach((x) => {
       const p = party(x.name);
       const tag = p.tag ? `<span class="tag">${esc(p.tag)}</span>` : '';
       // Multi-party lists can be opened to show their member parties (from the Europe Elects party database).
       const mem = window.ES_PARTIES.members ? window.ES_PARTIES.members(p.id) : [];
       const open = mem.length && openLists.has(x.name);
-      const tog = mem.length ? `<button class="list-tog" data-list="${esc(x.name)}" aria-expanded="${!!open}" title="${open ? 'Hide' : 'Show'} the ${mem.length} parties on this list"><span class="chev">${open ? '▾' : '▸'}</span>${mem.length} parties</button>` : '';
-      html += `<div class="pname"><span class="sw" style="background:${fill(p)}"></span><span>${esc(p.label)}</span>${tag}${tog}</div>`;
+      const tog = mem.length ? `<button class="list-tog" data-list="${esc(x.name)}" aria-expanded="${!!open}" title="${open ? 'Hide' : 'Show'} the ${mem.length} parties on this list"><span class="chev">${open ? '▾' : '▸'}</span>${esc(p.bracket || `[${mem.length} parties]`)}</button>` : '';
+      html += `<div class="pname"><span class="sw" style="${ringed(p)}"></span><span>${esc(p.label)}</span>${tag}${tog}</div>`;
       html += `<div class="bar-col"><div class="bar"><div class="fill" style="width:${((x.v ?? 0) / maxV) * 100}%;background:${fill(p)}"></div>`;
       if (res && x.pv != null) html += `<div class="prev" style="left:calc(${(x.pv / maxV) * 100}% - 1px)" title="2023: ${fmt(x.pv)}%"></div>`;
       html += '</div></div>';
       html += `<div class="val">${x.v == null ? '–' : fmt(x.v) + '%'}${res && x.dv != null ? `<small class="${cls(x.dv)}">${signed(x.dv)}</small>` : ''}</div>`;
       html += `<div class="seats">${x.s == null ? '–' : x.s}${res && x.ds != null ? `<small class="${cls(x.ds)}">${signed(x.ds, 0)}</small>` : ''}</div>`;
       if (open) {
-        html += '<div class="members">' + mem.map((m) => `<span class="mem" title="${esc(m.name || m.abbr)}${m.native && m.native !== m.name ? ' · ' + esc(m.native) : ''}"><i style="background:${m.color}"></i><b>${esc(m.abbr)}</b>${m.name ? ` ${esc(m.name)}` : ''}${m.tag ? ` <em>${esc(m.tag)}</em>` : ''}</span>`).join('') + '</div>';
+        html += '<div class="members">' + mem.map((m) => `<span class="mem" title="${esc(m.name || m.abbr)}${m.native && m.native !== m.name ? ' · ' + esc(m.native) : ''}"><i style="background:${m.color};border-radius:50%;${m.ring ? `box-shadow:0 0 0 1.5px #fff,0 0 0 3px ${m.ring};margin:0 3px` : ''}"></i><b>${esc(m.abbr)}</b>${m.name ? ` ${esc(m.name)}` : ''}${m.tag ? ` <em>${esc(m.tag)}</em>` : ''}</span>`).join('') + '</div>';
       }
     });
     html += '</div>';
@@ -231,7 +235,9 @@
       renderParties(g); postHeight();
     }));
     const lists = rows.filter((x) => { const p = party(x.name); return window.ES_PARTIES.members && window.ES_PARTIES.members(p.id).length; }).length;
-    $('legend').innerHTML = ''; $('hint').textContent = lists ? 'Tap “parties” next to a list to see the parties running on it' : '';
+    const poll = /^projection/.test(VIEW);
+    $('legend').innerHTML = '';
+    $('hint').textContent = (poll ? 'Election-day poll, not results · seats are the pollster’s estimate · ' : '') + 'Fill = Europarty, ring = EP group' + (lists ? ' · tap the [ ] after a joint list to see the parties running on it' : '');
   }
 
   // ---------------------------------------------------------------- provinces
@@ -262,7 +268,7 @@
       order.forEach((name) => {
         const p = party(name);
         for (let k = 0; k < byParty[name][j]; k++, n++) {
-          html += `<span class="dot${provFocus && provFocus !== name ? ' dim' : ''}" style="background:${p.color2 ? `linear-gradient(90deg, ${p.color} 50%, ${p.color2} 50%)` : p.color}" title="${esc(pv.name)} · ${esc(p.label)}: ${byParty[name][j]}"></span>`;
+          html += `<span class="dot${provFocus && provFocus !== name ? ' dim' : ''}" style="background:${fill(p)};${p.ring ? `box-shadow:0 0 0 1px #fff,0 0 0 2.5px ${p.ring}` : ''}" title="${esc(pv.name)} · ${esc(p.label)}: ${byParty[name][j]}"></span>`;
         }
       });
       for (; n < pv.seats; n++) html += '<span class="dot free" title="Not allocated yet"></span>';
@@ -272,7 +278,7 @@
     $('chart').innerHTML = html;
     $('legend').innerHTML = order.map((name) => {
       const p = party(name);
-      return `<button class="legend-item clickable${provFocus === name ? ' active' : ''}" data-p="${esc(name)}"><span class="legend-swatch" style="background:${fill(p)}"></span>${esc(p.label)}<span class="legend-pct">${totals[name]}</span></button>`;
+      return `<button class="legend-item clickable${provFocus === name ? ' active' : ''}" data-p="${esc(name)}"><span class="legend-swatch" style="${ringed(p)}"></span>${esc(p.label)}<span class="legend-pct">${totals[name]}</span></button>`;
     }).join('');
     $('hint').textContent = 'Tap a party to highlight its seats';
     $('legend').querySelectorAll('[data-p]').forEach((b) => b.addEventListener('click', () => {
@@ -442,9 +448,9 @@
       h.addEventListener('mouseleave', hideTip);
     });
     const leg = series.filter(big);
-    $('legend').innerHTML = leg.map((sr) => `<button class="legend-item clickable${focus === sr.name ? ' active' : ''}" data-n="${esc(sr.name)}" aria-pressed="${focus === sr.name}"><span class="legend-swatch" style="background:${sr.p.color}"></span>${esc(sr.name.split('/')[0])}</button>`).join('')
-      + `<span class="legend-item"><span class="legend-swatch" style="background:#ECEAE4"></span>${kind === 'pct' ? 'Others' : 'Smaller parties in EP-group colours'}</span>`;
-    $('hint').textContent = 'Elections placed at their real dates · bars stacked by EP group, left to right · tap a party to pick it out · hover a bar for every party'
+    $('legend').innerHTML = leg.map((sr) => `<button class="legend-item clickable${focus === sr.name ? ' active' : ''}" data-n="${esc(sr.name)}" aria-pressed="${focus === sr.name}"><span class="legend-swatch" style="${ringed(sr.p)}"></span>${esc(sr.name.split('/')[0])}</button>`).join('')
+      + `<span class="legend-item"><span class="legend-swatch" style="background:#ECEAE4"></span>${kind === 'pct' ? 'Others' : 'Smaller parties'}</span>`;
+    $('hint').textContent = 'Elections placed at their real dates · bars stacked by EP group, left to right · fill = Europarty, ring = EP group · tap a party to pick it out · hover a bar for every party'
       + (over.length ? ` · check the sheet: ${over.join(', ')} add${over.length > 1 ? '' : 's'} up to more than ${kind === 'pct' ? '100%' : total + ' seats'}` : '');
     $('legend').querySelectorAll('[data-n]').forEach((b) => b.addEventListener('click', () => {
       focus = focus === b.dataset.n ? null : b.dataset.n; renderHistory(g, kind); postHeight();
